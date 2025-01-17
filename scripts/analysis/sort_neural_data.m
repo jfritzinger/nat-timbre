@@ -11,15 +11,16 @@ clear
 %% Find natural timbre bassoon datasets, CF, and MTF
 
 % Load in spreadsheet
+addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions')
 [base, datapath, savepath, ppi] = getPaths();
 modelpath = '/Volumes/Nat-Timbre/data/manuscript';
-sheetpath = 'scripts/data-cleaning';
+sheetpath = 'data/2025-manuscript/data-cleaning';
 spreadsheet_name = 'PutativeTable.xlsx';
 sessions = readtable(fullfile(base, sheetpath, spreadsheet_name), 'PreserveVariableNames',true);
 
 %% Create matrices for bassoon and oboe separately
 
-for int = 1:2
+for int = 2 %1:2
 
 	% Natural timbre datasets
 	if int == 1
@@ -46,7 +47,7 @@ for int = 1:2
 		putative = sessions.Putative_Units{NT_list(ii)};
 		CF = sessions.CF(NT_list(ii));
 		MTF_shape = sessions.MTF{NT_list(ii)};
-		load(fullfile(datapath, [putative '.mat']))
+		load(fullfile(datapath, 'neural_data', [putative '.mat']))
 
 		% Analyze data
 		param = data{12+int, 2};
