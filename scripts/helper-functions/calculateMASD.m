@@ -1,17 +1,36 @@
-function MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi)
-
+function MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi, target_F0, iplot)
+% Calculates and optionally plots the Mean Absolute Spectral Difference (MASD)
+%
+% Inputs:
+%   Ftmp        - Frequency vector
+%   Ttmp        - Time vector
+%   this_spect  - Spectrogram matrix
+%   fi          - Frequency index limit
+%   iplot       - Flag to plot results (1) or not (0)
+%
+% Output:
+%   MASD        - Mean Absolute Spectral Difference vector
+%
+% The function computes MASD by:
+%   1. Truncating input data to the specified frequency index
+%   2. Calculating the difference between adjacent spectral frames
+%   3. Taking the absolute value of these differences
+%   4. Integrating over time using the trapezoidal method
+%
+% If iplot is set to 1, it also generates a plot of MASD vs. frequency,
+% including harmonic lines based on a target fundamental frequency (F0).
 
 % Plot MASD 
 f = Ftmp(1:fi);
 t = Ttmp;
 spec = this_spect(1:fi,:);
 spec_diff = diff(spec, 1);
-spec_abs = abs(spec_diff);
-MASD = trapz(t, spec_abs, 2);
+%spec_abs = abs(spec_diff);
+%MASD = trapz(t, spec_abs, 2);
+MASD = trapz(t, spec_diff, 2);
 
 if iplot == 1
 	figure
-	%ax = axes('Position',[0.83 0.14 0.12 0.80]);
 	plot(f(1:end-1), MASD, 'k')
 	set(gca, 'XDir','reverse')
 	view(90,90)
@@ -24,7 +43,7 @@ if iplot == 1
 	title('MASD')
 	set(gca,'FontSize',16)
 	set(gca,'box','off')
-	ylim([0 2])
+	ylim([-1.5 1.5])
 end
 
 end
