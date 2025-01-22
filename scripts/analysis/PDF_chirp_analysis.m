@@ -20,7 +20,7 @@ else
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning 
 
-target = 'Oboe';
+target = 'Bassoon';
 listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
 target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
 wav_nums =  find(cell2mat(target_WAV));
@@ -53,7 +53,7 @@ F0s = F0s(order);
 %% Set up report
 
 % Initialize report
-filename = 'Oboe_Decomped';
+filename = 'Test';
 images = {}; %hold all plots as images, need to delete when finished
 datetime.setDefaultFormats('default','yyyy-MM-dd_hhmmss')
 if ismac
@@ -76,14 +76,15 @@ pm.PageMargins.Right = '0.2in';
 %% Create PDF 
 
 % Loop through all stimuli
-for ind = 1:nfiles
+for ind = 1 %:nfiles
 
 	target = extractBefore(files{ind}, '.');
 	target_F0 = F0s(ind);
 	target_file = fullfile(fpath,'waveforms', files{ind});
 
 	% Create plots 
-	chirp_analysis(target,target_F0,target_file)
+	analyzeChirps(target,target_F0,target_file)
+	plotChirpSpectrogram(target,target_F0,target_file)
 
 	% Label
 	h = Heading(2, sprintf("%s F0=%0.0f Hz\n", target, target_F0));
