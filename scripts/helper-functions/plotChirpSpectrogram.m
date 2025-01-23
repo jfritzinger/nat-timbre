@@ -191,7 +191,7 @@ hold on
 xlim([2 1/F0*10*1000])
 
 % Calculate MASD and add to plot (JBF)
-%MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi, F0, 0);
+MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi, F0, 0);
 f = Ftmp(1:fi);
 ax(3) = axes('Position',[0.83 0.14 0.12 0.80]);
 plot(f(1:end-1), MASD, 'k')
@@ -202,7 +202,9 @@ num_harms = 25;
 for iharm = 1:num_harms
 	xline(F0*iharm, ':');
 end
+yline(0, 'k')
 xticks([])
+xlim([0 max_freq])
 title('MASD')
 set(gca,'FontSize',fontsize)
 set(gca,'box','off')
