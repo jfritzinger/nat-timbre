@@ -29,6 +29,19 @@ spec_diff = diff(spec, 1);
 %MASD = trapz(t, spec_abs, 2);
 MASD = trapz(t, spec_diff, 2);
 
+% figure
+% pcolor(1000*Ttmp,Ftmp(1:fi-1),spec_diff);
+% shading interp
+% ylabel('Frequency (Hz)')
+% xlabel('Time (ms)')
+% set(gca,'YTickLabel',[]);
+% title('Synthesized Spectrogram')
+% colormap(gray)
+% ax(2).CLim = [max(max(this_spect(1:fi,:)))-20, max(max(this_spect(1:fi,:)))]; % min was 30
+% set(gca,'FontSize',fontsize)
+% set(gca,'box','off')
+% hold on
+
 if iplot == 1
 	figure
 	plot(f(1:end-1), MASD, 'k')
