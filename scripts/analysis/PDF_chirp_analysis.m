@@ -19,36 +19,25 @@ else
 	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning 
-
 target = 'Bassoon';
-listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
-target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
-wav_nums =  find(cell2mat(target_WAV));
 
-d = dir(fullfile(fpath,'waveforms', '*.wav'));
-all_files = sort({d.name});
-nfiles = length(wav_nums);
-wav_npts = zeros(1,nfiles);
-wav_data = cell(1,nfiles);
+% Get all .wav files containing the target instrument name
+listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
+files = {listing.name};
 
-for i = 1:nfiles
-   files{1,i} = all_files{wav_nums(i)}; 
-end
-% files = all_files;
-% nfiles = size(all_files, 2);
+% Extract note names and find corresponding frequencies
+note_names = extractBetween(files, 'ff.', '.');
+[~, index] = ismember(note_names, tuning.Note);
+F0s = tuning.Frequency(index);
 
-% Sort by frequency of pitch
-index = [];
-note_names = extractBetween(files, 'ff.','.');
-
-for ii = 1:nfiles % Find index of each note in tuning spreadsheet
-    index(ii) = find(strcmp(note_names(ii), tuning.Note));
-end
-pitch_order = tuning.Frequency(index); % Get freqs of each note
-[~, order] = sort(pitch_order); % Sort freqs
-F0s = pitch_order;
+% Sort files and frequencies by pitch
+[F0s, order] = sort(F0s);
 files = files(order);
-F0s = F0s(order);
+
+% Initialize variables for later use (if needed)
+nfiles = numel(files);
+wav_npts = zeros(1, nfiles);
+wav_data = cell(1, nfiles);
 
 %% Set up report
 
@@ -76,14 +65,14 @@ pm.PageMargins.Right = '0.2in';
 %% Create PDF 
 
 % Loop through all stimuli
-for ind = 1 %:nfiles
+for ind = 7 %1:nfiles
 
 	target = extractBefore(files{ind}, '.');
 	target_F0 = F0s(ind);
 	target_file = fullfile(fpath,'waveforms', files{ind});
 
 	% Create plots 
-	analyzeChirps(target,target_F0,target_file)
+	%analyzeChirps(target,target_F0,target_file)
 	plotChirpSpectrogram(target,target_F0,target_file)
 
 	% Label
