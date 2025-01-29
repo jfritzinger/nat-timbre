@@ -11,7 +11,7 @@ else
 	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning 
-target = 'Bassoon';
+target = 'Oboe';
 
 % Get all .wav files containing the target instrument name
 listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
@@ -34,7 +34,7 @@ wav_data = cell(1, nfiles);
 %% Set up report
 
 % Initialize report
-filename = 'Neurogram3';
+filename = 'NeurogramBassoon_Clipped';
 images = {}; %hold all plots as images, need to delete when finished
 datetime.setDefaultFormats('default','yyyy-MM-dd_hhmmss')
 if ismac
@@ -92,7 +92,7 @@ for ii = 1:nfiles
 	
 	NHN = CFs/F0; % Calculate neural harmonic number (CF/F0) 
 	limits = [min(CFs)/F0 30]; %max(CFs)/F0];
-	period_lim = 1/F0*10;
+	period_lim = 1/F0*5;
 
 	% Analyze spectrogram
 	Fs = params.Fs;
