@@ -109,9 +109,6 @@ savefile = sprintf('%s_F0_%s_AN_TC.mat', target, target_F0{1});
 AN = modelAN(params, model_params); % HSR for IC input
 save(fullfile(savepath, savefile),'AN')
 
-elapsedTime = toc(timerVal)/60;
-disp(['Model took ' num2str(elapsedTime) ' minutes'])
-
 
 %% Run model for zero phase complex
 clear params 
@@ -212,9 +209,6 @@ savefile = sprintf('%s_F0_%s_AN_ST.mat', target, target_F0{1});
 
 AN = modelAN(params, model_params); % HSR for IC input
 save(fullfile(savepath, savefile),'AN')
-
-elapsedTime = toc(timerVal)/60;
-disp(['Model took ' num2str(elapsedTime) ' minutes'])
 
 
 %% Plot neurograms
