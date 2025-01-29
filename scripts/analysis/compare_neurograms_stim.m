@@ -213,7 +213,11 @@ save(fullfile(savepath, savefile),'AN')
 
 %% Plot neurograms
 
-for iplot = 1:3
+ii = 25;
+target = extractBefore(files{ii}, '.');
+target_F0 = extractBetween(files{ii}, 'ff.', '.wav');
+
+for iplot = 3
 	switch iplot
 		case 1
 			savefile = sprintf('%s_F0_%s_AN.mat', target, target_F0{1});
@@ -235,7 +239,7 @@ for iplot = 1:3
 	t = linspace(0, params.dur, size(an_sout,2));
 	F0 = F0s(ii);
 	%NHN = CFs/F0; % Calculate neural harmonic number (CF/F0)
-	ylimits = [min(CFs)/F0 25]; % max(CFs)/F0];
+	ylimits = [min(CFs) 5325]; %[min(CFs)/F0 25]; % max(CFs)/F0];
 	period_lim = 1/F0*5;
 
 	% Analyze spectrogram
@@ -247,44 +251,56 @@ for iplot = 1:3
 	mdB(mdB<0) = 0;
 	f(f>max(CFs)) = [];
 	mdB = mdB(1:length(f));
-	NHN_stim = f/F0;
+	%NHN_stim = f/F0;
 
 	% Plot MASD, exclude onset
 	t_lims = [0.025 0.225]*Fs;
 	an_sout2 = an_sout(:,t_lims(1):t_lims(2)-1);
 	t2 = linspace(0, 0.2, size(an_sout2,2));
 	spec_diff = diff(an_sout2, 1);
-	%spec_abs = abs(spec_diff);
-	MASD = trapz(t2, spec_diff, 2);
+	spec_abs = abs(spec_diff);
+	MASD = trapz(t2, spec_abs, 2);
+	MASD_no = trapz(t2, spec_diff, 2);
 
 	% Plot stimulus spectrogram
 	figure('Position',[515,275,1082,573])
-	tiledlayout(1, 7, 'TileSpacing','none')
-	ax1 = nexttile([1,3]);
-	plot(NHN_stim, mdB, 'k')
+	tiledlayout(1, 6, 'TileSpacing','none')
+	ax1 = nexttile();
+	plot(f, mdB, 'k')
 	view(90,90)
 	set(gca, 'XDir','reverse')
-	title('Stimulus Spectrogram')
+	title('Spectrum')
 	ylabel('Neural Harmonic Number (CF/F0)')
 	xlim(ylimits)
+	ylim([0 70])
+	xticks([100 200 500 1000 2000 5000 10000])
 	ylabel('Magnitude')
+	xlabel('CFs (Hz)')
 	set(gca, 'FontSize', 16)
+	set(gca, 'XScale', 'log')
 
 	% Plot neurogram
 	ax2 = nexttile([1,3]);
-	imagesc(NHN, t, an_sout2')
-	set(gca, 'YDir', 'normal');
-	set(gca, 'XDir', 'reverse');
-	view(90,90)
-	ylim([0 period_lim])
-	title('AN Neurogram')
-	ylabel('Time (s)')
-	xlim(ylimits)
+	s = surf(t2, CFs, an_sout2);
+	s.EdgeColor = 'none';
+	view(0,90)
+	xlim([0 period_lim])
+	if iplot == 1
+		title('Natural Timbre')
+	elseif iplot == 2
+		title('Flat Tone Complex')
+	else
+		title('Zero phase Synthetic')
+	end
+	xlabel('Time (s)')
+	ylim(ylimits)
+	set(gca, 'YScale', 'log')
 	set(gca, 'FontSize', 16)
+	yticks([100 200 500 1000 2000 5000 10000])
 
 	% Plot MASD
 	ax3 = nexttile;
-	plot(NHN(1:end-1), MASD, 'k')
+	plot(CFs(1:end-1), MASD, 'k')
 	set(gca, 'XDir','reverse')
 	view(90,90)
 	hold on
@@ -292,6 +308,18 @@ for iplot = 1:3
 	title('MASD')
 	set(gca,'FontSize',16)
 	xlim(ylimits)
+	set(gca, 'XScale', 'log')
 
-	linkaxes([ax1 ax2 ax3],'x')
+	ax4 = nexttile;
+	plot(CFs(1:end-1), MASD_no, 'k')
+	set(gca, 'XDir','reverse')
+	view(90,90)
+	hold on
+	xticks([])
+	title('MASD - no abs')
+	set(gca,'FontSize',16)
+	xlim(ylimits)
+	set(gca, 'XScale', 'log')
+
+	%linkaxes([ax1 ax2 ax3],'x')
 end
