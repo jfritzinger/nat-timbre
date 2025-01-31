@@ -105,6 +105,8 @@ tiledlayout(1, 2)
 nexttile
 plot(t_if, ifq)
 title('Instantaneous Frequency')
+xlabel('Time (ms)')
+ylabel('Freq. (kHz)')
 
 % Plot velocity vs time
 nexttile

@@ -10,7 +10,7 @@ else
 	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-target = 'Bassoon';
+target = 'Oboe';
 
 % Get all .wav files containing the target instrument name
 listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
@@ -45,8 +45,8 @@ for ii = 1:nfiles
 	CFs = AN.CFs;
 	t = linspace(0, params.dur, size(an_sout,2));
 	spec_diff = diff(an_sout, 1);
-	%spec_abs = abs(spec_diff);
-	MASD(ii,:) = trapz(t, spec_diff, 2);
+	spec_abs = abs(spec_diff);
+	MASD(ii,:) = trapz(t, spec_abs, 2);
 end
 
 
@@ -74,15 +74,15 @@ for isesh = 1:num_sessions
 
 
 	% Analyze natural timbre
-	params_NT = data(14, 2); % 13 is oboe, 14 is bassoon
+	params_NT = data(13, 2); % 13 is oboe, 14 is bassoon
 	if ~isempty(params_NT{1})
 		data_NT = analyzeNT(params_NT{1});
 	end
 
 	% Read in MASD for each stimulus at the CF
 	[~, CF_ind] = min(abs(CF-AN.CFs));
-	if CF_ind == 100
-		CF_ind = 99;
+	if CF_ind == 300
+		CF_ind = 299;
 	end
 	MASD_CF = MASD(:,CF_ind);
 
