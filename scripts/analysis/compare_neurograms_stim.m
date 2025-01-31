@@ -107,7 +107,7 @@ target_F0 = extractBetween(files{ii}, 'ff.', '.wav');
 savefile = sprintf('%s_F0_%s_AN_TC.mat', target, target_F0{1});
 
 AN = modelAN(params, model_params); % HSR for IC input
-save(fullfile(savepath, savefile),'AN')
+save(fullfile(savepath, savefile),'AN','model_params', 'params')
 
 
 %% Run model for zero phase complex
@@ -146,9 +146,9 @@ params.spl = 73;
 params.ramp_dur = 0.02;
 
 % Time vectors
-gate = tukeywin(npts,2*params.ramp_dur/params.dur); %raised cosine ramps
 npts = params.dur * params.Fs; % # pts in stimulus
-t = (0:(npts-1))/Fs; % time vector
+gate = tukeywin(npts,2*params.ramp_dur/params.dur); %raised cosine ramps
+t = (0:(npts-1))/params.Fs; % time vector
 interval = zeros(1,length(t));
 harmonics = F0:F0:5350; % component freqs for the central stimulus, when this_fpeak = CF
 num_harmonics = length(harmonics);
@@ -162,19 +162,16 @@ for iharm = 1:num_harmonics
 end
 Level_scale = 20e-6*10.^(params.spl/20) * (1/rms(interval)); % overall lienar scalar to bring this centered stimulus up to stimdB
 interval = Level_scale * interval; % include dB scaling into the set of harmonic component scalars
-
-stim = interval';
-stim = stim.*gate;
+stim = interval'.*gate;
 params.stim = stim';
 params.num_stim = 1;
 
 % Plot new stimulus
 hold on
-dist = round(F0/4);
-y2 = fft(interval);
+y2 = fft(params.stim);
 m = abs(y2);
 mdB = 20*log10(m);
-f = (0:length(y2)-1)*Fs/length(y2);
+f = (0:length(y2)-1)*params.Fs/length(y2);
 mdB(mdB<0) = 0;
 f(f>Fs/2) = [];
 mdB = mdB(1:length(f))';
@@ -207,9 +204,12 @@ target = extractBefore(files{ii}, '.');
 target_F0 = extractBetween(files{ii}, 'ff.', '.wav');
 savefile = sprintf('%s_F0_%s_AN_ST.mat', target, target_F0{1});
 
+timerVal = tic;
 AN = modelAN(params, model_params); % HSR for IC input
-save(fullfile(savepath, savefile),'AN')
+save(fullfile(savepath, savefile),'AN','model_params', 'params')
 
+elapsedTime = toc(timerVal)/60;
+disp(['Model took ' num2str(elapsedTime) ' minutes'])
 
 %% Plot neurograms
 
