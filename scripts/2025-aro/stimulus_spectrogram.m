@@ -144,16 +144,16 @@ end
 
 %% Plot
 
-fontsize = 18; 
+fontsize = 20; 
 
 % Plot magnitude of harmonics 
-fig = figure('Renderer', 'painters', 'Position', [100 100 600 365]);
+fig = figure('Renderer', 'painters', 'Position', [100,100,649,365]);
 tiledlayout(1, 3, 'TileSpacing','none')
 
 nexttile
-stem(freq,20*log10(A),'BaseValue',-inf,'Color','black');
-ylabel('Magnitude (dB)')
-title('Mag. Spectrum')
+stem(freq,20*log10(A),'BaseValue',-inf,'Color','black', 'LineWidth',2);
+ylabel('Mag. (dB)')
+title('Spectrum')
 xlim([0 max_freq])
 ylim([-75 0])
 view(90,90)
@@ -177,10 +177,10 @@ xlabel('Time (ms)')
 set(gca,'YTickLabel',[]);
 title('Synthesized Spectrogram')
 colormap(gray)
-ax(2).CLim = [max(max(this_spect(1:fi,:)))-20, max(max(this_spect(1:fi,:)))]; % min was 30
+ax(2).CLim = [max(max(this_spect(1:fi,:)))-15, max(max(this_spect(1:fi,:)))]; % min was 30
 set(gca,'FontSize',fontsize)
 set(gca,'box','off')
 hold on
-xlim([5 1/F0*6*1000])
+xlim([5 1/F0*10*1000])
 
 
