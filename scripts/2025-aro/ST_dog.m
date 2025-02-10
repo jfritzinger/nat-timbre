@@ -9,7 +9,7 @@ load(fullfile(datapath, 'dog_analysis.mat'), "R2_gauss_all", "R2_dog_all", "dog_
 
 %% Plot example fit 
 
-figure('Position',[53,540,825,325])
+figure('Position',[53,540,840,300])
 tiledlayout(1, 2)
 fontsize = 22;
 
