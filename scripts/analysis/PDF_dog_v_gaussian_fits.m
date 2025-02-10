@@ -40,12 +40,15 @@ CF_list = sessions.CF(has_data);
 [~, order] = sort(CF_list);
 num_sessions = length(CF_list);
 linewidth = 1;
-fontsize = 10;
+fontsize = 5;
 
 % Plot each neuron
 R2_dog_all = NaN(1, num_sessions);
 R2_gauss_all = NaN(1, num_sessions);
-for isesh = 1:num_sessions
+for isesh = 155:num_sessions
+	% Session 27 errored, 117, 154
+	% Need to go back and redo 1 to 101 because I didn't save the
+	% parameters 
 	ineuron = index(order(isesh)); %indices(isesh)
 	if any(has_data(ineuron))
 
@@ -69,6 +72,9 @@ for isesh = 1:num_sessions
 
 		% RM to get spont
 		params_RM = data{2, 2};
+		if isempty(params_RM)
+			params_RM = data{2, 1};
+		end
 		data_RM = analyzeRM(params_RM);
 		spont = data_RM.spont;
 
@@ -86,34 +92,8 @@ for isesh = 1:num_sessions
 		r0 = spont;
 
 		% fmincon
-		type = 2; % 1: distance, 2: MSE
 		stim = params{1}.stim;
-		timerVal = tic;
-
-		% Fit gaussian
-		init = [CF, 30, 100]; % Initial guess
-		lb = [CF/4, 0, 0]; % Lower bounds
-		ub = [CF*4, 5000, Inf]; % Upper bounds
-
-		options = optimoptions('fmincon', 'Algorithm','sqp','TolX', 1e-12, ...
-			'MaxFunEvals', 10^12, 'maxiterations', 1000, 'ConstraintTolerance', 1e-12, ...
-			'StepTolerance', 1e-16, 'display', 'off');
-		gaussian_params = fmincon(@(p) ...
-			dog_objective_function(p, 'gaussian', Fs, stim, observed_rate, r0, type), ...
-			init, [], [], [], [], lb, ub, [], options);
-
-
-		% Fit DoG model
-		dog_init = [20000, 10000, 100, 500,  CF, CF]; % Initial guess
-		dog_lb = [100,   100,     10,  10,   CF/4, CF/4]; % Lower bounds
-		dog_ub = [30000, 30000,   1000,1000, CF*4, CF*4]; % Upper bounds
-
-		options = optimoptions('fmincon', 'Algorithm','sqp','TolX', 1e-12, ...
-			'MaxFunEvals', 10^12, 'maxiterations', 1000, 'ConstraintTolerance', 1e-12, ...
-			'StepTolerance', 1e-16, 'display', 'off');
-		dog_params = fmincon(@(p) dog_objective_function(p, 'dog', Fs, stim, observed_rate, r0, type), ...
-			dog_init, [], [], [], [], dog_lb, dog_ub, [], options);
-		disp(['Model took ' num2str(toc(timerVal)) ' seconds'])
+		[gaussian_params, dog_params] = fitGaussAndDoG(params, CF, Fs, observed_rate, r0);
 
 		% Plot data
 		fig = figure;
@@ -174,6 +154,30 @@ for isesh = 1:num_sessions
 		[plt1, images] = addtoSTPDF(images, fig, putative);
 		append(rpt, plt1);
 
+		% Get f-test for all
+		p_value = ftest(data_NT.rate, gaus_predicted, dog_predicted);
+
+		% Struct to save out all data and fits 
+		dog_gauss_analysis.putative = putative;
+		dog_gauss_analysis.dog_predicted = dog_predicted;
+		dog_gauss_analysis.gaus_predicted = gaus_predicted;
+		dog_gauss_analysis.CF = CF;
+		dog_gauss_analysis.rate = observed_rate;
+		dog_gauss_analysis.R2_dog = dog_adj_r_squared;
+		dog_gauss_analysis.R2_gauss = gaussian_adj_r_squared;
+		dog_gauss_analysis.pitch = data_NT.pitch_num;
+		dog_gauss_analysis.spont = spont;
+		dog_gauss_analysis.rate_std = data_NT.rate_std;
+		dog_gauss_analysis.p_value = p_value;
+		dog_gauss_analysis.dog_params = dog_params;
+		dog_gauss_analysis.gauss_params = gaussian_params;
+
+		filename = [putative '.mat'];
+		%savepath = '/Volumes/Synth-Timbre/data/manuscript/';
+		savepath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript';
+        %savepath = '\\NSC-LCARNEY-H2\DataFiles_JBF\Nat-Timbre\data\manuscript';
+		save(fullfile(savepath, 'dog_model', filename), 'dog_gauss_analysis')
+
 	end
 end
 
@@ -192,7 +196,7 @@ function [img, images] = addtoSTPDF(images, fig, title)
 import mlreportgen.dom.*
 
 % Set figure size, recommended
-values = [5.5, 3];
+values = [4, 1.5];
 fig.PaperSize = values;
 fig.PaperPosition = [0 0 values];
 fig.Units = 'inches';
