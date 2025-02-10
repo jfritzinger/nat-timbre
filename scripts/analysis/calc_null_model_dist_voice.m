@@ -13,62 +13,62 @@ sessions = readtable(fullfile(datapath, 'data-cleaning', spreadsheet_name), 'Pre
 modelpath = '/Volumes/Nat-Timbre/data/manuscript';
 
 % Find sessions for target synthetic timbre response
-bin200(:,1) = cellfun(@(s) contains(s, 'R'), sessions.Bassoon);
-bin200(:,2) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
-isMTF = strcmp(sessions.MTF, 'BE')|strcmp(sessions.MTF, 'BS');
-bin200_MTF = bin200 & isMTF;
-
-has_data = bin200_MTF(:,1);
-indices = find(has_data);
-num_index = length(indices);
-CFs = sessions.CF(indices);
-for isesh = 1:num_index
-
-	% Load in data
-	putative = sessions.Putative_Units{indices(isesh)};
-	load(fullfile(modelpath,'SFIE_model', [putative '_SFIE.mat']), 'SFIE', 'params_NT')
-	load(fullfile(modelpath,'energy_model', [putative '_Energy.mat']), 'energy')
-	load(fullfile(modelpath,'lat_inh_model', [putative '_Lat_Inh.mat']), 'lat_inh')
-	load(fullfile(datapath, 'neural_data', [putative '.mat']))
-
-	% Bassoon matrices
-	if ~isempty(SFIE{2})
-
-		params_NT = data{14, 2};
-		data_NT = analyzeNT(params_NT);
-		voice = data_NT.pitch_num<260 & data_NT.pitch_num>80;
-		high = data_NT.pitch_num>260;
-
-		SFIE_mat(isesh,:) = SFIE{2}.rate(high);
-		energy_mat(isesh,:) = energy{2}.rate(high);
-		lat_mat(isesh,:) = lat_inh{2}.rate(high);
-
-		% Data
-		data_mat(isesh, :) = data_NT.rate(high);
-	end
-	fprintf('%s done, %d percent done\n', putative, round(isesh/num_index*100))
-end
-
-
-%% Save matrices for ease of use later 
-
-% Find and get rid of rows with 0s 
-zero_rows = SFIE_mat(:,1)==0;
-SFIE_mat(zero_rows,:) = [];
-energy_mat(zero_rows,:) = [];
-lat_mat(zero_rows,:) = [];
-data_mat(zero_rows,:) = [];
-CFs(zero_rows) = [];
-
-% Save 
-savename = 'Bassoon_High_Matrices.mat';
-save(fullfile(modelpath, savename), 'SFIE_mat', 'energy_mat', 'lat_mat',...
-	'data_mat', 'CFs')
+% bin200(:,1) = cellfun(@(s) contains(s, 'R'), sessions.Bassoon);
+% bin200(:,2) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
+% isMTF = strcmp(sessions.MTF, 'BE')|strcmp(sessions.MTF, 'BS');
+% bin200_MTF = bin200 & isMTF;
+% 
+% has_data = bin200_MTF(:,1);
+% indices = find(has_data);
+% num_index = length(indices);
+% CFs = sessions.CF(indices);
+% for isesh = 1:num_index
+% 
+% 	% Load in data
+% 	putative = sessions.Putative_Units{indices(isesh)};
+% 	load(fullfile(modelpath,'SFIE_model', [putative '_SFIE.mat']), 'SFIE', 'params_NT')
+% 	load(fullfile(modelpath,'energy_model', [putative '_Energy.mat']), 'energy')
+% 	load(fullfile(modelpath,'lat_inh_model', [putative '_Lat_Inh.mat']), 'lat_inh')
+% 	load(fullfile(datapath, 'neural_data', [putative '.mat']))
+% 
+% 	% Bassoon matrices
+% 	if ~isempty(SFIE{2})
+% 
+% 		params_NT = data{14, 2};
+% 		data_NT = analyzeNT(params_NT);
+% 		voice = data_NT.pitch_num<260 & data_NT.pitch_num>80;
+% 		high = data_NT.pitch_num>260;
+% 
+% 		SFIE_mat(isesh,:) = SFIE{2}.rate(high);
+% 		energy_mat(isesh,:) = energy{2}.rate(high);
+% 		lat_mat(isesh,:) = lat_inh{2}.rate(high);
+% 
+% 		% Data
+% 		data_mat(isesh, :) = data_NT.rate(high);
+% 	end
+% 	fprintf('%s done, %d percent done\n', putative, round(isesh/num_index*100))
+% end
+% 
+% 
+% %% Save matrices for ease of use later 
+% 
+% % Find and get rid of rows with 0s 
+% zero_rows = SFIE_mat(:,1)==0;
+% SFIE_mat(zero_rows,:) = [];
+% energy_mat(zero_rows,:) = [];
+% lat_mat(zero_rows,:) = [];
+% data_mat(zero_rows,:) = [];
+% CFs(zero_rows) = [];
+% 
+% % Save 
+% savename = 'Bassoon_High_Matrices.mat';
+% save(fullfile(modelpath, savename), 'SFIE_mat', 'energy_mat', 'lat_mat',...
+% 	'data_mat', 'CFs')
 
 % Load 
-% savename = 'Bassoon_Voice_Matrices.mat';
-% load(fullfile(modelpath, savename), 'SFIE_mat', 'energy_mat', 'lat_mat',...
-% 	'data_mat', 'CFs')
+savename = 'Bassoon_High_Matrices.mat';
+load(fullfile(modelpath, savename), 'SFIE_mat', 'energy_mat', 'lat_mat',...
+	'data_mat', 'CFs')
 
 %% Permutation testing to get significant predictions for SFIE 
 
