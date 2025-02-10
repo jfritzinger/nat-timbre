@@ -29,7 +29,6 @@ for ii = 1:2
 		x_R22 = sessions.Energy_R(isBE & ~isnotsig);
 		x_non = sessions.Energy_R(isnotsig);
 		
-
 		y_R2 = sessions.SFIE_R(isBS & ~isnotsig);
 		y_R22 = sessions.SFIE_R(isBE & ~isnotsig);
 		y_non = sessions.SFIE_R(isnotsig);
@@ -61,7 +60,7 @@ for ii = 1:2
 	scatter(x_R2, y_R2, 'filled', 'MarkerEdgeColor','k', "MarkerFaceAlpha",0.7)
 	scatter(x_R22, y_R22, 'filled', 'MarkerEdgeColor','k', ...
 		'MarkerFaceColor',"#D95319", "MarkerFaceAlpha",0.7)
-	scatter(x_non, y_non, 'MarkerEdgeColor','k')
+	%scatter(x_non, y_non, 'MarkerEdgeColor','k')
 	plot([-1 1], [-1 1], 'k')
 	xlabel('Energy R')
 	ylabel('SFIE R')
@@ -75,7 +74,7 @@ for ii = 1:2
 	set(gca, 'fontsize', fontsize)
 	yline(0)
 	xline(0)
-	if ii == 3
+	if ii == 2
 		legend('BS', 'BE', '', '', 'location', 'south')
 	end
 end
