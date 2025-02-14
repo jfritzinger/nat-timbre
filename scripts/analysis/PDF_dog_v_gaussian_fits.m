@@ -45,8 +45,8 @@ fontsize = 5;
 % Plot each neuron
 R2_dog_all = NaN(1, num_sessions);
 R2_gauss_all = NaN(1, num_sessions);
-for isesh = 155:num_sessions
-	% Session 27 errored, 117, 154
+for isesh = 28:101 %182:num_sessions
+	% Session 27 errored, 117, 154, 181
 	% Need to go back and redo 1 to 101 because I didn't save the
 	% parameters 
 	ineuron = index(order(isesh)); %indices(isesh)
