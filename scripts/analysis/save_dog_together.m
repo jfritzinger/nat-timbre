@@ -27,6 +27,12 @@ for ii = 1:num_files
 	dog_analysis(ii).spont = dog_gauss_analysis.spont;
 	dog_analysis(ii).rate_std = dog_gauss_analysis.rate_std;
 	dog_analysis(ii).p_value = dog_gauss_analysis.p_value;
+	if isfield(dog_gauss_analysis, 'dog_params')
+		dog_analysis(ii).dog_params = dog_gauss_analysis.dog_params;
+	end 
+	if isfield(dog_gauss_analysis, 'gauss_params')
+		dog_analysis(ii).gauss_params = dog_gauss_analysis.gauss_params;
+	end
 
 	% Save variables 
 	R2_dog_all(ii) = dog_gauss_analysis.R2_dog;
