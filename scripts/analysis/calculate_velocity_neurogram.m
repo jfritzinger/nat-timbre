@@ -37,7 +37,7 @@ else
 	savepath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\AN_neurogram';
 end
 
-for ii = 31:40 %1:nfiles
+for ii = 25 %31:40 %1:nfiles
 
 	% Get single stimulus
 	target = extractBefore(files{ii}, '.');
@@ -239,17 +239,17 @@ for ii = 31:40 %1:nfiles
 		end
 
 		% Plot
-		% figure('Position',[612,750,1180,462])
-		% tiledlayout(1, 3)
-		% nexttile
-		% scatter(t, peaks_sub,10, 'filled' , 'MarkerEdgeColor','k',...
-		% 	'MarkerFaceColor','k')
-		% set(gca, 'YScale', 'log')
-		% xlabel('Time (ms)')
-		% ylabel('CFs (kHz)')
-		% title('Subset')
-		% set(gca, 'FontSize', 16)
-		% xlim(xlimits)
+		figure('Position',[612,750,1180,462])
+		tiledlayout(1, 3)
+		nexttile
+		scatter(t, peaks_sub,10, 'filled' , 'MarkerEdgeColor','k',...
+			'MarkerFaceColor','k')
+		set(gca, 'YScale', 'log')
+		xlabel('Time (ms)')
+		ylabel('CFs (kHz)')
+		title('Section')
+		set(gca, 'FontSize', 16)
+		%xlim(xlimits)
 
 		% Get an array of timing and frequency information
 		peaks_sub(isnan(peaks_sub)) = 0;
@@ -274,16 +274,16 @@ for ii = 31:40 %1:nfiles
 		end
 
 		% Order by CF
-		%nexttile
-		% hold on
-		% scatter(t_avg*1000,CFs_sub/1000, 'filled')
-		% plot(t_avg*1000,CFs_sub/1000);
-		% set(gca, 'YScale', 'log')
-		% grid on
-		% xlabel('Period, 1/F0 (ms)')
-		% ylabel('CF (kHz)')
-		% set(gca, 'FontSize', 16)
-		% title('Averaged Peak Times')
+		nexttile
+		hold on
+		scatter(t_avg*1000,CFs_sub/1000, 'filled')
+		plot(t_avg*1000,CFs_sub/1000);
+		set(gca, 'YScale', 'log')
+		grid on
+		xlabel('Period, 1/F0 (ms)')
+		ylabel('CF (kHz)')
+		set(gca, 'FontSize', 16)
+		title('Averaged Peak Times')
 
 		% Calculate df/dt for each nearest neighbor
 		dt = diff(t_avg*1000);
@@ -297,19 +297,19 @@ for ii = 31:40 %1:nfiles
 		CFs_all = [CFs_all, CFs_sub(1:end-1)];
 
 
-		% nexttile
-		% scatter(v,CFs_sub(1:end-1)/1000, 'filled')
-		% hold on
-		% plot(v,CFs_sub(1:end-1)/1000)
-		% hold on
-		% xlabel('Velocity (kHz/ms)')
-		% ylabel('Frequency (kHz)')
-		% title('Velocity')
-		% set(gca, 'FontSize', 16)
-		% xline(0, 'k')
-		% xlim([-0.5 0.5])
-		% grid on
-		% set(gca, 'YScale', 'log')
+		nexttile
+		scatter(v,CFs_sub(1:end-1)/1000, 'filled')
+		hold on
+		plot(v,CFs_sub(1:end-1)/1000)
+		hold on
+		xlabel('Velocity (kHz/ms)')
+		ylabel('Frequency (kHz)')
+		title('Velocity')
+		set(gca, 'FontSize', 16)
+		xline(0, 'k')
+		xlim([-0.5 0.5])
+		grid on
+		set(gca, 'YScale', 'log')
 
 		% Try #2 that is hopefully more resistant to odd things
 		% peaks_sub2 = peaks_sub;
