@@ -5,10 +5,10 @@
 %% Set up figure
 
 [base, datapath, savepath, ppi] = getPaths();
-figure('Position',[918,436,500,298]);
+figure('Position',[50,50,400,180]);
 colors = {'#000000', '#bdbdbd'};
 CF_color = '#3690c0';
-fontsize = 22;
+fontsize = 18;
 
 %% Create Stimulus & plot 
 
@@ -107,7 +107,7 @@ for istim = 1:nstim
 
 end
 ylim([0 70])
-ylabel('Magnitude (dB SPL)')
+ylabel('Mag. (dB SPL)')
 xLabel = xlabel('Frequency (Hz)', 'HorizontalAlignment','right');
 
 xlim([180 3500])
@@ -125,12 +125,13 @@ set(gca, 'FontSize', fontsize)
 %title('Synthetic Timbre Stimulus', 'FontSize',titlesize)
 
 % Create arrow
-annotation('arrow',[0.45 0.60],[0.84 0.84]);
-annotation('arrow',[0.38 0.22],[0.84 0.84]);
+annotation('arrow',[0.45 0.60],[0.89 0.89]);
+annotation('arrow',[0.38 0.22],[0.89 0.89]);
 
 % Label CF
-annotation('textbox',[0.385 0.0198 0.0625 0.106],'String',{'CF'},...
+annotation('textbox',[0.385 0.025 0.0625 0.106],'String',{'CF'},...
 	'FontSize', fontsize,'FitBoxToText','off','EdgeColor','none', 'Color',CF_color);
+set(gca, 'Position', [0.146,0.15,0.758,0.815])
 
 %% Export 
 

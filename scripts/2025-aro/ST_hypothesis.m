@@ -2,7 +2,7 @@
 clear 
 
 %% Set up figure
-figure('Position',[25,476,550,769])
+figure('Position',[25,476,620,670])
 font_size = 16;
 
 %% Parameters

@@ -79,9 +79,9 @@ oboe_files(2) = [];
 %% Load and plot all 
 
 examples = [2, 4, 9];
-fontsize = 18;
+fontsize = 20;
 
-figure('Position',[38,500,571,421])
+figure('Position',[38,500,590,530])
 t1 = tiledlayout(2, 2, 'Padding','compact');
 colors = {"#0072BD", "#D95319"};
 for j2 = 1:3
@@ -217,16 +217,17 @@ for iinstr = 1:2
 	y1 = polyval(curve,F0s);
 	plot(F0s, y1./1000, 'color', colors{iinstr}, 'DisplayName', target)
 	plot(F0s, F0s./1000, 'Color',[0.7 0.7 0.7])
-	xlabel('F0s')
-	ylabel('SC (kHz)')
+	xlabel('F0s (kHz)')
+	ylabel('Spectral Centroid (kHz)')
 	set(gca, 'XScale', 'log', 'YScale', 'log')
 	xticks([50 100 200 500 1000 2000 5000 10000])
+	xticklabels([50 100 200 500 1000 2000 5000 10000]./1000)
 	yticks([50 100 200 500 1000 2000 5000 10000]./1000)
 	xlim([56 1662])
 	ylim([300 5000]./1000)
 	grid on
 	clear F0s center_of_mass
 	set(gca, 'FontSize', fontsize)
-	title('Spectral Centroid vs F0')
+	%title('Spectral Centroid vs F0')
 end
 legend('Oboe', '', '', 'Bassoon', '', '', 'Location','best')

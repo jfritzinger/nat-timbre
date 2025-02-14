@@ -67,7 +67,7 @@ for ii = 1:2
 	if ii == 1
 		title('SFIE / Energy')
 	elseif ii == 2
-		title('Lat Inh / Energy')
+		title('Broad Inh / Energy')
 	else
 		title('Lat Inh / SFIE')
 	end
@@ -79,62 +79,62 @@ for ii = 1:2
 	end
 end
 
-%% Histograms 
-fontsize = 20;
-%Plot histograms 
-figure('position', [47,324,523,564])
-tiledlayout(3, 2, 'TileSpacing','tight', 'Padding','compact', 'TileIndexing','columnmajor')
-spls = [43, 63, 73, 83];
-for ispl = 2
-
-	MTF_target = 'BS';
-	isMTF = strcmp(sessions.MTF, MTF_target);
-	isSPL = sessions.SPL == spls(ispl);
-	indices = find(isMTF & isSPL);
-
-	nexttile
-	hold on
-	CFs = sessions.CF(indices);
-	SFIE_R2 = sessions.SFIE_R(indices);
-	energy_R2 = sessions.Energy_R(indices);
-	lat_inh_R2 = sessions.Lat_Inh_R(indices);
-	edges = linspace(-1, 1, 20);
-	histogram(SFIE_R2, edges, 'FaceColor','#009E73', 'FaceAlpha',0.5)
-	title(['BS SFIE, ' num2str(spls(ispl)) ' dB SPL'])
-	set(gca, 'fontsize', fontsize)
-
-	nexttile
-	histogram(energy_R2, edges, 'FaceColor','#D55E00', 'FaceAlpha',0.5)
-	title('BS, energy')
-	set(gca, 'fontsize', fontsize)
-
-	nexttile
-	histogram(lat_inh_R2, edges, 'FaceAlpha',0.5)
-	title('BS, Lateral Inhibition')
-	set(gca, 'fontsize', fontsize)
-
-	MTF_target = 'BE';
-	isMTF = strcmp(sessions.MTF, MTF_target);
-	isSPL = sessions.SPL == spls(ispl);
-	indices = find(isMTF & isSPL);
-
-	nexttile
-	hold on
-	CFs = sessions.CF(indices);
-	SFIE_R2 = sessions.SFIE_R(indices);
-	energy_R2 = sessions.Energy_R(indices);
-	lat_inh_R2 = sessions.Lat_Inh_R(indices);
-	histogram(SFIE_R2, edges, 'FaceColor','#009E73', 'FaceAlpha',0.5)
-	title(['BE SFIE, ' num2str(spls(ispl)) ' dB SPL'])
-	set(gca, 'fontsize', fontsize)
-	
-	nexttile
-	histogram(energy_R2, edges, 'FaceColor','#D55E00', 'FaceAlpha',0.5)
-	title('BE, energy')
-	set(gca, 'fontsize', fontsize)
-
-	nexttile
-	histogram(lat_inh_R2, edges, 'FaceAlpha',0.5)
-	title('BE, Lateral Inhibition')
-	set(gca, 'fontsize', fontsize)
-end
+% %% Histograms 
+% fontsize = 20;
+% %Plot histograms 
+% figure('position', [47,324,523,564])
+% tiledlayout(3, 2, 'TileSpacing','tight', 'Padding','compact', 'TileIndexing','columnmajor')
+% spls = [43, 63, 73, 83];
+% for ispl = 2
+% 
+% 	MTF_target = 'BS';
+% 	isMTF = strcmp(sessions.MTF, MTF_target);
+% 	isSPL = sessions.SPL == spls(ispl);
+% 	indices = find(isMTF & isSPL);
+% 
+% 	nexttile
+% 	hold on
+% 	CFs = sessions.CF(indices);
+% 	SFIE_R2 = sessions.SFIE_R(indices);
+% 	energy_R2 = sessions.Energy_R(indices);
+% 	lat_inh_R2 = sessions.Lat_Inh_R(indices);
+% 	edges = linspace(-1, 1, 20);
+% 	histogram(SFIE_R2, edges, 'FaceColor','#009E73', 'FaceAlpha',0.5)
+% 	title(['BS SFIE, ' num2str(spls(ispl)) ' dB SPL'])
+% 	set(gca, 'fontsize', fontsize)
+% 
+% 	nexttile
+% 	histogram(energy_R2, edges, 'FaceColor','#D55E00', 'FaceAlpha',0.5)
+% 	title('BS, energy')
+% 	set(gca, 'fontsize', fontsize)
+% 
+% 	nexttile
+% 	histogram(lat_inh_R2, edges, 'FaceAlpha',0.5)
+% 	title('BS, Lateral Inhibition')
+% 	set(gca, 'fontsize', fontsize)
+% 
+% 	MTF_target = 'BE';
+% 	isMTF = strcmp(sessions.MTF, MTF_target);
+% 	isSPL = sessions.SPL == spls(ispl);
+% 	indices = find(isMTF & isSPL);
+% 
+% 	nexttile
+% 	hold on
+% 	CFs = sessions.CF(indices);
+% 	SFIE_R2 = sessions.SFIE_R(indices);
+% 	energy_R2 = sessions.Energy_R(indices);
+% 	lat_inh_R2 = sessions.Lat_Inh_R(indices);
+% 	histogram(SFIE_R2, edges, 'FaceColor','#009E73', 'FaceAlpha',0.5)
+% 	title(['BE SFIE, ' num2str(spls(ispl)) ' dB SPL'])
+% 	set(gca, 'fontsize', fontsize)
+% 
+% 	nexttile
+% 	histogram(energy_R2, edges, 'FaceColor','#D55E00', 'FaceAlpha',0.5)
+% 	title('BE, energy')
+% 	set(gca, 'fontsize', fontsize)
+% 
+% 	nexttile
+% 	histogram(lat_inh_R2, edges, 'FaceAlpha',0.5)
+% 	title('BE, Lateral Inhibition')
+% 	set(gca, 'fontsize', fontsize)
+% end

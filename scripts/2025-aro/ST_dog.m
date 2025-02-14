@@ -9,9 +9,9 @@ load(fullfile(datapath, 'dog_analysis.mat'), "R2_gauss_all", "R2_dog_all", "dog_
 
 %% Plot example fit 
 
-figure('Position',[53,540,840,300])
-tiledlayout(1, 2)
-fontsize = 22;
+figure('Position',[53,540,450,500])
+tiledlayout(2, 1)
+fontsize = 20;
 
 % Example: R24_TT2_P13_N02, CF = 1150Hz, BS
 putative = 'R24_TT2_P13_N02';
@@ -28,7 +28,7 @@ nexttile
 hold on
 plot(dog_analysis(ind).fpeaks, dog_analysis(ind).rate, 'k','LineWidth',2);
 plot(dog_analysis(ind).fpeaks, dog_analysis(ind).dog_predicted, ...
-	'LineWidth',2, 'color', '#d95f02');
+	'LineWidth',2, 'color', 'b');
 plot(dog_analysis(ind).fpeaks, dog_analysis(ind).gaus_predicted,...
 	'LineWidth',2, 'color', '#1b9e77');
 xline(dog_analysis(ind).CF, '--', 'LineWidth',2)
@@ -49,10 +49,10 @@ notsig = [dog_analysis.p_value]>0.05;
 
 nexttile
 scatter(R2_gauss_all(sig), R2_dog_all(sig),60, 'filled',...
-	'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.6)
+	'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.6, 'MarkerFaceColor','b')
 hold on
 scatter(R2_gauss_all(notsig), R2_dog_all(notsig), 60, 'filled',...
-	'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.6)
+	'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.6, 'MarkerFaceColor',[0.4 0.4 0.4])
 xlim([0 1])
 ylim([0 1])
 xticks([0 0.2 0.4 0.6 0.8 1])

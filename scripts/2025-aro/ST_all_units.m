@@ -107,10 +107,10 @@ end
 %% Plot
 
 % Set up figure
-figure('position', [60,30,950,1050])
+figure('position', [60,30,950,730])
 backgroundcolor =  [0.9 0.9 0.9];
 tiledlayout(5, 3, 'TileIndexing','columnmajor')
-fontsize = 18;
+fontsize = 22;
 %titlesize = 18;
 
 for ii = 1:3
@@ -198,7 +198,7 @@ set(h(6), 'position', [left(3) 0.67 width height])
 
 %% Histogram 
 
-figure('Position',[560,667,448,181])
+figure('Position',[560,667,430,220])
 
 % Plot histogram  
 spl = [43, 63, 73, 83];

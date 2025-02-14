@@ -11,11 +11,11 @@ sessions = readtable(fullfile(base, sheetpath, spreadsheet_name), 'PreserveVaria
 %% Set up figure
 
 linewidth = 1.5;
-figure('Position',[4,687,1050,250])
+figure('Position',[4,687,1100,240])
 tiledlayout(1, 3)
 data_colors = {'#03882F', '#82BB95'};
 fontsize = 20;
-titlesize = 22;
+titlesize = 24;
 
 %% Plot
 
@@ -62,7 +62,7 @@ for ineuron = 1:3
 	plot(fpeaks./1000, rate, 'LineWidth',linewidth, 'Color',data_colors{1})
 	plot(fpeaks./1000, rates_sm, 'linewidth', linewidth, 'color', 'k')
 	xline(CF/1000, '--', 'Color', [0.4 0.4 0.4], 'linewidth', linewidth); % Add CF line
-	yline(spont, 'color', [0.5 0.5 0.5], LineWidth=linewidth)
+	%yline(spont, 'color', [0.5 0.5 0.5], LineWidth=linewidth)
 	yline(0.1, 'k', LineWidth=linewidth)
 
 	% Figure parameters 
@@ -88,6 +88,30 @@ for ineuron = 1:3
 	end
 
 end
+
+% Create textbox
+annotation('textbox',...
+	[0.206363636363636 0.295833333333333 0.0490909090909091 0.1375],...
+	'Color',[0.501960784313725 0.501960784313725 0.501960784313725],...
+	'String',{'CF'},...
+	'FontSize',20,...
+	'EdgeColor','none');
+
+% Create textbox
+annotation('textbox',...
+	[0.541818181818182 0.320833333333333 0.0490909090909091 0.1375],...
+	'Color',[0.501960784313725 0.501960784313725 0.501960784313725],...
+	'String',{'CF'},...
+	'FontSize',20,...
+	'EdgeColor','none');
+
+% Create textbox
+annotation('textbox',...
+	[0.864545454545455 0.275 0.0490909090909091 0.1375],...
+	'Color',[0.501960784313725 0.501960784313725 0.501960784313725],...
+	'String',{'CF'},...
+	'FontSize',20,...
+	'EdgeColor','none');
 
 %% Export figure
 

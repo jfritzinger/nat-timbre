@@ -147,13 +147,13 @@ end
 fontsize = 20; 
 
 % Plot magnitude of harmonics 
-fig = figure('Renderer', 'painters', 'Position', [100,100,649,365]);
+fig = figure('Renderer', 'painters', 'Position', [100,100,460,500]);
 tiledlayout(1, 3, 'TileSpacing','none')
 
 nexttile
 stem(freq,20*log10(A),'BaseValue',-inf,'Color','black', 'LineWidth',2);
 ylabel('Mag. (dB)')
-title('Spectrum')
+%title('Spectrum')
 xlim([0 max_freq])
 ylim([-75 0])
 view(90,90)

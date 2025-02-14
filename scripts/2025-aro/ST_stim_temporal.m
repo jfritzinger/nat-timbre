@@ -3,10 +3,12 @@ clear
 
 %% Set up figure
 
-figure('Position',[918,436,500,200]);
+ppi = get(0, 'ScreenPixelsPerInch');
+
+figure('Position',[50,50,400,130]);
 colors = {'#000000', '#bdbdbd'};
 CF_color = '#3690c0';
-fontsize = 22;
+fontsize = 20;
 
 %% Create Stimulus & plot 
 
@@ -28,7 +30,6 @@ params.stp_otc = 1;
 params.physio = 0;
 params.g = 24;
 params.spl = 70;
-
 params = generate_ST(params);
 
 
@@ -36,11 +37,10 @@ params = generate_ST(params);
 
 t = linspace(0, 300, params.Fs*params.dur);
 stim = params.stim(1,:);
-
 plot(t, stim, 'k')
-xlim([100 120])
+xlim([100 130])
 xlabel('Time (ms)')
-ylabel('Amplitude')
+ylabel('Amp.')
 set(gca,'FontSize', fontsize)
 yticklabels([])
 

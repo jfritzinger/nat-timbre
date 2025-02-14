@@ -11,11 +11,11 @@
 
 
 %% Load in examples and plot
-fontsize1 = 20;
-fontsize = 16;
+fontsize1 = 24;
+fontsize = 22;
 
-figure('Position',[1720,621,1000,500])
-tiledlayout(2, 3, 'TileIndexing','columnmajor', 'Padding','compact');
+figure('Position',[1720,621,1000,600])
+tiledlayout(2, 3, 'TileIndexing','columnmajor', 'Padding','compact', 'TileSpacing','compact');
 for ii = 1:6
 	switch ii
 		case 1 % 1. Lat inh > energy % BE EXAMPLES
@@ -81,7 +81,7 @@ for ii = 1:6
 	plot(data_ST.fpeaks,rate, 'linewidth', 0.9, 'Color',"#0072BD");
 	errorbar(data_ST.fpeaks,rate, 1/sqrt(30), 'linewidth', 0.9, 'Color','k');
 	plot(data_ST.fpeaks,rate_sm, 'linewidth', linewidth,'Color','k');
-	ylim([-4 4])
+	ylim([-5 3])
 
 	% Normalize and plot models
 	plot(data_ST.fpeaks, zscore(energy{ispl}.rate), 'LineWidth',linewidth, 'Color','#4634F1')
@@ -90,25 +90,33 @@ for ii = 1:6
 
 	% Annotate SFIE model R^2
 	message = sprintf('R^2 SFIE = %.02f', SFIE{ispl}.R2);
-	text(0.05, 0.22, message, 'Units', 'normalized', ...
-		'VerticalAlignment', 'top', 'FontSize',fontsize)
+	text(0.05, 0.25, message, 'Units', 'normalized', ...
+		'VerticalAlignment', 'top', 'FontSize',fontsize, 'Color',...
+		'#009E73')
 
 	% Annotate energy model R^2
 	message = sprintf('R^2 Energy = %.02f', energy{ispl}.R2);
-	text(0.05, 0.12, message, 'Units', 'normalized', ...
-		'VerticalAlignment', 'top', 'FontSize',fontsize)
+	text(0.05, 0.15, message, 'Units', 'normalized', ...
+		'VerticalAlignment', 'top', 'FontSize',fontsize, 'Color',...
+		'#4634F1')
 
 	% Annotate lateral inhibition model R^2
 	message = sprintf('R^2 Broad inh = %.02f', lat_inh{ispl}.R2);
-	text(0.05, 0.32, message, 'Units', 'normalized', ...
-		'VerticalAlignment', 'top', 'FontSize',fontsize)
+	text(0.05, 0.35, message, 'Units', 'normalized', ...
+		'VerticalAlignment', 'top', 'FontSize',fontsize, 'Color',...
+		'#D55E00')
 
 	% Plot parameters 
 	plot_range = [param_ST{1}.fpeaks(1) param_ST{1}.fpeaks(end)];
-	xline(CF, '--', 'Color',[0.7 0.7 0.7], 'linewidth', linewidth)
+	xline(CF, '--', 'Color',[0.7 0.7 0.7], 'linewidth', 2.5)
 	xlim(plot_range)
+	if ii == 1
+		xticks([3200 3600 4000 4400 4800]);
+	end
+	ticks = xticks;
+	xticklabels(ticks./1000)
 	if ii == 2 || ii == 4 || ii == 6
-		xlabel('Spec. Peak Freq. (Hz)')
+		xlabel('Spec. Peak Freq. (kHz)')
 	end
 	if ii == 1 || ii == 2
 		ylabel('Z-score')
@@ -123,10 +131,11 @@ for ii = 1:6
 	end
 	grid on
 	set(gca, 'fontsize', fontsize1)
-	% legend('', '', '','', '', '', '', '', '', '', ...
-	% 	'', '', '','', '', '', '', '', '', '', ...
-	% 	'', '', '','', '', '', '', '', '', '', ...
-	% 	'', '', '','', '', '', '', '', '', '', '', '', 'Data', ...
-	% 	'Energy', 'On-CF', 'Broad Inh.', 'Location','eastoutside')
+	legend('', '', '','', '', '', '', '', '', '', ...
+		'', '', '','', '', '', '', '', '', '', ...
+		'', '', '','', '', '', '', '', '', '', ...
+		'', '', '','', '', '', '', '', '', '', 'Data', '', ...
+		'', 'Energy', 'SFIE', 'Broad Inh.', 'CF', 'Location',...
+		'eastoutside', 'NumColumns', 2)
 
 end
