@@ -257,6 +257,97 @@ set(gca,'FontSize',16)
 set(gca,'box','off')
 ylim([0 2])
 
+
+%% Finding peaks using a threshold
+
+ind = 18; %7;
+F0 = F0s(ind);
+period_lim = (1/F0)*6;
+ylimits = [0 4000];
+xlimits = [0.02 period_lim+0.02];
+
+% Cut down to avoid onsets/offsets
+Fs = fs;
+this_spect = this_spect(1:fi,:);
+Ftmp = Ftmp(1:fi);
+%t_lims = [0.025 0.225]*Fs;
+%an = an_sout(:,t_lims(1):t_lims(2)-1);
+%t = linspace(0, 0.2, size(an,2));
+
+% Full neurogram
+figure('Position',[1840,653,1047,459])
+tiledlayout(1, 9)
+ax = nexttile([1,3]);
+%s = surf(t, CFs, an);
+s = surf(Ttmp,Ftmp,this_spect);
+s.EdgeColor = 'none';
+view(0,90)
+xlim(xlimits)
+title('AN Neurogram')
+xlabel('Time (s)')
+ylim(ylimits)
+set(gca, 'FontSize', 16)
+colorbar
+ax.CLim = [30, max(max(this_spect(1:fi,:)))];
+colormap(gray)
+
+
+% Using findpeaks function
+nexttile([1,3])
+hold on
+peaks_all = NaN(size(this_spect,1), size(this_spect,2));
+for k1 = 1:size(this_spect,1)
+	[pks,loc] = findpeaks(this_spect(k1,:));
+	P{k1} = [pks; loc];
+	%CF = CFs(k1);
+
+	peaks = NaN(1,size(this_spect, 2));
+	peaks(loc) = Ftmp(k1); %CF;
+	scatter(t, peaks, 15, 'filled' , 'MarkerEdgeColor','k', 'MarkerFaceColor',...
+		'k')
+	peaks_all(k1, :) = peaks;
+end
+xlim(xlimits)
+ylim(ylimits)
+set(gca, 'FontSize', 16)
+title('Peaks using findpeaks')
+xlabel('Time (s)')
+%yticks([100 200 500 1000 2000 5000 10000])
+num_harms = round(4000/F0);
+for ii = 1:num_harms 
+	yline(F0*ii, 'color', [0.4 0.4 0.4])
+end
+
+% Using findpeaks function
+nexttile([1,3])
+hold on
+
+num_harms = floor(4000/F0);
+harms = F0:F0:4000;
+peaks_all = NaN(size(this_spect,1), size(this_spect,2));
+npts = floor(1/F0*Fs);
+for j1 = 1:num_harms
+
+	[~, k1] = min(abs(Ftmp-harms(j1)));
+	[pks,loc] = findpeaks(this_spect(k1,:),'MinPeakDistance',25);
+	P{k1} = [pks; loc];
+	%CF = CFs(k1);
+
+	peaks = NaN(1,size(this_spect, 2));
+	peaks(loc) = Ftmp(k1); %CF;
+	scatter(t, peaks, 15, 'filled' , 'MarkerEdgeColor','k', 'MarkerFaceColor',...
+		'k')
+	peaks_all(k1, :) = peaks;
+end
+xlim(xlimits)
+ylim(ylimits)
+set(gca, 'FontSize', 16)
+title('Peaks at each harmonic')
+xlabel('Time (s)')
+for ii = 1:num_harms 
+	yline(F0*ii, 'color', [0.4 0.4 0.4])
+end
+
 %% Mean absolute spatial derivative 
 
 %To extract these cues, we use a spatial derivative operation that simulates
