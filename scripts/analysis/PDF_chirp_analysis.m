@@ -42,7 +42,7 @@ wav_data = cell(1, nfiles);
 %% Set up report
 
 % Initialize report
-filename = 'Test';
+filename = 'Bassoon_ShortWindow3x9_Good';
 images = {}; %hold all plots as images, need to delete when finished
 datetime.setDefaultFormats('default','yyyy-MM-dd_hhmmss')
 if ismac
@@ -65,7 +65,7 @@ pm.PageMargins.Right = '0.2in';
 %% Create PDF 
 
 % Loop through all stimuli
-for ind = 7 %1:nfiles
+for ind = 1:nfiles
 
 	target = extractBefore(files{ind}, '.');
 	target_F0 = F0s(ind);
