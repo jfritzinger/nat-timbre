@@ -142,8 +142,10 @@ for parti = 1:num_parts
 	pin = temp_pin;
 
 	% Generate spectrogram
-	window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
-	ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+	window = round(1/decomp_info(parti).F0_actual*fs/2); 
+	%ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+	ov = round(0.9*window);
+	
 	[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
 	Ttmp_part(parti) = {Ttmp};
 	Ftmp_part(parti) = {Ftmp};
