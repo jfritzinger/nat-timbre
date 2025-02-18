@@ -100,8 +100,10 @@ for parti = 1:num_parts
 	pin = temp_pin;
 
 	% Generate spectrogram
-	window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
-	ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+	% window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
+	window = round(1/decomp_info(parti).F0_actual*fs/3); 
+	%ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+	ov = round(0.9*window);
 	[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
 	Ttmp_part(parti) = {Ttmp};
 	Ftmp_part(parti) = {Ftmp};
@@ -114,7 +116,7 @@ for parti = 1:num_parts
 
 	% Wait on plotting till the very end
 	if parti == 1 % spectrogram of original vowel for comparison
-		[sg2,Ftmp2,Ttmp2] = spectrogram(data,window,[],[],fs,'yaxis');
+		[sg2,Ftmp2,Ttmp2] = spectrogram(data,window,ov,[],fs,'yaxis');
 		spect2 = 20*log10(abs(sg2));
 		ax = axes('Position',[0.71 0.07 0.28 0.40]);
 		spec_image2 = pcolor(1000*Ttmp2,Ftmp2(1:fi),spect2(1:fi,:));
