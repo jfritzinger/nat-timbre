@@ -79,6 +79,13 @@ for ii = 1:2
 	end
 end
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_model_results.svg'))
+
+
 % %% Histograms 
 % fontsize = 20;
 % %Plot histograms 

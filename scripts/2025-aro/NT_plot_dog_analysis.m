@@ -42,6 +42,12 @@ histogram(R2_dog_all, edges, 'DisplayStyle','stairs', 'EdgeColor',[0.4 0.4 0.4],
 legend('Instrumental', 'Synthetic')
 set(gca, 'fontSize', fontsize)
 
+% Export 
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'NT_plot_dog_analysis2.svg'))
+
+
 %% Get best example 
 fontsize = 18;
 
@@ -110,6 +116,12 @@ legend('Filter', 'CF', 'Location','northwest')
 xticks([200 500 1000 2000 5000 10000])
 xticklabels([200 500 1000 2000 5000 10000]./1000)
 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'NT_plot_dog_analysis1.svg'))
+
+
 %% Test significance 
 
 shuffles = 1000;
@@ -119,9 +131,10 @@ alpha = 0.05;
 num_sig = sum(significant);
 
 % Get significant predictions  
-lat_sig = model_mat(significant,:);
-data_sig = data_mat(significant, :);
-CFs_sig = CFs(significant);
+% lat_sig = model_mat(significant,:);
+% data_sig = data_mat(significant, :);
+% CFs_sig = CFs(significant);
+
 
 %% FUNCTIONS 
 

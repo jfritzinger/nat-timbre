@@ -67,6 +67,13 @@ msg = sprintf('%d sig.', sum(sig));
 msg2 = sprintf('%d not sig.', sum(notsig));
 legend(msg, msg2, 'Location','southeast')
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_dog.svg'))
+
+
 %% Plot F-test for MSE of fits 
 
 % num_sesh = length(dog_analysis);

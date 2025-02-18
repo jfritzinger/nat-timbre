@@ -86,7 +86,7 @@ hold on
 edges = linspace(0, 1, 20);
 histogram(sessions.Lat_Inh_R2(isOboe), edges, 'FaceAlpha',0.5)
 histogram(sessions.Lat_Inh_R2(isBass), edges, 'FaceAlpha',0.5)
-title('SFIE')
+title('Broad Inh.')
 set(gca, 'Fontsize', fontsize)
 legend('Oboe', 'Bassoon')
 grid on
@@ -103,3 +103,9 @@ set(gca, 'fontsize', 18)
 xlim([0 1])
 grid on
 box off
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'NT_model_distribution.svg'))

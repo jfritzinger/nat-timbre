@@ -368,3 +368,12 @@ annotation('line',[0.603 0.603],[0.566 0.637],'Color',[0.4 0.4 0.4],...
 	'LineWidth',2,'LineStyle','--');
 annotation('line',[0.603 0.603],[0.43 0.361],'Color',[0.4 0.4 0.4],...
 	'LineWidth',2,'LineStyle','--');
+
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_hypothesis.svg'))
+
+

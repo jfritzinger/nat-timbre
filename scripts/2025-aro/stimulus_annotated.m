@@ -118,3 +118,8 @@ annotation(figure1,'textbox',...
 	'FontSize',20,...
 	'EdgeColor','none');
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'stimulus_annotated.svg'))

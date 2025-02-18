@@ -21,30 +21,35 @@ for ii = 1:6
 		case 1 % 1. Lat inh > energy % BE EXAMPLES
 			putative = 'R24_TT2_P12_N10';
 			CF = 3983;
+			MTF_shape = 'BE';
 			ispl = 2;
 		case 2 % 1. Energy > lat inh % BE EXAMPLES
 			putative = 'R27_TT2_P8_N05';
 			CF = 5278;
 			ispl = 2;
+			MTF_shape = 'BE';
 		case 3
 			% putative = 'R27_TT2_P8_N02';
 			% CF = 2000;
 			putative = 'R25_TT2_P8_N11';
 			CF = 1741;
 			ispl = 2;
+			MTF_shape = 'BS';
 		case 4
 			putative = 'R24_TT2_P12_N05';
 			CF = 1740;
 			ispl = 2;
+			MTF_shape = 'BS';
 		case 5 % 3. Complexities off CF aren't explained by any model
 			putative = 'R29_TT3_P5_N07';
 			CF = 1320;
 			ispl = 2;
-
+			MTF_shape = 'BS';
 		case 6 % 3. Complexities off CF aren't explained by any model
 			putative = 'R29_TT3_P2_N04';
 			CF = 6063;
 			ispl = 1;
+			MTF_shape = 'BE';
 			% putative = 'R25_TT1_P8_N15';
 			% CF = 2033;
 			% ispl = 2;
@@ -122,20 +127,24 @@ for ii = 1:6
 		ylabel('Z-score')
 	end
 	box on
-	if ii == 1
-		title('BE Examples')
-	elseif ii == 3
-		title('BS Examples')
-	elseif ii == 5
-		title('Complex Examples')
-	end
+
+	% BE/BS labels 
+	text(0.05, 0.95, MTF_shape, 'Units', 'normalized', ...
+		'VerticalAlignment', 'top', 'FontSize',fontsize)
+
 	grid on
 	set(gca, 'fontsize', fontsize1)
-	legend('', '', '','', '', '', '', '', '', '', ...
-		'', '', '','', '', '', '', '', '', '', ...
-		'', '', '','', '', '', '', '', '', '', ...
-		'', '', '','', '', '', '', '', '', '', 'Data', '', ...
-		'', 'Energy', 'SFIE', 'Broad Inh.', 'CF', 'Location',...
-		'eastoutside', 'NumColumns', 2)
+	% legend('', '', '','', '', '', '', '', '', '', ...
+	% 	'', '', '','', '', '', '', '', '', '', ...
+	% 	'', '', '','', '', '', '', '', '', '', ...
+	% 	'', '', '','', '', '', '', '', '', '', 'Data', '', ...
+	% 	'', 'Energy', 'SFIE', 'Broad Inh.', 'CF', 'Location',...
+	% 	'eastoutside', 'NumColumns', 2)
 
 end
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_model_examples.svg'))

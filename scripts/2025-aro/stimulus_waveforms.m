@@ -34,3 +34,8 @@ yticklabels([])
 xlim([0 150])
 
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'stimulus_waveforms.svg'))

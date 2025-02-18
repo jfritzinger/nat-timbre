@@ -201,7 +201,17 @@ set(h(1), 'position', [0.08 0.17 0.4 0.75])
 set(h(2), 'position', [0.55 0.17 0.2 0.75])
 set(h(3), 'position', [0.77 0.17 0.2 0.75])
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-depsc', '-vector', fullfile(savepath,'ST_levels.eps'))
+
+
 
 %% Export figure
 
-%exportgraphics(gcf, fullfile(savepath, 'Fig2_SingleUnitExamples.png'), 'Resolution', 600)
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_levels.svg'))
+

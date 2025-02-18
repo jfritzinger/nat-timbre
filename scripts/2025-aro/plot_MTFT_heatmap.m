@@ -92,17 +92,24 @@ for ii = 1:length(sort_freq)
 end
 ylabel('Mod. Freq. (Hz)');
 xlabel('Carrier Freq. (Hz)');
-zlabel('Avg Rate (sp/s)');
+zlabel('Rate (sp/s)');
 title('Tone MTFs');
 %view([-50 65]) %([-55, 60])
 view([-153, 52])
-set(gca, 'fontsize', 20)
+set(gca, 'fontsize', 22)
 set(gca, 'XScale', 'log')
 set(gca, 'YScale', 'log')
 set(gca, 'ydir', 'reverse')
 yticks([2 5 10 20 50 100 200 500])
 ylim([1.2 408])
 xticks([1000 2000 4000 8000])
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'plot_MTFT_heatmap.svg'))
+
 
 %% Plot heatmaps 
 % 

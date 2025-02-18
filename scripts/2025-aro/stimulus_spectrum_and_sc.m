@@ -231,3 +231,10 @@ for iinstr = 1:2
 	%title('Spectral Centroid vs F0')
 end
 legend('Oboe', '', '', 'Bassoon', '', '', 'Location','best')
+
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'stimulus_spectrum_and_sc.svg'))

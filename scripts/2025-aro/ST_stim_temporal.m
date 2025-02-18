@@ -47,4 +47,6 @@ yticklabels([])
 
 %% Export 
 
-%exportgraphics(gcf, fullfile(savepath, 'final', 'ST_stimulus.png'), 'Resolution', 600)
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_stim_temporal.svg'))

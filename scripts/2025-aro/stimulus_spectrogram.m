@@ -36,6 +36,7 @@ wav_data = cell(1, nfiles);
 
 %% 
 
+itype = 1;
 ind = 24; % for bassoon 220 Hz 
 %ind = 1;
 target = extractBefore(files{ind}, '.');
@@ -93,9 +94,6 @@ for parti = 1:num_parts
 		freq = decomp_info(parti).freq{:};
 		phi = decomp_info(parti).phi{:};
 		uwphi = [];
-
-		pwelch(data_part,[],[],[],fs);
-		xlim([0 5])
 		for iphi = 1:length(phi)
 			if iphi == 1
 				uwphi(iphi) = phi(iphi);
@@ -121,13 +119,23 @@ for parti = 1:num_parts
 	pin = temp_pin;
 
 	% Generate spectrogram
-	window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
-	ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
-	[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+	if itype == 1
+		window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
+		ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+		[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+	elseif itype == 2
+		window = round(1/decomp_info(parti).F0_actual*fs/2);
+		ov = round(0.95*window);
+		[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+	else
+		window = round(1/decomp_info(parti).F0_actual*fs/2);
+		ov = round(0.95*window);
+		[sg,Ftmp,Ttmp] = spectrogram(data,window,ov,[],fs,'yaxis');
+	end
 	Ttmp_part(parti) = {Ttmp};
 	Ftmp_part(parti) = {Ftmp};
 	spect(parti) = {20*log10(abs(sg))};
-	
+
 	fi = 1;
 	while Ftmp(fi) < max_freq
 		fi = fi+1;
@@ -171,8 +179,9 @@ xlabel('Frequency (kHz)')
 
 % Plot 'spectrogram' of phase
 ax(2) = nexttile([1, 2]);
-pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
+h=pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
 shading interp
+set(h, 'edgecolor','none')
 xlabel('Time (ms)')
 set(gca,'YTickLabel',[]);
 title('Synthesized Spectrogram')
@@ -181,6 +190,11 @@ ax(2).CLim = [max(max(this_spect(1:fi,:)))-15, max(max(this_spect(1:fi,:)))]; % 
 set(gca,'FontSize',fontsize)
 set(gca,'box','off')
 hold on
-xlim([5 1/F0*10*1000])
+xlim([5 1/F0*5*1000])
 
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'stimulus_spectrogram.svg'))

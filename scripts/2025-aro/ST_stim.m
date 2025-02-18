@@ -110,7 +110,7 @@ ylim([0 70])
 ylabel('Mag. (dB SPL)')
 xLabel = xlabel('Frequency (Hz)', 'HorizontalAlignment','right');
 
-xlim([180 3500])
+xlim([400 7000])
 xticks(params.Fc)
 xticklabels([])
 box on
@@ -125,14 +125,19 @@ set(gca, 'FontSize', fontsize)
 %title('Synthetic Timbre Stimulus', 'FontSize',titlesize)
 
 % Create arrow
-annotation('arrow',[0.45 0.60],[0.89 0.89]);
-annotation('arrow',[0.38 0.22],[0.89 0.89]);
+annotation('arrow',[0.5 0.65],[0.89 0.89]);
+annotation('arrow',[0.45 0.3],[0.89 0.89]);
 
 % Label CF
-annotation('textbox',[0.385 0.025 0.0625 0.106],'String',{'CF'},...
+annotation('textbox',[0.45 0.025 0.0625 0.106],'String',{'CF'},...
 	'FontSize', fontsize,'FitBoxToText','off','EdgeColor','none', 'Color',CF_color);
 set(gca, 'Position', [0.146,0.15,0.758,0.815])
+set(gca, 'xscale', 'log')
+ 
 
 %% Export 
 
-%exportgraphics(gcf, fullfile(savepath, 'final', 'ST_stimulus.png'), 'Resolution', 600)
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_stim.svg'))
+

@@ -46,7 +46,7 @@ ii = 25;
 target = extractBefore(files{ii}, '.');
 target_F0 = extractBetween(files{ii}, 'ff.', '.wav');
 
-for iplot = 2
+for iplot = 1
 	switch iplot
 		case 1
 			savefile = sprintf('%s_F0_%s_AN.mat', target, target_F0{1});
@@ -92,7 +92,7 @@ for iplot = 2
 	MASD_no = trapz(t2, spec_diff, 2);
 
 	% Plot stimulus spectrogram
-	figure('Position',[515,474,410,400])
+	figure('Position',[515,474,400,410])
 	tiledlayout(1, 5, 'TileSpacing','none')
 	ax1 = nexttile();
 	plot(f, mdB, 'k')
@@ -102,6 +102,7 @@ for iplot = 2
 	xlim(ylimits)
 	ylim([0 70])
 	xticks([100 200 500 1000 2000 5000 10000])
+	xticklabels([100 200 500 1000 2000 5000 10000]./1000)
 	ylabel('Magnitude')
 	xlabel('CFs (Hz)')
 	set(gca, 'FontSize', fontsize)
@@ -114,9 +115,9 @@ for iplot = 2
 	view(0,90)
 	xlim([0 period_lim])
 	if iplot == 1
-		title('Instrumental Timbre')
+		title('Instrumental Timbre          ')
 	elseif iplot == 2
-		title('Zero-Phase Tone Complex')
+		title('Zero-Phase Tone Complex       ')
 	else
 		title('Zero-Phase Synthetic Timbre')
 	end
@@ -129,3 +130,15 @@ for iplot = 2
 
 	%linkaxes([ax1 ax2 ax3],'x')
 end
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+% set(gcf, 'Renderer', 'painters')
+% ax = gca;
+% ax.SortMethod = 'childorder';
+% print('-dsvg', '-vector', fullfile(savepath,'NT_neurogram1.svg'))
+print(gcf, '-dpng', '-r600', fullfile(savepath,'NT_neurogram1.png'));
+
+% set(gcf, 'Renderer', 'opengl');
+% exportgraphics(gcf, fullfile(savepath,'NT_neurogram1.pdf'), 'ContentType', 'image');

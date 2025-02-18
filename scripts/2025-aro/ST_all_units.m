@@ -110,7 +110,7 @@ end
 figure('position', [60,30,950,730])
 backgroundcolor =  [0.9 0.9 0.9];
 tiledlayout(5, 3, 'TileIndexing','columnmajor')
-fontsize = 22;
+fontsize = 18;
 %titlesize = 18;
 
 for ii = 1:3
@@ -195,6 +195,12 @@ set(h(4), 'position', [left(2) 0.67 width height])
 set(h(5), 'position', [left(3) 0.84 width 0.12])
 set(h(6), 'position', [left(3) 0.67 width height])
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_all_units1.svg'))
+
 
 %% Histogram 
 
@@ -245,3 +251,9 @@ for ispl = 2
 	set(gca, 'fontsize', fontsize)
 
 end
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'ST_all_units2.svg'))
