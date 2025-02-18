@@ -1,6 +1,4 @@
 %% NT_velocity_results
-
-%%
 clear
 
 %% Load in natural timbre file names
@@ -84,7 +82,7 @@ for ii = 1:num_RVF
 		%savefile = sprintf('%s_F0_%s_Velocity.mat', target, target_F0{1});
 		%load(fullfile(savepath, savefile),'vel_all', 'CFs_all')
 
-		savefile = sprintf('%s_F0_%d_Velocity.mat', target, round(F0s(ifile)));
+		savefile = sprintf('%s_F0_%d_Velocity2.mat', target, round(F0s(ifile)));
 		load(fullfile(savepath, savefile), 'v', 'v_harms')
 		vel_all = v;
 		CFs_all = v_harms;
@@ -181,6 +179,12 @@ alpha = 0.05;
 	data_mat, shuffles, alpha);
 sig_predictions = sum(significant);
 fprintf('Sig predictions = %d/%d\n', sig_predictions, num_RVF);
+
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'NT_velocity_results.svg'))
 
 
 %% FUNCTIONS 

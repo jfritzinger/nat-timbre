@@ -40,11 +40,14 @@ F0s = pitch_order;
 files = files(order);
 F0s = F0s(order);
 
+itype = 1;
 criteria2 = [2 2 2 2 2 2 2 2 2 2 ...
 	2 2 2 2 1.5 2 2 2 3 2 ...
 	1.6 2 2 2 2 2 2 2 2 3 ...
 	2 2 2 2 2 2 2 2 2 2];
-for ind = 21 %1:nfiles
+for ind =  21 %20 %1:nfiles
+	% Originally 21, 20
+	% Good options: 11
 
 	target_F0 = F0s(ind);
 	target_file = fullfile(fpath,'waveforms', files{ind});
@@ -98,9 +101,6 @@ for ind = 21 %1:nfiles
 			freq = decomp_info(parti).freq{:};
 			phi = decomp_info(parti).phi{:};
 			uwphi = [];
-
-			pwelch(data_part,[],[],[],fs);
-			%close
 			for iphi = 1:length(phi)
 				if iphi == 1
 					uwphi(iphi) = phi(iphi);
@@ -126,21 +126,26 @@ for ind = 21 %1:nfiles
 		pin = temp_pin;
 
 		% Generate spectrogram
-		window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
-		ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
-		[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+			if itype == 1
+				window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
+				ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
+				[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+			elseif itype == 2
+				window = round(1/decomp_info(parti).F0_actual*fs/2);
+				ov = round(0.95*window);
+				[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
+			else
+				window = round(1/decomp_info(parti).F0_actual*fs/2);
+				ov = round(0.95*window);
+				[sg,Ftmp,Ttmp] = spectrogram(data,window,ov,[],fs,'yaxis');
+			end
+
 		Ttmp_part(parti) = {Ttmp};
 		Ftmp_part(parti) = {Ftmp};
 		spect(parti) = {20*log10(abs(sg))};
 		fi = 1;
 		while Ftmp(fi) < max_freq
 			fi = fi+1;
-		end
-
-		% Wait on plotting till the very end
-		if parti == 1 % spectrogram of original vowel for comparison
-			[sg2,Ftmp2,Ttmp2] = spectrogram(data,window,[],[],fs,'yaxis');
-			spect2 = 20*log10(abs(sg2));
 		end
 
 	end
@@ -245,6 +250,7 @@ for ind = 21 %1:nfiles
 	ax(1) = subplot(1, 4, 1);
 	s = surf(Ttmp,Ftmp./1000,this_spect);
 	s.EdgeColor = 'none';
+	%shading interp
 	hold on
 	view(0,90)
 	xlim(xlimits)
@@ -253,9 +259,17 @@ for ind = 21 %1:nfiles
 	ylabel('CFs (kHz)')
 	ylim(ylimits)
 	set(gca, 'FontSize', fontsize)
-	ax.CLim = [30, max(max(this_spect(1:fi,:)))];
-	colormap(gray)
-	plot3(t_avg+0.032, harms(1:max_f)/1000, repmat(60, length(t_avg), 1), 'r', 'LineWidth',4)
+	if itype == 1
+		ax.CLim = [35, max(this_spect(1:fi,:), [], 'all')];
+		colormap(gray)
+	elseif itype == 2
+		ax.CLim = [25, max(this_spect(1:fi,:), [], 'all')-3];
+	else
+		ax.CLim = [-35, max(this_spect(1:fi,:), [], 'all')];
+	end
+	%colormap(gray)
+	plot3(t_avg+0.026, harms(1:max_f)/1000, repmat(60, length(t_avg), 1), 'r', 'LineWidth',4)
+	%plot3(t_avg+0.028, harms(1:max_f)/1000, repmat(60, length(t_avg), 1), 'r', 'LineWidth',4)
 
 	ax(2) = subplot(1, 4, 2);
 	scatter(v,(harms(1:max_f-1)+F0/2)/1000, 'filled')
@@ -404,3 +418,8 @@ set(ax(2), 'position', [0.28 0.2 0.1 0.7])
 set(ax(3), 'position', [0.47 0.2 0.23 0.7])
 set(ax(4), 'position', [0.78 0.2 0.2 0.7])
 
+%% Export 
+
+savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/2025-aro';
+set(gcf, 'Renderer', 'painters')
+print('-dsvg', '-vector', fullfile(savepath,'NT_plot_velocity.svg'))
