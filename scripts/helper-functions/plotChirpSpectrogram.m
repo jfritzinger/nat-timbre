@@ -96,12 +96,14 @@ for parti = 1:num_parts
 
 		% with magnitude applied
 		% temp_pin = temp_pin + A(iharm)*cos(2*pi*t(starti(parti):endi(parti))*freq(iharm) + phi(iharm));
+		altplot(iharm,:) = cos(2*pi*t*freq(iharm) + phi(iharm));
+
 	end
 	pin = temp_pin;
 
 	% Generate spectrogram
 	% window = round(1/decomp_info(parti).F0_actual*60*1000); %round(decomp_info(parti).F0_actual*6); %600;
-	window = round(1/decomp_info(parti).F0_actual*fs/3); 
+	window = round(1/decomp_info(parti).F0_actual*fs); 
 	%ov = window-10; %round(window*0.9833); %590; % or possibly try minus 10 instead?
 	ov = round(0.9*window);
 	[sg,Ftmp,Ttmp] = spectrogram(pin,window,ov,[],fs,'yaxis');
@@ -173,48 +175,59 @@ for iharm = 1:num_harms
 end
 
 % Plot 'spectrogram' of phase 
+% ax(2) = axes('Position',[0.54 0.14 0.42 0.80]);
+% % spec_image = pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
+% pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
+% shading interp
+% ylabel('Frequency (Hz)')
+% xlabel('Time (ms)')
+% set(gca,'YTickLabel',[]);
+% title('Synthesized Spectrogram')
+% % colormap(flipud(gray)) % alternative caxis settings
+% % caxis([-40 50]) % alternative caxis settings
+% colormap(gray)
+% ax(2).CLim = [max(max(this_spect(1:fi,:)))-20, max(max(this_spect(1:fi,:)))]; % min was 30
+% set(gca,'FontSize',fontsize)
+% set(gca,'box','off')
+% hold on
 ax(2) = axes('Position',[0.54 0.14 0.42 0.80]);
-% spec_image = pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
-pcolor(1000*Ttmp,Ftmp(1:fi),this_spect(1:fi,:));
+f_alt = F0:F0:max_freq;
+t_alt = (1/fs):(1/fs):dur;
+s = surf(t_alt,f_alt./1000,altplot);
+s.EdgeColor = 'none';
+view(0,90)
+%xlim(xlimits)
+title(sprintf('Spectrogram, F0=%0.0f', F0))
+xlabel('Time (s)')
+ylabel('CFs (kHz)')
+%ylim(ylimits)
+set(gca, 'FontSize', 16)
 shading interp
-ylabel('Frequency (Hz)')
-xlabel('Time (ms)')
-set(gca,'YTickLabel',[]);
-title('Synthesized Spectrogram')
-% colormap(flipud(gray)) % alternative caxis settings
-% caxis([-40 50]) % alternative caxis settings
-colormap(gray)
-ax(2).CLim = [max(max(this_spect(1:fi,:)))-20, max(max(this_spect(1:fi,:)))]; % min was 30
-set(gca,'FontSize',fontsize)
-set(gca,'box','off')
-hold on
-
-% Show 10 periods 
-xlim([2 1/F0*10*1000])
+xlim([0.1 1/F0*2+0.1])
 
 % Calculate MASD and add to plot (JBF)
-MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi, F0, 0);
-f = Ftmp(1:fi);
-ax(3) = axes('Position',[0.83 0.14 0.12 0.80]);
-plot(f(1:end-1), MASD, 'k')
-set(gca, 'XDir','reverse')
-view(90,90)
-hold on
-num_harms = 25;
-for iharm = 1:num_harms
-	xline(F0*iharm, ':');
-end
-yline(0, 'k')
-xticks([])
-xlim([0 max_freq])
-title('MASD')
-set(gca,'FontSize',fontsize)
-set(gca,'box','off')
-ylim([-1.5 1.5])
+% MASD = calculateMASD(Ftmp, Ttmp, this_spect, fi, F0, 0);
+% f = Ftmp(1:fi);
+% ax(3) = axes('Position',[0.83 0.14 0.12 0.80]);
+% plot(f(1:end-1), MASD, 'k')
+% set(gca, 'XDir','reverse')
+% view(90,90)
+% hold on
+% num_harms = 25;
+% for iharm = 1:num_harms
+% 	xline(F0*iharm, ':');
+% end
+% yline(0, 'k')
+% xticks([])
+% xlim([0 max_freq])
+% title('MASD')
+% set(gca,'FontSize',fontsize)
+% set(gca,'box','off')
+%ylim([-1.5 1.5])
 
 % Reposition axes (JBF) 
 set(ax(1), 'Position', [0.1  0.14 0.26 0.80])
 set(ax(2), 'Position', [0.43 0.14 0.42 0.80])
-set(ax(3), 'Position', [0.83 0.14 0.12 0.80])
+%set(ax(3), 'Position', [0.83 0.14 0.12 0.80])
 
 end
