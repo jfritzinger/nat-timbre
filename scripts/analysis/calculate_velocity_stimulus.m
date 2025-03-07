@@ -252,9 +252,9 @@ for ind = 1:nfiles
 		grid on
 
 		% 'Unwrap' properly
-		%figure
-		%hold on
-		criteria = (1/F0)/criteria2(ind);
+		figure
+		hold on
+		criteria = (1/F0)/6;
 		time_example = zeros(1, max(freqs2));
 		for iCF = 1:max(freqs2)
 			indx = find(iCF==freqs2);
@@ -302,18 +302,18 @@ for ind = 1:nfiles
 
 		% Plot on previous
 		max_f = max(freqs2);
-		plot(ax1, t_avg+0.021, harms(1:max_f)/1000)
+		%plot(ax1, t_avg+0.021, harms(1:max_f)/1000)
 
 		% Order by CF
-		nexttile
-		hold on
-		scatter(t_avg*1000,harms(1:max_f)/1000, 'filled')
-		plot(t_avg*1000,harms(1:max_f)/1000);
-		grid on
-		xlabel('Period, 1/F0 (ms)')
-		set(gca, 'FontSize', 16)
-		title('Averaged Peak Times')
-		ylim(ylimits)
+		% nexttile
+		% hold on
+		% scatter(t_avg*1000,harms(1:max_f)/1000, 'filled')
+		% plot(t_avg*1000,harms(1:max_f)/1000);
+		% grid on
+		% xlabel('Period, 1/F0 (ms)')
+		% set(gca, 'FontSize', 16)
+		% title('Averaged Peak Times')
+		% ylim(ylimits)
 
 		% Calculate df/dt for each nearest neighbor
 		dt = diff(t_avg*1000);
@@ -322,20 +322,20 @@ for ind = 1:nfiles
 		v = df./dt;
 		v(dt_zero_ind) = 0;
 
-		nexttile
-		scatter(v,(harms(1:max_f-1)+F0/2)/1000, 'filled')
-		hold on
-		plot(v,(harms(1:max_f-1)+F0/2)/1000)
-		hold on
-		xlabel('Velocity (kHz/ms)')
-		title('Velocity')
-		set(gca, 'FontSize', 16)
-		xline(0, 'k')
-		max_vel = max(abs(v));
-		xlim([-1*max_vel-0.1 max_vel+0.1])
-		grid on
-		v_harms = harms(1:max_f-1)+F0/2;
-		ylim(ylimits)
+		% nexttile
+		% scatter(v,(harms(1:max_f-1)+F0/2)/1000, 'filled')
+		% hold on
+		% plot(v,(harms(1:max_f-1)+F0/2)/1000)
+		% hold on
+		% xlabel('Velocity (kHz/ms)')
+		% title('Velocity')
+		% set(gca, 'FontSize', 16)
+		% xline(0, 'k')
+		% max_vel = max(abs(v));
+		% xlim([-1*max_vel-0.1 max_vel+0.1])
+		% grid on
+		% v_harms = harms(1:max_f-1)+F0/2;
+		% ylim(ylimits)
 
 		% figure
 		% t = tiledlayout(1,1);
@@ -357,6 +357,4 @@ for ind = 1:nfiles
 		%savefile = sprintf('%s_F0_%d_Velocity2.mat', target, round(target_F0));
 		%save(fullfile(savepath, savefile), 'v', 'v_harms')
 	end
-	close all
-
 end
