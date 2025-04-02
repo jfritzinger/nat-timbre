@@ -62,32 +62,28 @@ if length(spike_rates)== length(Timbrei)
 	pitch = categorical(pitch_order(order)); % Order pitches
 	rate = rate(order);
 
-	% Temporal analysis
-	stim_set = find(param.stims.dsid == ds); % finds all indices for dataset
-	these_spikes = ismember(cluster.abs_stim_num,stim_set); % finds all spikes that occurred in each stim set
-	t_spike_rel = cluster.t_spike_rel(these_spikes); % gets timing for all spikes
-	rel_id = cluster.rel_id(these_spikes); % don't know what this is 
-
+	% Calculate PSTH
+	stim_set = find(param.stims.dsid == ds);
+	these_spikes = ismember(cluster.abs_stim_num,stim_set);
+	t_spike_rel = cluster.t_spike_rel(these_spikes);
+	rel_id = cluster.rel_id(these_spikes);
 	[vs,order2] = sort(Timbrei);
 	num_stim = length(Timbrei);
 	reps = zeros(num_stim,1);
 	rep = zeros(num_stim,1);
-	for i = 1:num_Timbres
-		j = vs == i;
+	for ii = 1:num_Timbres
+		j = vs == ii;
 		reps(j) = (1:sum(j))';
 	end
 	rep(order2) = reps;
-
-	for ii = 1:num_Timbres
-		j = find(Timbrei == order(ii)); % finds them in proper F0 order
-		x = t_spike_rel(ismember(rel_id,j));
-		y = rep(rel_id(ismember(rel_id,j)));
-
-		data.j(ii,:) = j;
+	for iii = 1:num_Timbres
+		j = find(Timbrei == order(iii)); % finds them in proper F0 order
+		xx = t_spike_rel(ismember(rel_id,j));
+		yy = rep(rel_id(ismember(rel_id,j)));
+		spike_times{iii} = xx;  % save an array of spike times to a cell for all repetition of the stimulus
+		spike_reps{iii} = yy;  % these tell you the rep for each spike time
 	end
-	data.t_spike_rel = t_spike_rel;
-	data.rel_id = rel_id;
-	data.rep = rep;
+
 	
 
 	% Calculate the predictable variance
@@ -113,6 +109,8 @@ if length(spike_rates)== length(Timbrei)
 	data.pitch = pitch;
 	data.pitch_num = pitch_order(order);
 	data.V_p = V_p;
+	data.spike_times = spike_times;
+	data.spike_reps = spike_reps;
 else
 	data.rate = [];
 	data.rate_std = [];
@@ -122,6 +120,8 @@ else
 	data.pitch = [];
 	data.pitch_num = [];
 	data.V_p = NaN;
+	data.spike_times = [];
+	data.spike_reps = [];
 end
 
 end
