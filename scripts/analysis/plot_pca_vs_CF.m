@@ -80,3 +80,42 @@ for ii = 1:2
 		title('Bassoon, High pitch (277-587Hz)')
 	end
 end
+
+%% PCA VARIANCE OF TUNING ANALYSIS
+
+rate_matrix = data_bassoon.rates_z;
+allTuningMats = rate_matrix';
+[height, num_mats] = size(allTuningMats); %measure sizes of image stack
+vectMats = reshape(allTuningMats, height, num_mats)';  % vectorize each tuning matrix
+X_centered = vectMats - mean(vectMats, 1); %subtract off means
+[coeff, score, latent] = pca(X_centered); %run PCA
+
+% Plot variance explained
+figure;
+explained = 100*latent/sum(latent);
+plot(cumsum(explained),'k-'); hold on;
+plot(cumsum(explained),'k.'); hold off;
+xlabel('Number of Components');
+ylabel('Variance Explained (%)');
+title('Cumulative Variance Explained');
+grid on
+
+% Visualize top 8 components
+num_components_to_show = 16; 
+figure; tiledlayout(4,4, 'TileSpacing','compact', 'Padding','compact');
+for n = 1:num_components_to_show
+    nexttile(n);
+    pcMat = coeff(:,n);
+    plot(pcMat); %clim([-0.5 0.8]);
+    title(['PC ' num2str(n)]);
+end
+
+% Find images that are most aligned with each principal component
+figure; tiledlayout(4,4, 'TileSpacing','compact', 'Padding','compact');
+for n = 1:num_components_to_show
+    [~, max_idx] = max(abs(score(:,n)));
+    nexttile(n)
+    orig_image = allTuningMats(:,max_idx);
+    plot(orig_image); %clim([-4 8]);
+    title(['Neuron most aligned with PC ' num2str(n)],'FontSize',8);
+end
