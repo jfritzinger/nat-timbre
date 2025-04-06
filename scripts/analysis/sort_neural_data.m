@@ -20,7 +20,7 @@ sessions = readtable(fullfile(base, sheetpath, spreadsheet_name), 'PreserveVaria
 
 %% Create matrices for bassoon and oboe separately
 
-for int = 2 %1:2
+for int = 1:2
 
 	% Natural timbre datasets
 	if int == 1
@@ -52,6 +52,7 @@ for int = 2 %1:2
 		% Analyze data
 		param = data{12+int, 2};
 		data_NT = analyzeNT(param);
+		
 
 		% Get rid of noisy data
 		if data_NT.V_p<0.5
@@ -59,11 +60,13 @@ for int = 2 %1:2
 		else
 			% Put all datapoints into matrix (one for BE, one BS)
 			if ~isempty(data_NT.rate)
+				temporal = analyzeNT_Temporal(data_NT);
 				CF_all(ind) = CF;
 				MTF_shape_all{ind} = MTF_shape;
 				rate_all(ind,:) = data_NT.rate;
 				rate_z_all(ind,:) = zscore(data_NT.rate);
 				rate_std_all(ind,:) = data_NT.rate_std;
+				VS_all(ind,:) = temporal.VS;
 				ind = ind +1;
 			end
 		end
@@ -76,15 +79,17 @@ for int = 2 %1:2
 		data_bassoon.rates = rate_all;
 		data_bassoon.rates_z = rate_z_all;
 		data_bassoon.rates_std = rate_std_all;
+		data_bassoon.VS = VS_all;
 	else
 		data_oboe.CFs = CF_all;
 		data_oboe.MTF_shapes = MTF_shape_all;
 		data_oboe.rates = rate_all;
 		data_oboe.rates_z = rate_z_all;
 		data_oboe.rates_std = rate_std_all;
+		data_oboe.VS = VS_all;
 		
 	end
-	clear CF_all MTF_shape_all rate_all rate_z_all rate_std_all
+	clear CF_all MTF_shape_all rate_all rate_z_all rate_std_all VS_all
 end
 
 %% Save out matrices
