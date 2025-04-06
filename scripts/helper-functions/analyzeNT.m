@@ -84,8 +84,6 @@ if length(spike_rates)== length(Timbrei)
 		spike_reps{iii} = yy;  % these tell you the rep for each spike time
 	end
 
-	
-
 	% Calculate the predictable variance
 	rate_matrix = zeros([param.nrep, num_Timbres]);
 	x = reshape(spike_rates, [num_Timbres, param.nrep])';
@@ -100,6 +98,17 @@ if length(spike_rates)== length(Timbrei)
 	end
 	[V_p, ~,~] = predictableVariance(rate_matrix, Timbres);
 
+	% Calculate average rate for each repetition and then sort
+	reps = length(Timbrei)/num_Timbres;
+	raw_rates = zeros(num_Timbres, reps);
+	for j = 1:num_Timbres
+		raw_rates(j, :) = spike_rates(j==Timbrei);
+	end
+	raw_rates = raw_rates(order,:);
+
+	% Normalize rates based on .... spont and max? 
+	
+
 	% Saved data
 	data.rate = rate(order);
 	data.rate_std = rate_std(order);
@@ -111,6 +120,7 @@ if length(spike_rates)== length(Timbrei)
 	data.V_p = V_p;
 	data.spike_times = spike_times;
 	data.spike_reps = spike_reps;
+	data.raw_rates = raw_rates;
 else
 	data.rate = [];
 	data.rate_std = [];
@@ -122,6 +132,7 @@ else
 	data.V_p = NaN;
 	data.spike_times = [];
 	data.spike_reps = [];
+	data.raw_rates = [];
 end
 
 end
