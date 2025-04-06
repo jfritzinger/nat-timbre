@@ -1,4 +1,4 @@
-function temporal = analyzeNT_Temporal(data_ST)
+function temporal = analyzeNT_Temporal(data_ST, CF)
 
 num_stim = length(data_ST.pitch_num);
 for i_stim = 1:num_stim
@@ -42,9 +42,18 @@ for i_stim = 1:num_stim
 	%vectors = exp(-1i*2*pi*200*spike_times/1000); % same equation
 	%sync(j) = abs(mean(vectors)); % same equation
 
-	period = 1000 / 400;
+	period = 1000 / CF;
 	phases = 2 * pi * mod(spike_times, period) / period;
-	VS_400 = abs(mean(exp(1i * phases)));
+	VS_CF = abs(mean(exp(1i * phases)));
+
+	% Calculate vector strength for each repetition of the stimulus
+	nreps = 20;
+	for ind = 1:nreps
+		rep_ind = y==ind;
+		raw_spikes = x(rep_ind)/1000;
+		phases = 2 * pi * mod(raw_spikes, period) / period;
+		VS2(ind) = abs(mean(exp(1i * phases)));
+	end
 
 	% Save outputs
 	temporal.x{i_stim} = x;
@@ -55,7 +64,8 @@ for i_stim = 1:num_stim
 	temporal.p_hist(i_stim,:) = counts;
 	temporal.t_hist(i_stim,:) = edges;
 	temporal.VS(i_stim) = VS;
-	temporal.VS_400(i_stim) = VS_400;
+	temporal.VS_CF(i_stim) = VS_CF;
+	temporal.VS_rep(i_stim, :) = VS2;
 end
 
 end
