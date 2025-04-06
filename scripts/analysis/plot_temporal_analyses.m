@@ -91,8 +91,26 @@ grid on
 title('Period Histogram')
 set(gca, 'fontsize', 12)
 
-%% Plot heatmap
-
+% Plot heatmap
+% 
+% % Plot as heatmap
+% p_hist = temporal.p_hist;
+% edges = temporal.t_hist;
+% t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
+% t = linspace(0, 5, size(p_hist,2));
+% grayMap = [linspace(0, 1, 256)', linspace(0, 1, 256)', linspace(0, 1, 256)'];
+% grayMap = flipud(grayMap);
+% nexttile
+% hh = pcolor(t, data_ST.fpeaks./1000, p_hist);
+% set(hh, 'EdgeColor', 'none');
+% %colorbar;
+% %axis square;
+% colormap(grayMap);
+% xlim([0 5])
+% max_rate = max(p_hist, [], "all");
+% clim([0 max_rate])
+% ylabel('F0 (Hz)')
+% set(gca, 'fontsize', fontsize)
 
 %% Calculate VS sync to 200 Hz
 
