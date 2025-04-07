@@ -2,7 +2,7 @@
 
 % Load in spreadsheet
 %[base, ~, ~, ~] = getPaths();
-spreadsheet_name = 'model_r2_values_NT.xlsx';
+spreadsheet_name = 'model_r2_values_NT2.xlsx';
 sessions = readtable(spreadsheet_name, 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
