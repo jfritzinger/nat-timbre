@@ -100,17 +100,14 @@ if length(spike_rates)== length(Timbrei)
 
 	% Calculate average rate for each repetition and then sort
 	reps = length(Timbrei)/num_Timbres;
-	raw_rates = zeros(num_Timbres, reps);
+	raw_rates = zeros(reps,num_Timbres);
 	for j = 1:num_Timbres
-		raw_rates(j, :) = spike_rates(j==Timbrei);
+		raw_rates(:,j) = spike_rates(j==Timbrei);
 	end
-	raw_rates = raw_rates(order,:);
-
-	% Normalize rates based on .... spont and max? 
-	
+	raw_rates = raw_rates(:,order);	
 
 	% Saved data
-	data.rate = rate(order);
+	data.rate = rate; %(order);
 	data.rate_std = rate_std(order);
 	data.F0s = pitch_order;
 	data.note_names = note_names;
