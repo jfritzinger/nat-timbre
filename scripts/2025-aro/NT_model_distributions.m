@@ -47,7 +47,7 @@ end
 
 % Load in spreadsheet
 datapath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-spreadsheet_name = 'model_r2_values_NT.xlsx';
+spreadsheet_name = 'model_r2_values_NT2.xlsx';
 sessions = readtable(fullfile(datapath, spreadsheet_name), 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
@@ -62,45 +62,45 @@ isBass = strcmp(sessions.Instrument, 'Bassoon');
 
 nexttile
 hold on
-edges = linspace(0, 1, 20);
+edges = linspace(0, 1, 40);
 histogram(sessions.SFIE_R2(isOboe), edges, 'FaceAlpha',0.5)
 histogram(sessions.SFIE_R2(isBass), edges, 'FaceAlpha',0.5)
 title('SFIE')
 set(gca, 'Fontsize', fontsize)
 grid on
-xlim([0 1])
+xlim([0 0.5])
 ylabel('# Neurons')
 
 nexttile
 hold on
-edges = linspace(0, 1, 20);
+edges = linspace(0, 1, 40);
 histogram(sessions.Energy_R2(isOboe), edges, 'FaceAlpha',0.5)
 histogram(sessions.Energy_R2(isBass), edges, 'FaceAlpha',0.5)
 title('Energy')
 set(gca, 'Fontsize', fontsize)
 grid on
-xlim([0 1])
+xlim([0 0.5])
 
 nexttile
 hold on
-edges = linspace(0, 1, 20);
+edges = linspace(0, 1, 40);
 histogram(sessions.Lat_Inh_R2(isOboe), edges, 'FaceAlpha',0.5)
 histogram(sessions.Lat_Inh_R2(isBass), edges, 'FaceAlpha',0.5)
 title('Broad Inh.')
 set(gca, 'Fontsize', fontsize)
 legend('Oboe', 'Bassoon')
 grid on
-xlim([0 1])
+xlim([0 0.5])
 xlabel('Variance Explained (R^2)')
 ylabel('# Neurons')
 
 nexttile
-edges = linspace(0, 1, 21);
+edges = linspace(0, 1, 40);
 histogram(R2_all, edges)
 xlabel('Variance Explained (R^2)')
 title('Noise STRF')
 set(gca, 'fontsize', 18)
-xlim([0 1])
+xlim([0 0.5])
 grid on
 box off
 
