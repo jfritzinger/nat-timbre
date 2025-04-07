@@ -1,5 +1,5 @@
 %% model_neuron_rate_F0
-
+clear 
 %% Load in data
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
@@ -22,7 +22,7 @@ num_data = length(sesh);
 for ind = 1:num_data
 
 	index = sesh(ind);
-	data = nat_data(index).bass_raterep';
+	data = nat_data(index).bass_raterep;
 	avg_rate = nat_data(index).bass_rate;
 	rate_std = nat_data(index).bass_rate_std;
 
@@ -63,25 +63,27 @@ for ind = 1:num_data
 	%% Analysis
 
 	% Plot average rates
-	figure('Position',[136,782,1085,481])
-	tiledlayout(1, 2);
-	nexttile
-	hold on
-	bar(avg_rate)
-	errorbar(1:40, avg_rate, rate_std/sqrt(20), 'LineStyle','none', 'Color','k')
+	% figure('Position',[136,782,1085,481])
+	% tiledlayout(1, 2);
+	% nexttile
+	% hold on
+	% bar(avg_rate)
+	% errorbar(1:40, avg_rate, rate_std/sqrt(20), 'LineStyle','none', 'Color','k')
+	% ylabel('Avg. Rate')
+	% xlabel('F0s')
 
 	% Plot confusion matrix
 	actual2 = reshape(actual,[], 20*40);
 	closest2 = reshape(closest, [], 20*40);
-	nexttile
-	C = confusionmat(actual2, closest2);
-	confusionchart(C)
+	% nexttile
+	% C = confusionmat(actual2, closest2);
+	% confusionchart(C)
 
 	% Calculate accuracy
 	chart = confusionchart(actual2,closest2); % Generate confusion chart
 	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 	accuracy(ind) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-	title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
+	% title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
 
 end
 
@@ -92,3 +94,6 @@ histogram(accuracy*100,51)
 ylabel('# Neurons')
 xlabel('Prediction Accuracy (%)')
 title('Prediction of F0 for each neuron using average rate')
+
+mean_all = mean(accuracy, 'all');
+fprintf('Mean for all = %0.4f\n', mean_all)
