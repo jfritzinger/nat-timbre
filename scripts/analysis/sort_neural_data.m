@@ -60,7 +60,7 @@ for int = 1:2
 		else
 			% Put all datapoints into matrix (one for BE, one BS)
 			if ~isempty(data_NT.rate)
-				temporal = analyzeNT_Temporal(data_NT);
+				temporal = analyzeNT_Temporal(data_NT, CF);
 				CF_all(ind) = CF;
 				MTF_shape_all{ind} = MTF_shape;
 				rate_all(ind,:) = data_NT.rate;
