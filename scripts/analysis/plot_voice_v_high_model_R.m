@@ -3,7 +3,7 @@
 % Load in spreadsheet
 %[base, ~, ~, ~] = getPaths();
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-spreadsheet_name = 'model_r2_values_NT.xlsx';
+spreadsheet_name = 'model_r2_values_NT2.xlsx';
 sessions = readtable(fullfile(filepath, spreadsheet_name), 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
@@ -37,7 +37,7 @@ isMTF = strcmp(sessions.MTF, MTF_target);
 %% Plot histogram of R values 
 
 instruments = {'Bassoon', 'Oboe'};
-figure('name',instruments{ispl}, 'position', [47,487,523,401])
+figure('name',instruments{1}, 'position', [47,487,523,401])
 tiledlayout(2, 2, 'TileSpacing','tight', 'Padding','compact', 'TileIndexing','columnmajor')
 for ispl = 1:2
 
