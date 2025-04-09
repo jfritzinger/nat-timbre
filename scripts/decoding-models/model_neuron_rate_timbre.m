@@ -158,7 +158,7 @@ for ii = 1:16
 	ylabel('# Neurons')
 	xlabel('Prediction Accuracy (%)')
 	title(['Prediction of instrument, F0=' num2str(round(bass_pitch(ind_b(ii))))])
-	endn
+end
 
 mean_all = mean(accuracy, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)

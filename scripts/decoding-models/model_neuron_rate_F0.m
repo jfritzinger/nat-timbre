@@ -8,15 +8,8 @@ load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
 %% Shape data into model input
 
-% Find all rows with bassoon in them
-sesh = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	if ~isempty(rate)
-		sesh = [sesh ii];
-	end
-end
-num_data = length(sesh);
+sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+num_data = numel(sesh);
 
 % Get all rates for each repetition for bassoon (one example neuron)
 for ind = 1:num_data
