@@ -12,12 +12,12 @@ clear
 %%
 
 %model_type = 'SFIE';
-model_type = 'Energy';
-% model_type = 'Lat_Inh';
+%model_type = 'Energy';
+model_type = 'Lat_Inh';
 
 % Load in spreadsheet
 [base, datapath, savepath, ppi] = getPaths();
-spreadsheet_name = 'PutativeTable2.xlsx';
+spreadsheet_name = 'PutativeTable.xlsx';
 sessions = readtable(fullfile(datapath, 'data-cleaning', spreadsheet_name), 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
@@ -42,14 +42,14 @@ for isesh = 1:num_index
 
 	% Load model
 	filename = [putative '_' model_type '.mat'];
-	%filepath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript';
-	filepath = '/Volumes/Nat-Timbre/data/manuscript/';
+	filepath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript';
+	%filepath = '/Volumes/Nat-Timbre/data/manuscript/';
 	if strcmp(model_type, 'Energy')
 		load(fullfile(filepath, 'energy_model', filename), 'params_NT', 'energy')
 	elseif strcmp(model_type, 'SFIE')
-		load(fullfile(filepath, 'SFIE_model', filename), 'params_NT', 'AN', 'SFIE')
+		load(fullfile(filepath, 'SFIE_model', filename), 'params_NT', 'AN', 'SFIE', 'model_params')
 	elseif strcmp(model_type, 'Lat_Inh')
-		load(fullfile(filepath, 'lat_inh_model', filename), 'params_NT', 'AN_lat_inh', 'lat_inh')
+		load(fullfile(filepath, 'lat_inh_model', filename), 'params_NT', 'AN_lat_inh', 'lat_inh', 'model_params')
 	end
 
 	for iNT = 1:2
@@ -102,6 +102,6 @@ for isesh = 1:num_index
 		save(fullfile(filepath, 'lat_inh_model', filename), 'params_NT', 'AN_lat_inh', 'lat_inh', 'model_params')
 	end
 
-	elapsedTime = toc(timerVal)/60;
-	disp([putative ' Model took ' num2str(elapsedTime) ' minutes'])
+	elapsedTime = toc(timerVal);
+	disp([putative ' Model took ' num2str(elapsedTime) ' seconds'])
 end
