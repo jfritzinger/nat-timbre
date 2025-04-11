@@ -5,9 +5,8 @@ clear
 %% Load in spreadsheet
 
 [base, datapath, ~, ppi] = getPaths();
-sheetpath = 'scripts/data-cleaning';
 spreadsheet_name = 'PutativeTable2.xlsx';
-sessions = readtable(fullfile(base, sheetpath, spreadsheet_name), 'PreserveVariableNames',true);
+sessions = readtable(fullfile(datapath, 'data-cleaning', spreadsheet_name), 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
 if ismac
@@ -32,7 +31,11 @@ for iinst = 2
 	end
 	index = find(has_data);
 
-	for isesh = 42 %1:length(index) % error: 2: 30, 42
+	for isesh = 1:length(index) % error: 2: 30, 42
+
+		if isesh == 30 || isesh == 42
+			continue
+		end
 
 		% Load in data
 		s_ind = index(isesh);
@@ -52,7 +55,7 @@ for iinst = 2
 		param_NT.Fs = 48000;
 		param_NT.mnrep = param_NT.nrep;
 		param_NT.dur = 0.3;
-		[R2, avModel, stdModel, ratio, max_all] = modelNTSTRF(param_NT, data_STRF, data_NT);
+		[R2, avModel, stdModel, ratio, max_all, R] = modelNTSTRF(param_NT, data_STRF, data_NT);
 
 		% Display progress
 		fprintf('%s Done, %.2f\n', putative_neuron, isesh/length(index))
@@ -86,6 +89,7 @@ for iinst = 2
 
 		%% Add to struct
 		temp(isesh).putative = putative_neuron;
+		temp(isesh).R = R;
 		temp(isesh).R2 = R2;
 		temp(isesh).avModel = avModel;
 		temp(isesh).stdModel = stdModel;
