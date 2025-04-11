@@ -1,4 +1,4 @@
-function [R2, avModel, stdModel, ratio, max_all] = modelNTSTRF(param, data_STRF, data)
+function [R2, avModel, stdModel, ratio, max_all, R] = modelNTSTRF(param, data_STRF, data)
 % Function that uses STRF to predict responses to WBTIN
 % J. Fritzinger, created 7/10/23
 
@@ -61,5 +61,6 @@ max_all = max([max_rate, max((avModel.*ratio))]);
 % Measure prediction accuracy
 R_int = corrcoef(avModel,data.rate);
 R2 = R_int(1, 2).^2;
+R = R_int(1,2);
 
 end
