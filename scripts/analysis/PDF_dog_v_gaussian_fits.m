@@ -5,6 +5,14 @@ import mlreportgen.report.*
 
 %% Load and initialize
 
+if ismac
+	addpath('/Users/jfritzinger/Projects/shared-models/DoG-model', '-begin')
+else
+	addpath('C:\Projects_JBF\shared-models\DoG-model', '-begin')
+	addpath 'C:\Projects_JBF\nat-timbre\scripts\helper-functions'
+
+end
+
 % Load in spreadsheet
 [base, datapath, savepath, ppi] = getPaths();
 spreadsheet_name = 'PutativeTable.xlsx';
@@ -13,7 +21,7 @@ sessions = readtable(fullfile(datapath, 'data-cleaning', spreadsheet_name),...
 num_data = size(sessions, 1);
 
 % Initialize report
-filename = 'DoG_Gauss_Compare'; 
+filename = 'DoG_Gauss_Compare_NT'; 
 images = {}; %hold all plots as images, need to delete when finished 
 datetime.setDefaultFormats('default','yyyy-MM-dd_hhmmss') 
 report_name = sprintf('%s/pdfs/%s_%s.pdf', savepath, datetime, filename); 
@@ -40,15 +48,17 @@ CF_list = sessions.CF(has_data);
 [~, order] = sort(CF_list);
 num_sessions = length(CF_list);
 linewidth = 1;
-fontsize = 5;
+fontsize = 4.5;
 
 % Plot each neuron
 R2_dog_all = NaN(1, num_sessions);
 R2_gauss_all = NaN(1, num_sessions);
-for isesh = 28:101 %182:num_sessions
-	% Session 27 errored, 117, 154, 181
-	% Need to go back and redo 1 to 101 because I didn't save the
-	% parameters 
+for isesh = 1:num_sessions
+
+	if ismember(isesh, [27, 117, 154, 181, 185, 187])
+		continue
+	end
+ 
 	ineuron = index(order(isesh)); %indices(isesh)
 	if any(has_data(ineuron))
 
@@ -87,16 +97,23 @@ for isesh = 28:101 %182:num_sessions
 		params{1}.mnrep = 1;
 		params{1} = generate_NT(params{1});
 		params{1}.num_stim = size(params{1}.stim, 1);
+
+		%% Run models 
+
 		Fs = 100000;
 		observed_rate = data_NT.rate;
 		r0 = spont;
-
-		% fmincon
 		stim = params{1}.stim;
-		[gaussian_params, dog_params] = fitGaussAndDoG(params, CF, Fs, observed_rate, r0);
+		nrep = 15;
+		speed = 'slow'; % 'fast';
+		dog_params = fit_dog_model(nrep, CF, Fs, stim, observed_rate, r0, speed);
+		nrep = 10;
+		gaussian_params = fit_gaussian_model(nrep, CF, Fs, stim, observed_rate, r0);
 
-		% Plot data
+		%% Plot data
 		fig = figure;
+		tiledlayout(1, 2, 'TileSpacing','compact', 'Padding','tight')
+		nexttile
 		hold on
 		bar(data_NT.pitch, data_NT.rate)
 		hold on
@@ -113,10 +130,7 @@ for isesh = 28:101 %182:num_sessions
 		nstim = size(stim, 1);
 		gaus_predicted = zeros(nstim, 1);
 		for i = 1:nstim
-			fc = gaussian_params(1);
-			sigma = gaussian_params(2);
-			g = gaussian_params(3);
-			W = gaussian_model(f, fc, sigma, g);
+			W = gaussian_model(f, gaussian_params);
 			gaus_predicted(i) = compute_firing_rate(stim(i, :), Fs, W, f, r0);
 		end
 		plot(data_NT.pitch, gaus_predicted, 'r', 'linewidth', linewidth)
@@ -134,27 +148,44 @@ for isesh = 28:101 %182:num_sessions
 		plot(data_NT.pitch, dog_predicted, 'g', 'linewidth', linewidth)
 		dog_adj_r_squared = calculate_adj_r_squared(observed_rate,...
 			dog_predicted, 5);
-		%legend('Data', 'CF', 'Spont', 'Gaussian', 'DoG', 'location', 'westoutside')
-		set(gca, 'FontSize',fontsize)
-
 
 		% Annotations
-		gaus_msg = sprintf('Gaussian adjusted R^2=%0.02f', gaussian_adj_r_squared);
-		text(0.05, 0.95, gaus_msg, 'Units', 'normalized', ...
-			'VerticalAlignment', 'top', 'FontSize',fontsize)
-		dog_msg = sprintf('DoG adjusted R^2=%0.02f', dog_adj_r_squared);
-		text(0.05, 0.85, dog_msg, 'Units', 'normalized', ...
-			'VerticalAlignment', 'top', 'FontSize',fontsize)
+		gaus_msg = sprintf('Gaus, \nR^2=%0.02f', gaussian_adj_r_squared);
+		dog_msg = sprintf('DoG, \nR^2=%0.02f', dog_adj_r_squared);
+		hleg = legend('','', gaus_msg, dog_msg, 'location', 'westoutside');
+		hleg.ItemTokenSize = [4, 4];
+		set(gca, 'FontSize',fontsize)
 
 		% Get R^2 for all
 		R2_dog_all(isesh) = dog_adj_r_squared;
 		R2_gauss_all(isesh) = gaussian_adj_r_squared;
 
+		%% Plot DoG Parameters
+		nexttile
+		hold on
+		Fs = 100000;
+		f = linspace(0, Fs/2, 100000);
+		W = gaussian_model(f, gaussian_params);
+		plot(f/1000,W, 'color', 'r')
+		W2 = dog_model(f, dog_params);
+		plot(f/1000,W2, 'color', 'g')
+
+		% Plot labels
+		xline(CF/1000, '--', 'linewidth', 1.5)
+		title('DoG and Gaussian Kernels')
+		set(gca, 'fontsize', fontsize)
+		ylabel('Amplitude')
+		xlabel('Frequency (kHz)')
+		xlim([200 10000]/1000)
+		set(gca, 'xscale', 'log')
+		grid on
+		xticks([0.1 0.2 0.5 1 2 5 10])
+
 		% Add to PDF
 		[plt1, images] = addtoSTPDF(images, fig, putative);
 		append(rpt, plt1);
 
-		% Get f-test for all
+		%% Get f-test for all
 		p_value = ftest(data_NT.rate, gaus_predicted, dog_predicted);
 
 		% Struct to save out all data and fits 
@@ -196,7 +227,7 @@ function [img, images] = addtoSTPDF(images, fig, title)
 import mlreportgen.dom.*
 
 % Set figure size, recommended
-values = [4, 1.5];
+values = [4.15, 1.5];
 fig.PaperSize = values;
 fig.PaperPosition = [0 0 values];
 fig.Units = 'inches';
