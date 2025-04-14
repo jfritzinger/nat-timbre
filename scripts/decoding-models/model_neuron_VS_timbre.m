@@ -1,0 +1,175 @@
+%% model_neuron_rate_F0
+clear
+
+%% MODEL NEEDS WORK
+
+%% Get list of all timbre stimuli (bassoon)
+
+for iinstr = 2
+	if iinstr == 1
+		target = 'Oboe';
+	else
+		target = 'Bassoon';
+	end
+
+	if ismac
+		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
+	else
+		fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
+	end
+	tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
+
+	listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
+	target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
+	wav_nums =  find(cell2mat(target_WAV));
+
+	d = dir(fullfile(fpath,'waveforms', '*.wav'));
+	all_files = sort({d.name});
+	nfiles = length(wav_nums);
+	wav_npts = zeros(1,nfiles);
+	wav_data = cell(1,nfiles);
+
+	for i = 1:nfiles
+		files{1,i} = all_files{wav_nums(i)};
+	end
+
+	% Sort by frequency of pitch
+	index = [];
+	note_names = extractBetween(files, 'ff.','.');
+	for ii = 1:nfiles % Find index of each note in tuning spreadsheet
+		index(ii) = find(strcmp(note_names(ii), tuning.Note));
+	end
+	pitch_order = tuning.Frequency(index); % Get freqs of each note
+	[~, order] = sort(pitch_order); % Sort freqs
+
+	if iinstr == 1
+		files_o = files(order);
+		note_names_o = note_names(order);
+	else
+		files_b = files(order);
+		note_names_b = note_names(order);
+	end
+end
+bass_pitch = pitch_order(order);
+
+%% Load in data
+
+filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
+load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+
+%% Shape data into model input
+
+% Find all rows with bassoon in them
+sesh = [];
+for ii = 1:length(nat_data)
+	rate = nat_data(ii).bass_VS;
+	rate2 = nat_data(ii).oboe_VS;
+	if ~isempty(rate) && ~isempty(rate2)
+		sesh = [sesh ii];
+	end
+end
+num_data = length(sesh);
+ind_b = 25:40;
+ind_o = [1 3:17];
+target = 1;
+
+%% Get all rates for each repetition for bassoon (one example neuron)
+for ind = 1:num_data
+
+	index = sesh(ind);
+	% figure('Position',[136,782,1085,481])
+	% tiledlayout(6, 6);
+
+	for target = 4 %1:16
+
+
+		data = [nat_data(index).bass_VSrep(ind_b(target), :); ...
+			nat_data(index).oboe_VSrep(ind_o(target), :)];
+		avg_VS = [nat_data(index).bass_VS(ind_b(target)) ...
+			nat_data(index).oboe_VS(ind_o(target))];
+
+		%% Calculate simple rate prediction
+
+		% Initialize variables to store results
+		closest = zeros(size(data, 2), size(data, 1));
+		actual = zeros(size(data, 2), size(data, 1));
+
+		% Loop through each row to calculate the average of the other rows and find the closest column
+		for i = 1:size(data, 2)
+
+			% Extract the current row (1x40 data)
+			single_row = data(:,1);
+
+			% Calculate overall average rates across repetitions in response to each of
+			% the 12 vowels, excluding the current repetition.
+			other_rows = data(:,[1:i-1, i+1:end]); % Remove row i
+			avg_other_rows = mean(other_rows, 2); % Average of other rows (1x40)
+
+			% Calculate average rate to a given repetition of one vowel
+			for ii = 1:2
+				rate = single_row(ii);
+
+				% The response to each repetition was identified as the vowel for which the
+				% absolute difference between the single-repetition rate and overall
+				% average rate was minimal.
+				differences = abs(avg_other_rows - rate);
+				[~, closest_column_index] = min(differences);
+
+				% Store the closest column index for this row
+				closest(i, ii) = closest_column_index;
+				actual(i,ii) = ii;
+			end
+		end
+
+		%% Analysis
+		figure
+		tiledlayout(1, 2)
+
+		% Calculate accuracy
+		% C = confusionmat(actual2, closest2);
+		% chart = confusionchart(actual2,closest2); % Generate confusion chart
+		% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+		% accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+
+		% Plot average rates
+		nexttile
+		hold on
+		bar(avg_VS)
+		ylabel('VS')
+		xlabel('F0s')
+
+		% Plot confusion matrix
+		actual2 = reshape(actual,[], 20*2);
+		closest2 = reshape(closest, [], 20*2);
+		nexttile
+		C = confusionmat(actual2, closest2);
+		confusionchart(C)
+
+		% Calculate accuracy
+		chart = confusionchart(actual2,closest2); % Generate confusion chart
+		confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+		accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+		title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
+			bass_pitch(ind_b(target)), accuracy(ind, target)*100))
+
+	end
+end
+
+%% Plot accuracy of each neuron
+figure
+tiledlayout(4, 4)
+for ii = 1:16
+	nexttile
+	histogram(accuracy(:,ii)*100,21)
+	mean_F0 = mean(accuracy(:,ii));
+	hold on
+	xline(mean_F0*100, 'r', 'LineWidth',2)
+	ylabel('# Neurons')
+	xlabel('Prediction Accuracy (%)')
+	title(['Prediction of instrument, F0=' num2str(round(bass_pitch(ind_b(ii))))])
+end
+
+mean_all = mean(accuracy, 'all');
+fprintf('Mean for all = %0.4f\n', mean_all)
+
+
