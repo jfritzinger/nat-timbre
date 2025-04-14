@@ -38,15 +38,18 @@ num_data = numel(sesh);
 data_mat = NaN(length(F0s)*20, num_data);
 for ii = 1:num_data
 
-	try1 = nat_data(sesh(ii)).bass_VSrep;
-	%try1 = nat_data(sesh(ii)).bass_raterep';
+	%try1 = nat_data(sesh(ii)).bass_VSrep;
+	try1 = nat_data(sesh(ii)).bass_raterep';
 	try2 = reshape(try1, [], 1);
 	data_mat(:,ii) = try2;
 end
 
+% [coeff, score] = pca(data_mat);
+% XReduced = score(:, 1:50); 
+
 %% Run model
 
-nrep = 100;
+nrep = 5;
 for irep = 1:nrep
 
 	% Take out test data
@@ -61,14 +64,27 @@ for irep = 1:nrep
 	train_mat = data_mat(~ind_test);
 
 	% Train model on training data
-	%mdl = fitrlinear(train_mat, response,'Regularization','ridge'); %, 'Solver','sparsa');
-	mdl = fitlm(train_mat, response);
+	% mdl = fitrlinear(train_mat, response,'Regularization','lasso',...
+	% 	'Solver','sparsa', 'Lambda','auto');
+	%mdl = fitlm(train_mat, response);
+	% mdl = fitrlinear(train_mat, response, 'Regularization', 'lasso', ...
+	% 	'Lambda', 0.01, 'KFold', 5); % Linear discriminant analysis
+	mdl = fitcecoc(train_mat, response, ...
+		'OptimizeHyperparameters','auto'); % Multiclass SVM using Error-Correcting Output Codes
+
+	% If the loss is very high (close to random guessing), 
+	% revisit your data preprocessing steps.	
+	%cvMdl = fitcecoc(train_mat, response, 'KFold', 5);
+	% cvLoss = kfoldLoss(mdl); % Cross-validation loss
+	% disp(['Cross-validation loss: ', num2str(cvLoss)]);
 
 	% Evaluate
+	% trainedModel = mdl.Trained{1}; % Access the first fold's trained model
 	output = predict(mdl, test_mat);
 	output_avg = mean(reshape(output, length(F0s), 4), 2);
 
 	% Subtract real - predicted to get accuracy
+	accuracy2(irep,:) = sum(output == response_test') / length(response_test);
 	accuracy(irep,:) = F0s - output_avg;
 	alloutput_avg(irep, :) = output_avg;
 
@@ -102,4 +118,6 @@ scatter(F0s, accuracy, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 %set(gca, 'XScale', 'log')
 
 
-
+nexttile
+histogram(accuracy2*100)
+xlim([0 50])
