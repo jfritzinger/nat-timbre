@@ -1,14 +1,12 @@
 %% model_pop_VS_F0
-clear 
+clear
 
-%% IN PROGRESSSSSSssss
-
-%% Load in data 
+%% Load in data
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
 load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
-%% Get correct output of model 
+%% Get correct output of model
 
 if ismac
 	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -24,81 +22,119 @@ files = {listing.name};
 note_names = extractBetween(files, 'ff.', '.');
 [~, index] = ismember(note_names, tuning.Note);
 F0s1 = tuning.Frequency(index);
-[F0s1, order] = sort(F0s1);
+[F0s, order] = sort(F0s1);
 
+response = [ones(1, 16) repmat(2, 1, 16)]';
+response_test = [ones(1, 4) repmat(2, 1, 4)]';
 
-F0s = log10(F0s1);
-response = reshape(repmat(F0s, 1, 16)', 1, []);
-response_test = reshape(repmat(F0s, 1, 4)', 1, []);
-
-%% Get data into proper matrix 
+%% Get data into proper matrix
 
 % Find all rows with bassoon in them
-sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
-num_data = numel(sesh);
-
-data_mat = NaN(length(F0s)*20, num_data);
-for ii = 1:num_data
-
-	try1 = nat_data(sesh(ii)).bass_VSrep;
-	%try1 = nat_data(sesh(ii)).bass_raterep';
-	try2 = reshape(try1, [], 1);
-	data_mat(:,ii) = try2;
+sesh = [];
+for ii = 1:length(nat_data)
+	rate = nat_data(ii).bass_rate;
+	rate2 = nat_data(ii).oboe_rate;
+	if ~isempty(rate) && ~isempty(rate2)
+		sesh = [sesh ii];
+	end
 end
+num_data = length(sesh);
+ind_b = 25:40;
+ind_o = [1 3:17];
+
 
 %% Run model
 
-nrep = 100;
-for irep = 1:nrep
+ncond = 2;
+nrep = 10;
+for target = 1:16
 
-	% Take out test data
-	ind_test = false(length(F0s)*20, 1); % Preallocate a logical array for 800 elements (40 * 20)
-	for istim = 1:length(F0s)
-		index = randperm(20, 4); % Randomly select 4 indices from 1 to 20
-		ind_test((istim-1)*20 + index) = true; % Set the selected indices to true
+	% Find all rows with bassoon in them
+	data_mat = NaN(2*20, num_data);
+	for ii = 1:num_data
+		% try1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+		% try2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+		try1 = nat_data(sesh(ii)).bass_VSrep(ind_b(target),:)';
+		try2 = nat_data(sesh(ii)).oboe_VSrep(ind_o(target),:)';
+		try3 = [try1; try2];
+		data_mat(:,ii) = try3;
 	end
 
-	% Make training and test rows
-	test_mat = data_mat(ind_test);
-	train_mat = data_mat(~ind_test);
+	for irep = 1:nrep
 
-	% Train model on training data
-	%mdl = fitrlinear(train_mat, response,'Regularization','ridge'); %, 'Solver','sparsa');
-	mdl = fitlm(train_mat, response);
+		% Take out test data
+		ind_test = false(ncond*20, 1); % Preallocate a logical array for 800 elements (40 * 20)
+		for istim = 1:ncond
+			index = randperm(20, 4); % Randomly select 4 indices from 1 to 20
+			ind_test((istim-1)*20 + index) = true; % Set the selected indices to true
+		end
 
-	% Evaluate
-	output = predict(mdl, test_mat);
-	output_avg = mean(reshape(output, length(F0s), 4), 2);
+		% Make training and test rows
+		test_mat = data_mat(ind_test);
+		train_mat = data_mat(~ind_test);
 
-	% Subtract real - predicted to get accuracy
-	accuracy(irep,:) = F0s - output_avg;
-	alloutput_avg(irep, :) = output_avg;
+		% Train model on training data
+		% mdl = fitrlinear(train_mat, response,'Regularization','lasso',...
+		% 	'Solver','sparsa');
+		%mdl = fitclinear(train_mat, response, 'Learner', 'logistic', 'KFold', 5);
+		mdl = fitclinear(train_mat, response, 'Learner', 'svm', ...
+			'OptimizeHyperparameters', {'Lambda', 'Regularization'}, 'Solver','sparsa', ...
+			'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 50, ...
+			'ShowPlots', false));
+		% mdl = fitclinear(X, Y, 'OptimizeHyperparameters', 'auto', ...
+		% 	'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 100, ...
+		% 	'MaxTime', 1200, ...
+		% 	'AcquisitionFunctionName', 'expected-improvement-plus', ...
+		% 	'ShowPlots', true, ...
+		% 	'Verbose', 1));
 
-	% Correlation coefficient
-	R_temp = corrcoef(response_test, output);
-	R(irep) = R_temp(1, 2);
-	R2(irep) = R_temp(1,2)^2;
+		%mdl = fitlm(train_mat, response);
+
+		% Evaluate
+		output = predict(mdl, test_mat);
+		output_avg = mean(reshape(output, 4, ncond), 1);
+
+		% Subtract real - predicted to get accuracy
+		accuracy_one(irep, 1) = sum(response_test(1:4)==output(1:4))/4;
+		accuracy_one(irep, 2) = sum(response_test(5:8)==output(5:8))/4;
+		alloutput_avg(irep, :) = output_avg;
+
+		% Correlation coefficient
+		R_temp = corrcoef(response_test, output);
+		R(irep) = R_temp(1, 2);
+		R2(irep) = R_temp(1,2)^2;
+
+		closest(irep, :) = output;
+		actual(irep, :) = response_test;
+	end
+
+	%% Plot outputs
+	figure('Position',[231,839,1016,351])
+	nexttile 
+
+	% Confusion matrix for best model
+	[best_R2, best_ind] = max(R2);
+	C = confusionmat(actual(best_ind, :), closest(best_ind, :));
+	chart = confusionchart(actual(best_ind, :),closest(best_ind, :)); % Generate confusion chart
+	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+	accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+	title(['Accuracy = ' num2str(accuracy)])
+
+	nexttile
+	hold on
+	swarmchart(ones(10,1), alloutput_avg(:,1), 'filled')
+	swarmchart(ones(10,1)*2, alloutput_avg(:,2), 'filled')
+	xlim([0.5 2.5])
+	ylim([0.5 2.5])
+	xlabel('Actual Timbre')
+	ylabel('Predicted Timbre')
+
+	% Plot accuracy
+	nexttile
+	swarmchart(ones(10,1), accuracy_one(:,1), 'filled')
+	hold on
+	swarmchart(ones(10,1)*2, accuracy_one(:,2), 'filled')
+	xlim([0.5 2.5])
+	%set(gca, 'XScale', 'log')
 
 end
-
-%% Plot outputs 
-
-% Confusion matrix for best model 
-[best_R2, best_ind] = max(R2);
-
-output_hz = 10.^output_avg;
-figure('Position',[231,839,1016,351])
-nexttile
-scatter(F0s1, output_hz)
-hold on
-plot([1 2000], [1 2000], 'k')
-xlim([min(F0s1), max(F0s1)])
-ylim([min(F0s1), max(F0s1)])
-set(gca, 'XScale', 'log', 'YScale', 'log')
-xlabel('Actual F0 (Hz)')
-ylabel('Predicted F0 (Hz)')
-
-% Plot accuracy 
-nexttile
-scatter(F0s, accuracy, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
-%set(gca, 'XScale', 'log')
