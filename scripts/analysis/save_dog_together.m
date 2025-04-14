@@ -3,7 +3,8 @@ clear
 
 %% Load 
 
-modelpath = '/Volumes/Nat-Timbre/data/manuscript/dog_model';
+%modelpath = '/Volumes/Nat-Timbre/data/manuscript/dog_model';
+modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript\dog_model';
 list = dir(modelpath);
 
 filenames = {list(endsWith({list.name}, '.mat')).name};
@@ -42,6 +43,7 @@ end
 
 %% Save file
 
-datapath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/';
-save(fullfile(datapath, 'dog_analysis.mat'), "dog_analysis", "R2_gauss_all", "R2_dog_all")
+%datapath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/';
+datapath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data';
+save(fullfile(datapath, 'dog_analysis2.mat'), "dog_analysis", "R2_gauss_all", "R2_dog_all")
 
