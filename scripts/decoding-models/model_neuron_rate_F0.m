@@ -38,7 +38,7 @@ for ind = 1:num_data
 		avg_other_rows = mean(other_rows, 1); % Average of other rows (1x40)
 
 		% Calculate average rate to a given repetition of one vowel
-		for ii = 1:40
+		for ii = 1:length(avg_rate)
 			rate = single_row(ii);
 
 			% The response to each repetition was identified as the vowel for which the
@@ -66,8 +66,8 @@ for ind = 1:num_data
 	% xlabel('F0s')
 
 	% Plot confusion matrix
-	actual2 = reshape(actual,[], 20*40);
-	closest2 = reshape(closest, [], 20*40);
+	actual2 = reshape(actual,[], 20*length(avg_rate));
+	closest2 = reshape(closest, [], 20*length(avg_rate));
 	% nexttile
 	% C = confusionmat(actual2, closest2);
 	% confusionchart(C)
