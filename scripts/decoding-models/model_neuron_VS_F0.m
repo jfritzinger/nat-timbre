@@ -6,26 +6,30 @@ clear
 %% Load in data
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+load(fullfile(filepath, 'Data_NT2.mat'), 'nat_data')
 
 
 %% Shape data into model input
 
-sesh = find(~cellfun(@isempty, {nat_data.oboe_VS}));
+%sesh = find(~cellfun(@isempty, {nat_data.oboe_VS}));
+sesh = find(~cellfun(@isempty, {nat_data.bass_VS}));
 num_data = numel(sesh);
 
 % Get all rates for each repetition for bassoon (one example neuron)
 for ind = 1:num_data
 
 	index = sesh(ind);
-	data = nat_data(index).oboe_VSrep';
-	avg_rate = nat_data(index).oboe_VS;
+	% data = nat_data(index).oboe_VSrep';
+	% avg_rate = nat_data(index).oboe_VS;
+	data = nat_data(index).bass_VSrep';
+	avg_rate = nat_data(index).bass_VS;
 
 	%% Calculate simple rate prediction
 
 	% Initialize variables to store results
 	closest = zeros(size(data, 1), size(data, 2));
 	actual = zeros(size(data, 1), size(data, 2));
+	data(data>=0.99) = NaN;
 
 	% Loop through each row to calculate the average of the other rows and find the closest column
 	for i = 1:size(data, 1)
@@ -36,7 +40,7 @@ for ind = 1:num_data
 		% Calculate overall average rates across repetitions in response to each of
 		% the 12 vowels, excluding the current repetition.
 		other_rows = data([1:i-1, i+1:end], :); % Remove row i
-		avg_other_rows = mean(other_rows, 1); % Average of other rows (1x40)
+		avg_other_rows = mean(other_rows, 1, 'omitnan'); % Average of other rows (1x40)
 
 		% Calculate average rate to a given repetition of one vowel
 		for ii = 1:length(avg_rate)
@@ -56,13 +60,14 @@ for ind = 1:num_data
 
 	%% Analysis
 
-	% Plot average rates
+	% % Plot average rates
 	% figure('Position',[136,782,1085,481])
 	% tiledlayout(1, 2);
 	% nexttile
 	% hold on
 	% bar(avg_rate)
-	% ylabel('Avg. Rate')
+	% plot(mean(data, 'omitnan'))
+	% ylabel('VS')
 	% xlabel('F0s')
 
 	% Plot confusion matrix
@@ -76,7 +81,7 @@ for ind = 1:num_data
 	chart = confusionchart(actual2,closest2); % Generate confusion chart
 	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 	accuracy(ind) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-	%title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
+	% title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
 
 end
 
