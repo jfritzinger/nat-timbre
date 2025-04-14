@@ -80,13 +80,15 @@ for ind = 1:num_data
 	% figure('Position',[136,782,1085,481])
 	% tiledlayout(6, 6);
 
-	for target = 4 %1:16
+	for target = 1:16
 
 
 		data = [nat_data(index).bass_VSrep(ind_b(target), :); ...
 			nat_data(index).oboe_VSrep(ind_o(target), :)];
 		avg_VS = [nat_data(index).bass_VS(ind_b(target)) ...
 			nat_data(index).oboe_VS(ind_o(target))];
+		data(data>=0.99) = NaN;
+		data(isnan(data))= 0;
 
 		%% Calculate simple rate prediction
 
@@ -98,12 +100,12 @@ for ind = 1:num_data
 		for i = 1:size(data, 2)
 
 			% Extract the current row (1x40 data)
-			single_row = data(:,1);
+			single_row = data(:,i);
 
 			% Calculate overall average rates across repetitions in response to each of
 			% the 12 vowels, excluding the current repetition.
 			other_rows = data(:,[1:i-1, i+1:end]); % Remove row i
-			avg_other_rows = mean(other_rows, 2); % Average of other rows (1x40)
+			avg_other_rows = mean(other_rows, 2, 'omitnan'); % Average of other rows (1x40)
 
 			% Calculate average rate to a given repetition of one vowel
 			for ii = 1:2
@@ -122,37 +124,41 @@ for ind = 1:num_data
 		end
 
 		%% Analysis
-		figure
-		tiledlayout(1, 2)
+		% figure
+		% tiledlayout(1, 2)
 
 		% Calculate accuracy
-		% C = confusionmat(actual2, closest2);
-		% chart = confusionchart(actual2,closest2); % Generate confusion chart
-		% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
-		% accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-
-		% Plot average rates
-		nexttile
-		hold on
-		bar(avg_VS)
-		ylabel('VS')
-		xlabel('F0s')
-
-		% Plot confusion matrix
 		actual2 = reshape(actual,[], 20*2);
 		closest2 = reshape(closest, [], 20*2);
-		nexttile
 		C = confusionmat(actual2, closest2);
-		confusionchart(C)
-
-		% Calculate accuracy
 		chart = confusionchart(actual2,closest2); % Generate confusion chart
 		confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 		accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-		title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
-			bass_pitch(ind_b(target)), accuracy(ind, target)*100))
+
+		% % Plot average rates
+		% nexttile
+		% hold on
+		% bar(avg_VS)
+		% plot(mean(data, 2, 'omitnan'))
+		% scatter(1:2, data)
+		% ylabel('VS')
+		% xlabel('F0s')
+		% 
+		% % Plot confusion matrix
+
+		% nexttile
+		% C = confusionmat(actual2, closest2);
+		% confusionchart(C)
+		% 
+		% % Calculate accuracy
+		% chart = confusionchart(actual2,closest2); % Generate confusion chart
+		% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+		% accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+		% title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
+		% 	bass_pitch(ind_b(target)), accuracy(ind, target)*100))
 
 	end
+	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
 %% Plot accuracy of each neuron
@@ -163,6 +169,7 @@ for ii = 1:16
 	histogram(accuracy(:,ii)*100,21)
 	mean_F0 = mean(accuracy(:,ii));
 	hold on
+	xline(50, 'k')
 	xline(mean_F0*100, 'r', 'LineWidth',2)
 	ylabel('# Neurons')
 	xlabel('Prediction Accuracy (%)')
