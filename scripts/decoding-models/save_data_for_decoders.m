@@ -123,7 +123,7 @@ end
 
 %% Save dataset
 
-save('Data_NT.mat', "nat_data");
+save('Data_NT2.mat', "nat_data");
 
 
 
