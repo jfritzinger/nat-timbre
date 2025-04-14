@@ -47,12 +47,19 @@ for i_stim = 1:num_stim
 	VS_CF = abs(mean(exp(1i * phases)));
 
 	% Calculate vector strength for each repetition of the stimulus
+	period = 1000 / freq;
 	nreps = 20;
 	for ind = 1:nreps
 		rep_ind = y==ind;
 		raw_spikes = x(rep_ind)/1000;
 		phases = 2 * pi * mod(raw_spikes, period) / period;
 		VS2(ind) = abs(mean(exp(1i * phases)));
+		% figure
+		% nexttile
+		% plot(phases)
+		% title(num2str(VS2(ind)))
+		% nexttile
+		% histogram(raw_spikes, 301)
 	end
 
 	% Save outputs
