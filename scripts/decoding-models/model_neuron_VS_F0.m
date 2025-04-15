@@ -60,28 +60,28 @@ for ind = 1:num_data
 
 	%% Analysis
 
-	% % Plot average rates
-	% figure('Position',[136,782,1085,481])
-	% tiledlayout(1, 2);
-	% nexttile
-	% hold on
-	% bar(avg_rate)
-	% plot(mean(data, 'omitnan'))
-	% ylabel('VS')
-	% xlabel('F0s')
+	% Plot average rates
+	figure('Position',[136,782,1085,481])
+	tiledlayout(1, 2);
+	nexttile
+	hold on
+	bar(avg_rate)
+	plot(mean(data, 'omitnan'))
+	ylabel('VS')
+	xlabel('F0s')
 
 	% Plot confusion matrix
 	actual2 = reshape(actual,[], 20*length(avg_rate));
 	closest2 = reshape(closest, [], 20*length(avg_rate));
-	% nexttile
-	% C = confusionmat(actual2, closest2);
-	% confusionchart(C)
+	nexttile
+	C = confusionmat(actual2, closest2);
+	confusionchart(C)
 
 	% Calculate accuracy
 	chart = confusionchart(actual2,closest2); % Generate confusion chart
 	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 	accuracy(ind) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-	% title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
+	title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
 
 end
 
