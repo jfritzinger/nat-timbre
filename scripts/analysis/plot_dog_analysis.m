@@ -1,12 +1,16 @@
 %% plot_dog_analysis
-
-%% plot_dog_vs_gaussian
 clear 
+
+%% 
+
+
+
+
 
 %% Load 
 
 datapath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/';
-load(fullfile(datapath, 'dog_analysis.mat'), "dog_analysis")
+load(fullfile(datapath, 'dog_analysis2.mat'), "dog_analysis")
 
 
 %% Do normal R^2 calculation
@@ -89,12 +93,12 @@ alpha = 0.05;
 % Get significant predictions  
 lat_sig = model_mat(significant,:);
 data_sig = data_mat(significant, :);
-CFs_sig = CFs(significant);
+%CFs_sig = CFs(significant);
 
 
 %% Get all filters for fits above 0.4 
 
-igood = find(r2>0.3);
+igood = find(r2>0.4);
 num_good = length(igood);
 for jj = 1:num_good
 	index = igood(jj);
@@ -111,7 +115,7 @@ for jj = 1:num_good
 		plot(pitch, dog_analysis(index).dog_predicted, 'k', 'LineWidth',2);
 		xlabel('F0 (Hz)')
 		ylabel('Avg. Rate (sp/s)')
-		title('Example Neuron Fit')
+		title(['Example Neuron Fit, R^2=' num2str(round(r2(index), 2))])
 		legend('Data', '', 'DoG Fit')
 		set(gca, 'fontsize', fontsize)
 
@@ -133,9 +137,9 @@ for jj = 1:num_good
 		sigma_exc = 10^DOGparams(3);
 		sigma_inh = 10^DOGparams(4);
 		CF_exc = 10^DOGparams(5);
-		CF_inh = 10^DOGparams(6);
+		%CF_inh = 10^DOGparams(6);
 		gauss_exc = normpdf(f, CF_exc, sigma_exc);
-		gauss_inh = normpdf(f, CF_inh, sigma_inh);
+		gauss_inh = normpdf(f, CF_exc, sigma_inh);
 		gauss_exc = s_exc*(gauss_exc./max(gauss_exc));
 		gauss_inh = s_inh*(gauss_inh./max(gauss_inh));
 		W = gauss_exc - gauss_inh;
