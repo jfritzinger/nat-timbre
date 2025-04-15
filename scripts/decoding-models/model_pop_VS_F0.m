@@ -28,6 +28,7 @@ F0s1 = tuning.Frequency(index);
 F0s = log10(F0s1);
 response = reshape(repmat(F0s, 1, 16)', 1, []);
 response_test = reshape(repmat(F0s, 1, 4)', 1, []);
+response2 = reshape(repmat(F0s, 1, 20)', 1, []);
 
 %% Get data into proper matrix 
 
@@ -39,13 +40,17 @@ data_mat = NaN(length(F0s)*20, num_data);
 for ii = 1:num_data
 
 	%try1 = nat_data(sesh(ii)).bass_VSrep;
-	try1 = nat_data(sesh(ii)).bass_raterep';
+	%try1 = nat_data(sesh(ii)).bass_raterep';
+	try1 = nat_data(sesh(ii)).bass_VS_CF;
 	try2 = reshape(try1, [], 1);
 	data_mat(:,ii) = try2;
 end
 
 % [coeff, score] = pca(data_mat);
 % XReduced = score(:, 1:50); 
+
+T = array2table(data_mat);
+T.Response = response2';
 
 %% Run model
 
