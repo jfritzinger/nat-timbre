@@ -26,6 +26,7 @@ F0s1 = tuning.Frequency(index);
 
 response = [ones(1, 16) repmat(2, 1, 16)]';
 response_test = [ones(1, 4) repmat(2, 1, 4)]';
+response2 = [ones(1, 20) repmat(2, 1, 20)]';
 
 %% Get data into proper matrix
 
@@ -52,89 +53,96 @@ for target = 1:16
 	% Find all rows with bassoon in them
 	data_mat = NaN(2*20, num_data);
 	for ii = 1:num_data
-		% try1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
-		% try2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
-		try1 = nat_data(sesh(ii)).bass_VSrep(ind_b(target),:)';
-		try2 = nat_data(sesh(ii)).oboe_VSrep(ind_o(target),:)';
+		try1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+		try2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+
+		% try1 = nat_data(sesh(ii)).bass_VSrep(ind_b(target),:)';
+		% try2 = nat_data(sesh(ii)).oboe_VSrep(ind_o(target),:)';
 		try3 = [try1; try2];
+		% try3(try3>=0.99) = NaN;
+		% try3(isnan(try3)) = 0;
+
+
 		data_mat(:,ii) = try3;
 	end
-
-	for irep = 1:nrep
-
-		% Take out test data
-		ind_test = false(ncond*20, 1); % Preallocate a logical array for 800 elements (40 * 20)
-		for istim = 1:ncond
-			index = randperm(20, 4); % Randomly select 4 indices from 1 to 20
-			ind_test((istim-1)*20 + index) = true; % Set the selected indices to true
-		end
-
-		% Make training and test rows
-		test_mat = data_mat(ind_test);
-		train_mat = data_mat(~ind_test);
-
-		% Train model on training data
-		% mdl = fitrlinear(train_mat, response,'Regularization','lasso',...
-		% 	'Solver','sparsa');
-		%mdl = fitclinear(train_mat, response, 'Learner', 'logistic', 'KFold', 5);
-		mdl = fitclinear(train_mat, response, 'Learner', 'svm', ...
-			'OptimizeHyperparameters', {'Lambda', 'Regularization'}, 'Solver','sparsa', ...
-			'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 50, ...
-			'ShowPlots', false));
-		% mdl = fitclinear(X, Y, 'OptimizeHyperparameters', 'auto', ...
-		% 	'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 100, ...
-		% 	'MaxTime', 1200, ...
-		% 	'AcquisitionFunctionName', 'expected-improvement-plus', ...
-		% 	'ShowPlots', true, ...
-		% 	'Verbose', 1));
-
-		%mdl = fitlm(train_mat, response);
-
-		% Evaluate
-		output = predict(mdl, test_mat);
-		output_avg = mean(reshape(output, 4, ncond), 1);
-
-		% Subtract real - predicted to get accuracy
-		accuracy_one(irep, 1) = sum(response_test(1:4)==output(1:4))/4;
-		accuracy_one(irep, 2) = sum(response_test(5:8)==output(5:8))/4;
-		alloutput_avg(irep, :) = output_avg;
-
-		% Correlation coefficient
-		R_temp = corrcoef(response_test, output);
-		R(irep) = R_temp(1, 2);
-		R2(irep) = R_temp(1,2)^2;
-
-		closest(irep, :) = output;
-		actual(irep, :) = response_test;
-	end
-
-	%% Plot outputs
-	figure('Position',[231,839,1016,351])
-	nexttile 
-
-	% Confusion matrix for best model
-	[best_R2, best_ind] = max(R2);
-	C = confusionmat(actual(best_ind, :), closest(best_ind, :));
-	chart = confusionchart(actual(best_ind, :),closest(best_ind, :)); % Generate confusion chart
-	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
-	accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-	title(['Accuracy = ' num2str(accuracy)])
-
-	nexttile
-	hold on
-	swarmchart(ones(10,1), alloutput_avg(:,1), 'filled')
-	swarmchart(ones(10,1)*2, alloutput_avg(:,2), 'filled')
-	xlim([0.5 2.5])
-	ylim([0.5 2.5])
-	xlabel('Actual Timbre')
-	ylabel('Predicted Timbre')
-
-	% Plot accuracy
-	nexttile
-	swarmchart(ones(10,1), accuracy_one(:,1), 'filled')
-	hold on
-	swarmchart(ones(10,1)*2, accuracy_one(:,2), 'filled')
-	xlim([0.5 2.5])
-	%set(gca, 'XScale', 'log')
+	T = array2table(data_mat);
+	T.Response = response2;
+	% 
+	% for irep = 1:nrep
+	% 
+	% 	% Take out test data
+	% 	ind_test = false(ncond*20, 1); % Preallocate a logical array for 800 elements (40 * 20)
+	% 	for istim = 1:ncond
+		% 	index = randperm(20, 4); % Randomly select 4 indices from 1 to 20
+		% 	ind_test((istim-1)*20 + index) = true; % Set the selected indices to true
+	% 	end
+	% 
+	% 	% Make training and test rows
+	% 	test_mat = data_mat(ind_test);
+	% 	train_mat = data_mat(~ind_test);
+	% 
+	% 	% Train model on training data
+	% 	% mdl = fitrlinear(train_mat, response,'Regularization','lasso',...
+	% 	% 	'Solver','sparsa');
+	% 	%mdl = fitclinear(train_mat, response, 'Learner', 'logistic', 'KFold', 5);
+	% 	mdl = fitclinear(train_mat, response, 'Learner', 'svm', ...
+		% 	'OptimizeHyperparameters', {'Lambda', 'Regularization'}, 'Solver','sparsa', ...
+		% 	'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 50, ...
+		% 	'ShowPlots', false));
+	% 	% mdl = fitclinear(X, Y, 'OptimizeHyperparameters', 'auto', ...
+	% 	% 	'HyperparameterOptimizationOptions', struct('MaxObjectiveEvaluations', 100, ...
+	% 	% 	'MaxTime', 1200, ...
+	% 	% 	'AcquisitionFunctionName', 'expected-improvement-plus', ...
+	% 	% 	'ShowPlots', true, ...
+	% 	% 	'Verbose', 1));
+	% 
+	% 	%mdl = fitlm(train_mat, response);
+	% 
+	% 	% Evaluate
+	% 	output = predict(mdl, test_mat);
+	% 	output_avg = mean(reshape(output, 4, ncond), 1);
+	% 
+	% 	% Subtract real - predicted to get accuracy
+	% 	accuracy_one(irep, 1) = sum(response_test(1:4)==output(1:4))/4;
+	% 	accuracy_one(irep, 2) = sum(response_test(5:8)==output(5:8))/4;
+	% 	alloutput_avg(irep, :) = output_avg;
+	% 
+	% 	% Correlation coefficient
+	% 	R_temp = corrcoef(response_test, output);
+	% 	R(irep) = R_temp(1, 2);
+	% 	R2(irep) = R_temp(1,2)^2;
+	% 
+	% 	closest(irep, :) = output;
+	% 	actual(irep, :) = response_test;
+	% end
+	% 
+	% %% Plot outputs
+	% figure('Position',[231,839,1016,351])
+	% nexttile 
+	% 
+	% % Confusion matrix for best model
+	% [best_R2, best_ind] = max(R2);
+	% C = confusionmat(actual(best_ind, :), closest(best_ind, :));
+	% chart = confusionchart(actual(best_ind, :),closest(best_ind, :)); % Generate confusion chart
+	% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+	% accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+	% title(['Accuracy = ' num2str(accuracy)])
+	% 
+	% nexttile
+	% hold on
+	% swarmchart(ones(10,1), alloutput_avg(:,1), 'filled')
+	% swarmchart(ones(10,1)*2, alloutput_avg(:,2), 'filled')
+	% xlim([0.5 2.5])
+	% ylim([0.5 2.5])
+	% xlabel('Actual Timbre')
+	% ylabel('Predicted Timbre')
+	% 
+	% % Plot accuracy
+	% nexttile
+	% swarmchart(ones(10,1), accuracy_one(:,1), 'filled')
+	% hold on
+	% swarmchart(ones(10,1)*2, accuracy_one(:,2), 'filled')
+	% xlim([0.5 2.5])
+	% %set(gca, 'XScale', 'log')
 
 end
