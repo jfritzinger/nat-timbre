@@ -24,50 +24,58 @@ note_names = extractBetween(files, 'ff.', '.');
 F0s1 = tuning.Frequency(index);
 [F0s, order] = sort(F0s1);
 
-response = [ones(1, 16) repmat(2, 1, 16)]';
-response_test = [ones(1, 4) repmat(2, 1, 4)]';
-response2 = [ones(1, 20) repmat(2, 1, 20)]';
-
 %% Get data into proper matrix
+type = 'rate'; % VS
 
-% Find all rows with bassoon in them
-sesh = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	rate2 = nat_data(ii).oboe_rate;
-	if ~isempty(rate) && ~isempty(rate2)
-		sesh = [sesh ii];
-	end
-end
-num_data = length(sesh);
+% Create array of correct responses
+response = [ones(1, 20) repmat(2, 1, 20)]';
+
+% Find all rows with bassoon and oboe
+has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
+has_oboe = ~cellfun(@isempty, {nat_data.oboe_rate});
+sesh = find(has_bass & has_oboe);
+num_data = numel(sesh);
 ind_b = 25:40;
 ind_o = [1 3:17];
+
+% Sort data 
+for target = 1:16
+
+	data_mat = NaN(2*20, num_data);
+	for ii = 1:num_data
+
+		if strcmp(type, 'rate')
+			X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+			X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+			X = [X1; X2];
+		else
+			X1 = nat_data(sesh(ii)).bass_VSrep(ind_b(target),:)';
+			X2 = nat_data(sesh(ii)).oboe_VSrep(ind_o(target),:)';
+			X = [X1; X2];
+			X(X>=0.99) = NaN;
+			X(isnan(X)) = 0;
+		end
+		data_mat(:,ii) = X;
+	end
+
+	% Create table for model
+	T = array2table(data_mat);
+	T.Response = response;
+end
+
+%% Run model 
+
+
+
+
+
 
 
 %% Run model
 
-ncond = 2;
-nrep = 10;
-for target = 1:16
-
-	% Find all rows with bassoon in them
-	data_mat = NaN(2*20, num_data);
-	for ii = 1:num_data
-		try1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
-		try2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
-
-		% try1 = nat_data(sesh(ii)).bass_VSrep(ind_b(target),:)';
-		% try2 = nat_data(sesh(ii)).oboe_VSrep(ind_o(target),:)';
-		try3 = [try1; try2];
-		% try3(try3>=0.99) = NaN;
-		% try3(isnan(try3)) = 0;
-
-
-		data_mat(:,ii) = try3;
-	end
-	T = array2table(data_mat);
-	T.Response = response2;
-	% 
+% ncond = 2;
+% for target = 1:16
+% 
 	% for irep = 1:nrep
 	% 
 	% 	% Take out test data
@@ -144,5 +152,5 @@ for target = 1:16
 	% swarmchart(ones(10,1)*2, accuracy_one(:,2), 'filled')
 	% xlim([0.5 2.5])
 	% %set(gca, 'XScale', 'log')
-
-end
+% 
+% end
