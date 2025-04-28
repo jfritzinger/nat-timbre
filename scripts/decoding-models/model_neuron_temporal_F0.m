@@ -44,7 +44,7 @@ for ind = 1:num_data
 		spikereps_bass = nat_data(index).bass_spikerep{itarget};
 
 		% Arrange data for SVM
-		min_dis = 1;
+		min_dis = 0.5;
 		edges = 0:min_dis:300;
 		t = 0+min_dis/2:min_dis:300-min_dis/2;
 		for irep = 1:20
@@ -123,7 +123,7 @@ for ind = 1:num_data
 
 	figure
 	confusionchart(C)
-	title(num2str(validationAccuracy))
+	title(num2str(validationAccuracy*100))
 
 
 	% Plots
@@ -133,22 +133,22 @@ for ind = 1:num_data
 	% histogram(spikes_bass, 301)
 	% nexttile
 	% histogram(spikes_oboe, 301)
-	figure
-	tiledlayout(2, 1)
-	nexttile
-	hold on
-	for irep = 1:20
-		plot(t,h_bass(irep,:)+irep)
-	end
-	scatter(spikes_bass, spikereps_bass, 'filled')
-	nexttile
-	hold on
-	for irep = 1:20
-		plot(t,h_oboe(irep,:)+irep)
-	end
-	scatter(spikes_oboe, spikereps_oboe, 'filled')
-
-	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
+	% figure
+	% tiledlayout(2, 1)
+	% nexttile
+	% hold on
+	% for irep = 1:20
+	% 	plot(t,h_bass(irep,:)+irep)
+	% end
+	% scatter(spikes_bass, spikereps_bass, 'filled')
+	% nexttile
+	% hold on
+	% for irep = 1:20
+	% 	plot(t,h_oboe(irep,:)+irep)
+	% end
+	% scatter(spikes_oboe, spikereps_oboe, 'filled')
+	% 
+	% fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
 % Plot accuracy of each neuron
