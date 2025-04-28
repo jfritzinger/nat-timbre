@@ -147,15 +147,15 @@ for ind = 1:num_data
 		% % Plot confusion matrix
 
 		% nexttile
-		% C = confusionmat(actual2, closest2);
-		% confusionchart(C)
+		C = confusionmat(actual2, closest2);
+		confusionchart(C)
 		% 
 		% % Calculate accuracy
-		% chart = confusionchart(actual2,closest2); % Generate confusion chart
-		% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
-		% accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-		% title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
-		% 	bass_pitch(ind_b(target)), accuracy(ind, target)*100))
+		chart = confusionchart(actual2,closest2); % Generate confusion chart
+		confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+		accuracy(ind, target) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+		title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
+			bass_pitch(ind_b(target)), accuracy(ind, target)*100))
 
 	end
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)

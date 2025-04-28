@@ -139,9 +139,9 @@ for ind = 1:num_data
 		% title(sprintf('F0 = %0.0f, Acc = %0.1f%%', ...
 		% 	bass_pitch(ind_b(target)), accuracy(ind, target)*100))
 		%
-		% % Plot confusion matrix
-		% nexttile
-		% confusionchart(C)
+		% Plot confusion matrix
+		nexttile
+		confusionchart(C)
 
 	end
 end
