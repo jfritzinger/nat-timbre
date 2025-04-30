@@ -16,7 +16,8 @@ addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions')
 modelpath = '/Volumes/Nat-Timbre/data/manuscript';
 sheetpath = 'data/2025-manuscript/data-cleaning';
 spreadsheet_name = 'PutativeTable.xlsx';
-sessions = readtable(fullfile(base, sheetpath, spreadsheet_name), 'PreserveVariableNames',true);
+sessions = readtable(fullfile(base, sheetpath, spreadsheet_name),...
+	'PreserveVariableNames',true);
 
 %% Create matrices for bassoon and oboe separately
 
