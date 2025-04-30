@@ -65,6 +65,19 @@ response = reshape(repmat(F0s, 1, 20)', 1, []);
 T = array2table(data_mat);
 T.Response = response';
 
+
+%% Use only first 20 F0s 
+
+T_new = T(1:400, :);
+
+
+idx = [];
+for k = 0:19
+    idx = [idx, (1 + 40*k):(20 + 40*k)];
+end
+T_new2 = T(idx,:);
+
+
 %% Run model 
 
 nrep = 50;
