@@ -7,14 +7,15 @@
 clear all
 close all 
 
-files = dir('*.aif');
+filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/zipped_waveforms/Bassoon.ff.stereo';
+files = dir(fullfile(filepath, '*.aif'));
 fpath = files(1).folder;
 for ii = 1:size(files, 1)
-    filenames{ii} = [fpath '\' files(ii).name];
+    filenames{ii} = fullfile(fpath, files(ii).name);
 end
 
 % Load in music file 1 at a time 
-index = 35;
+index = 10;
 [y, Fs] = audioread(filenames{index});
 t = linspace(0, length(y)/Fs, length(y));
 
