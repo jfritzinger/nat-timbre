@@ -16,7 +16,7 @@ for i_stim = 1:num_stim
 	PSTH_smooth = smooth(PSTH);
 
 	% Calculate period histogram
-	% Cut off onset 
+	% Cut off onset
 	freq = data_ST.pitch_num(i_stim);
 	period = 1000 / freq; % Period in ms
 	num_bins = 30; % Number of bins for histogram
@@ -73,6 +73,10 @@ for i_stim = 1:num_stim
 	temporal.VS(i_stim) = VS;
 	temporal.VS_CF(i_stim) = VS_CF;
 	temporal.VS_rep(i_stim, :) = VS2;
+end
+
+if num_stim == 0
+	temporal = 0;
 end
 
 end
