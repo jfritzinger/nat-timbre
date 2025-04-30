@@ -3,6 +3,8 @@
 clear
 import mlreportgen.dom.*
 import mlreportgen.report.*
+addpath '/Users/jfritzinger/Projects/synth-timbre/scripts/helper-functions'
+addpath '/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions'
 
 % Load in spreadsheet
 [base, datapath, savepath, ppi] = getPaths();
@@ -11,7 +13,7 @@ sessions = readtable(fullfile(datapath, 'data-cleaning', spreadsheet_name), 'Pre
 num_data = size(sessions, 1);
 
 % Initialize report
-filename = 'NT_Oboe';
+filename = 'NT_Bassoon';
 images = {}; %hold all plots as images, need to delete when finished
 datetime.setDefaultFormats('default','yyyy-MM-dd_hhmmss')
 report_name = sprintf('%s/pdfs/%s_%s.pdf', savepath, datetime, filename);
@@ -27,13 +29,13 @@ pm.PageMargins.Footer = '0.01in';
 pm.PageMargins.Left = '0.2in';
 pm.PageMargins.Right = '0.2in';
 
-target = 13; % 13 - oboe, 14 - bassoon
+target = 14; % 13 - oboe, 14 - bassoon
 
 %% Plot each dataset 
 
 % Find sessions for target synthetic timbre response
 %bin200(:,1) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
-bin200(:,1) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
+bin200(:,1) = cellfun(@(s) contains(s, 'R'), sessions.Bassoon);
 has_data = bin200(:,1); % | bin200(:,2);
 index = find(has_data);
 
@@ -43,10 +45,10 @@ CF_list = sessions.CF(has_data);
 num_sessions = length(CF_list);
 
 % Plot each neuron
-for isesh = 1:num_sessions
-	% if isesh == 27 || isesh == 181 || isesh == 185
-	% 	continue
-	% end
+for isesh = 186:num_sessions
+	if isesh == 27 || isesh == 181 || isesh == 185 % Bassoon
+		continue
+	end
 	ineuron = index(order(isesh)); %indices(isesh)
 	if any(has_data(ineuron))
 
@@ -136,7 +138,7 @@ for isesh = 1:num_sessions
 		if ~isempty(params_NT{1})
 			yyaxis left
 			data_NT = analyzeNT(params_NT{1});
-			temporal = analyzeNT_Temporal(data_NT);
+			temporal = analyzeNT_Temporal(data_NT, CF);
 			hold on
 			errorbar(data_NT.pitch_num,data_NT.rate, data_NT.rate_std/...
 				sqrt(params_NT{1}.nrep), 'LineWidth',1.5)
