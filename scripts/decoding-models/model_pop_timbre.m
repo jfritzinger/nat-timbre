@@ -64,6 +64,28 @@ for target = 1:16
 	T.Response = response;
 end
 
+%% Model including all F0s 
+
+data_mat = NaN(2*20, num_data);
+for target = 1:16
+	for ii = 1:num_data
+
+		% Arrange data for SVM
+		X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+		X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+		X = [X1; X2];
+		data_mat(:,ii) = X;
+
+	end
+	idx = (1:40) + 40*(target-1);
+	data_mat2(idx, :) = data_mat;
+
+end
+
+% Put data into table
+T_new = array2table(data_mat2);
+T_new.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+
 %% Run model with kfold validation 
 
 % Take out test data
