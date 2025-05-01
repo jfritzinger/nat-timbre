@@ -45,8 +45,10 @@ for target = 1:16
 	for ii = 1:num_data
 
 		% Arrange data for SVM
-		X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
-		X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+		%X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+		%X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+		X1 = nat_data(sesh(ii)).bass_norm_rep(:,ind_b(target));
+		X2 = nat_data(sesh(ii)).oboe_norm_rep(:,ind_o(target));
 		X = [X1; X2];
 		data_mat(:,ii) = X;
 
