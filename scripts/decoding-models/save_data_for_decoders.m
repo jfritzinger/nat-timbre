@@ -79,10 +79,15 @@ for ii = 1:num_sesh
 		% max_rate = max(sub_rates, [], 2);
 		% norm_rates = sub_rates ./ max_rate;
 
+		temporal_oboe.VS_rep(temporal_oboe.VS_rep>=0.99) = NaN;
+		temporal_oboe.VS_rep(isnan(temporal_oboe.VS_rep)) = 0.0001;
+		sync_rep = temporal_oboe.VS_rep' .* data_oboe.raw_rates;
+
 		% Oboe data
 		nat_data(ii).oboe_rate = data_oboe.rate;
 		nat_data(ii).oboe_rate_std = data_oboe.rate_std;
 		nat_data(ii).oboe_raterep = data_oboe.raw_rates;
+		nat_data(ii).oboe_sync_rep = sync_rep;
 		nat_data(ii).oboe_norm_rate = norm_rate; 
 		nat_data(ii).oboe_norm_rep = norm_rates;
 		nat_data(ii).oboe_VS = temporal_oboe.VS;
@@ -107,10 +112,15 @@ for ii = 1:num_sesh
 		% max_rate = max(sub_rates, [], 2);
 		% norm_rates = sub_rates ./ max_rate;
 
+		temporal_bass.VS_rep(temporal_bass.VS_rep>=0.99) = NaN;
+		temporal_bass.VS_rep(isnan(temporal_bass.VS_rep)) = 0.0001;
+		sync_rep = temporal_bass.VS_rep' .* data_bass.raw_rates;
+
 		% Bassoon data
 		nat_data(ii).bass_rate = data_bass.rate;
 		nat_data(ii).bass_rate_std = data_bass.rate_std;
 		nat_data(ii).bass_raterep = data_bass.raw_rates;
+		nat_data(ii).bass_sync_rep = sync_rep;
 		nat_data(ii).bass_norm_rate = norm_rate;
 		nat_data(ii).bass_norm_rep = norm_rates;
 		nat_data(ii).bass_VS = temporal_bass.VS;
