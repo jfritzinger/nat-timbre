@@ -4,7 +4,7 @@ clear
 %% Load in data 
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+load(fullfile(filepath, 'Data_NT2.mat'), 'nat_data')
 
 %% Get correct output of model 
 target = 'Bassoon';
@@ -39,10 +39,11 @@ num_data = numel(sesh);
 
 data_mat = NaN(length(F0s)*20, num_data);
 for ii = 1:num_data
-
 	if strcmp(type, 'rate')
 		if strcmp(target, 'Bassoon')
-			X1 = nat_data(sesh(ii)).bass_raterep';
+			%X1 = nat_data(sesh(ii)).bass_raterep';
+			%X1 = nat_data(sesh(ii)).bass_norm_rep';
+			X1 = nat_data(sesh(ii)).bass_sync_rep';
 		else
 			X1 = nat_data(sesh(ii)).oboe_raterep';
 		end
@@ -53,7 +54,6 @@ for ii = 1:num_data
 			X1 = nat_data(sesh(ii)).oboe_VSrep;
 		end
 	end
-
 	X2 = reshape(X1, [], 1);
 	data_mat(:,ii) = X2;
 end
@@ -66,16 +66,15 @@ T = array2table(data_mat);
 T.Response = response';
 
 
-%% Use only first 20 F0s 
-
-T_new = T(1:400, :);
-
-
-idx = [];
-for k = 0:19
-    idx = [idx, (1 + 40*k):(20 + 40*k)];
-end
-T_new2 = T(idx,:);
+% % Use only first 20 F0s 
+% T_new = T(1:400, :);
+% 
+% % Use only odd F0d
+% idx = [];
+% for k = 0:19
+%     idx = [idx, (1 + 40*k):(20 + 40*k)];
+% end
+% T_new2 = T(idx,:);
 
 
 %% Run model 
