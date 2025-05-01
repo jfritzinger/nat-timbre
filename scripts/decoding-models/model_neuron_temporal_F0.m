@@ -45,7 +45,7 @@ for ind = 1:num_data
 		spikereps_bass = nat_data(index).bass_spikerep{itarget};
 
 		% Arrange data for SVM
-		min_dis = 0.5;
+		min_dis = 0.25;
 		edges = 0:min_dis:300;
 		t = 0+min_dis/2:min_dis:300-min_dis/2;
 		for irep = 1:20
