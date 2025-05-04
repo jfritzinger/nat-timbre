@@ -25,7 +25,6 @@ note_names = extractBetween(files, 'ff.', '.');
 F0s1 = tuning.Frequency(index);
 [F0s1, order] = sort(F0s1);
 
-
 F0s = log10(F0s1);
 response = reshape(repmat(F0s, 1, 20)', 1, []);
 response = response';
@@ -123,34 +122,30 @@ for ind = 1:num_data
 		
 	end
 
-	% figure
-	% confusionchart(C)
-	% title(num2str(validationAccuracy*100))
-
-	% Plots
-	% figure
-	% tiledlayout(2, 1)
-	% nexttile
-	% histogram(spikes_bass, 301)
-	% nexttile
-	% histogram(spikes_oboe, 301)
-	% figure
-	% tiledlayout(2, 1)
-	% nexttile
-	% hold on
-	% for irep = 1:20
-	% 	plot(t,h_bass(irep,:)+irep)
-	% end
-	% scatter(spikes_bass, spikereps_bass, 'filled')
-	% nexttile
-	% hold on
-	% for irep = 1:20
-	% 	plot(t,h_oboe(irep,:)+irep)
-	% end
-	% scatter(spikes_oboe, spikereps_oboe, 'filled')
-	% 
+	figure
+	confusionchart(C)
+	title(num2str(validationAccuracy*100))
+	
+	% Save data for each
+	neuron_time_F0(index).putative = nat_data(index).putative;
+	neuron_time_F0(index).CF = nat_data(index).CF;
+	neuron_time_F0(index).MTF = nat_data(index).MTF;
+	neuron_time_F0(index).response = response;
+	neuron_time_F0(index).predictors = predictors;
+	neuron_time_F0(index).T = T;
+	neuron_time_F0(index).validationPredictions = validationPredictions;
+	neuron_time_F0(index).accuracy = validationAccuracy;
+	neuron_time_F0(index).accuracy_low = validationAccuracy1;
+	neuron_time_F0(index).accuracy_high = validationAccuracy2;
+	neuron_time_F0(index).C = C;
+	
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
+
+%% Save struct of data 
+
+save('Neuron_Time_F0_Bassoon.mat', "neuron_time_F0")
+
 
 %% Plot accuracy of each neuron
 figure('Position',[560,618,798,230])
