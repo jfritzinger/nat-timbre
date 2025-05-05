@@ -8,16 +8,17 @@ load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
 %% Shape data into model input
 
-sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
 num_data = numel(sesh);
 
 % Get all rates for each repetition for bassoon (one example neuron)
+neuron_rate_F0 = struct;
 for ind = 1:num_data
 
 	index = sesh(ind);
-	data = nat_data(index).bass_raterep;
-	avg_rate = nat_data(index).bass_rate;
-	rate_std = nat_data(index).bass_rate_std;
+	data = nat_data(index).oboe_raterep;
+	avg_rate = nat_data(index).oboe_rate;
+	rate_std = nat_data(index).oboe_rate_std;
 
 	%% Calculate simple rate prediction
 
@@ -56,27 +57,39 @@ for ind = 1:num_data
 	%% Analysis
 
 	% Plot average rates
-	figure('Position',[136,782,1085,481])
-	tiledlayout(1, 2);
-	nexttile
-	hold on
-	bar(avg_rate)
-	errorbar(1:40, avg_rate, rate_std/sqrt(20), 'LineStyle','none', 'Color','k')
-	ylabel('Avg. Rate')
-	xlabel('F0s')
+	% figure('Position',[136,782,1085,481])
+	% tiledlayout(1, 2);
+	% nexttile
+	% hold on
+	% bar(avg_rate)
+	% errorbar(1:40, avg_rate, rate_std/sqrt(20), 'LineStyle','none', 'Color','k')
+	% ylabel('Avg. Rate')
+	% xlabel('F0s')
 
 	% Plot confusion matrix
 	actual2 = reshape(actual,[], 20*length(avg_rate));
 	closest2 = reshape(closest, [], 20*length(avg_rate));
-	nexttile
+	% nexttile
 	C = confusionmat(actual2, closest2);
-	confusionchart(C)
+	%confusionchart(C)
 
 	% Calculate accuracy
 	chart = confusionchart(actual2,closest2); % Generate confusion chart
 	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 	accuracy(ind) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
 	title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
+
+	% Set up struct to save data
+	neuron_rate_F0(index).putative = nat_data(index).putative;
+	neuron_rate_F0(index).CF = nat_data(index).CF;
+	neuron_rate_F0(index).MTF = nat_data(index).MTF;
+	neuron_rate_F0(index).rate_rep = nat_data(index).oboe_raterep;
+	neuron_rate_F0(index).rate = nat_data(index).oboe_rate;
+	neuron_rate_F0(index).rate_std = nat_data(index).oboe_rate_std;
+	neuron_rate_F0(index).actual = actual2;
+	neuron_rate_F0(index).closest = closest2;
+	neuron_rate_F0(index).accuracy = accuracy(ind);
+	neuron_rate_F0(index).C = C;
 
 end
 
@@ -90,3 +103,8 @@ title('Prediction of F0 for each neuron using average rate')
 
 mean_all = mean(accuracy, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
+
+
+%% Save data 
+
+save('Neuron_Rate_F0_Oboe.mat', "neuron_rate_F0")
