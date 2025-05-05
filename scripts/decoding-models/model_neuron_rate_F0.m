@@ -5,10 +5,14 @@ clear
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
 load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
-
 %% Shape data into model input
+target = 'Bassoon';
 
-sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
+if strcmp(target, 'Oboe')
+	sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
+else
+	sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+end
 num_data = numel(sesh);
 
 % Get all rates for each repetition for bassoon (one example neuron)
@@ -16,9 +20,15 @@ neuron_rate_F0 = struct;
 for ind = 1:num_data
 
 	index = sesh(ind);
-	data = nat_data(index).oboe_raterep;
-	avg_rate = nat_data(index).oboe_rate;
-	rate_std = nat_data(index).oboe_rate_std;
+	if strcmp(target, 'Oboe')
+		data = nat_data(index).oboe_raterep;
+		avg_rate = nat_data(index).oboe_rate;
+		rate_std = nat_data(index).oboe_rate_std;
+	else
+		data = nat_data(index).bass_raterep;
+		avg_rate = nat_data(index).bass_rate;
+		rate_std = nat_data(index).bass_rate_std;
+	end
 
 	%% Calculate simple rate prediction
 
@@ -28,7 +38,6 @@ for ind = 1:num_data
 
 	% Loop through each row to calculate the average of the other rows and find the closest column
 	for i = 1:size(data, 1)
-
 
 		% Extract the current row (1x40 data)
 		single_row = data(i, :);
@@ -80,31 +89,22 @@ for ind = 1:num_data
 	title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
 
 	% Set up struct to save data
-	neuron_rate_F0(index).putative = nat_data(index).putative;
-	neuron_rate_F0(index).CF = nat_data(index).CF;
-	neuron_rate_F0(index).MTF = nat_data(index).MTF;
-	neuron_rate_F0(index).rate_rep = nat_data(index).oboe_raterep;
-	neuron_rate_F0(index).rate = nat_data(index).oboe_rate;
-	neuron_rate_F0(index).rate_std = nat_data(index).oboe_rate_std;
-	neuron_rate_F0(index).actual = actual2;
-	neuron_rate_F0(index).closest = closest2;
-	neuron_rate_F0(index).accuracy = accuracy(ind);
-	neuron_rate_F0(index).C = C;
+	neuron_rate_F0(ind).putative = nat_data(index).putative;
+	neuron_rate_F0(ind).CF = nat_data(index).CF;
+	neuron_rate_F0(ind).MTF = nat_data(index).MTF;
+	neuron_rate_F0(ind).rate_rep = nat_data(index).oboe_raterep;
+	neuron_rate_F0(ind).rate = nat_data(index).oboe_rate;
+	neuron_rate_F0(ind).rate_std = nat_data(index).oboe_rate_std;
+	neuron_rate_F0(ind).actual = actual2;
+	neuron_rate_F0(ind).closest = closest2;
+	neuron_rate_F0(ind).accuracy = accuracy(ind);
+	neuron_rate_F0(ind).C = C;
 
+	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
-
-%% Plot accuracy of each neuron
-
-figure
-histogram(accuracy*100,51)
-ylabel('# Neurons')
-xlabel('Prediction Accuracy (%)')
-title('Prediction of F0 for each neuron using average rate')
-
-mean_all = mean(accuracy, 'all');
-fprintf('Mean for all = %0.4f\n', mean_all)
-
 
 %% Save data 
 
-save('Neuron_Rate_F0_Oboe.mat', "neuron_rate_F0")
+[base, datapath, savepath, ppi] = getPathsNT();
+save(fullfile(base, 'model_comparisons', ['Neuron_Rate_F0_' target '.mat']), ...
+	"neuron_rate_F0")

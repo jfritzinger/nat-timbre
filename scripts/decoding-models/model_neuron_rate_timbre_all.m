@@ -94,35 +94,22 @@ for ind = 1:num_data
 	%confusionchart(C)
 
 	% Set up struct to save data
-	neuron_rate_timbre(index).putative = nat_data(index).putative;
-	neuron_rate_timbre(index).ind_b = ind_b(target);
-	neuron_rate_timbre(index).ind_o = ind_o(target);
-	neuron_rate_timbre(index).CF = nat_data(index).CF;
-	neuron_rate_timbre(index).MTF = nat_data(index).MTF;
-	neuron_rate_timbre(index).rate_rep = data;
-	neuron_rate_timbre(index).actual = actual2;
-	neuron_rate_timbre(index).closest = closest2;
-	neuron_rate_timbre(index).accuracy = accuracy(ind);
-	neuron_rate_timbre(index).C = C;
-
+	neuron_rate_timbre(ind).putative = nat_data(index).putative;
+	neuron_rate_timbre(ind).ind_b = ind_b(target);
+	neuron_rate_timbre(ind).ind_o = ind_o(target);
+	neuron_rate_timbre(ind).CF = nat_data(index).CF;
+	neuron_rate_timbre(ind).MTF = nat_data(index).MTF;
+	neuron_rate_timbre(ind).rate_rep = data;
+	neuron_rate_timbre(ind).actual = actual2;
+	neuron_rate_timbre(ind).closest = closest2;
+	neuron_rate_timbre(ind).accuracy = accuracy(ind);
+	neuron_rate_timbre(ind).C = C;
 
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
-%% Plot accuracy of each neuron
-figure
-
-histogram(accuracy*100,21)
-mean_F0 = mean(accuracy);
-hold on
-xline(mean_F0*100, 'r', 'LineWidth',2)
-ylabel('# Neurons')
-xlabel('Prediction Accuracy (%)')
-title('Prediction of instrument')
-
-mean_all = mean(accuracy, 'all');
-fprintf('Mean for all = %0.4f\n', mean_all)
-
 %% Save data
 
-save('Neuron_Rate_Timbre_All.mat', "neuron_rate_timbre")
+[base, datapath, savepath, ppi] = getPathsNT();
+save(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
+	"neuron_rate_timbre")

@@ -8,7 +8,7 @@ load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
 %% Shape data into model input
 
-% Find all rows with bassoon in them
+% Find all rows with bassoon and oboe in them
 sesh = [];
 for ii = 1:length(nat_data)
 	rate = nat_data(ii).bass_rate;
@@ -22,13 +22,11 @@ ind_b = 25:40;
 ind_o = [1 3:17];
 target = 1;
 
-%% Get all rates for each repetition for bassoon (one example neuron)
+%% Get all rates for each repetition
+
 for ind = 1:num_data
 
 	index = sesh(ind);
-	% figure('Position',[136,782,1085,481])
-	% tiledlayout(6, 6);
-
 	for target = 1:16
 
 
@@ -95,40 +93,25 @@ for ind = 1:num_data
 		%confusionchart(C)
 
 		% Set up struct to save data
-		neuron_rate_timbre(index, target).putative = nat_data(index).putative;
-		neuron_rate_timbre(index, target).ind_b = ind_b(target);
-		neuron_rate_timbre(index, target).ind_o = ind_o(target);
-		neuron_rate_timbre(index, target).CF = nat_data(index).CF;
-		neuron_rate_timbre(index, target).MTF = nat_data(index).MTF;
-		neuron_rate_timbre(index, target).rate_rep = data;
-		neuron_rate_timbre(index, target).rate = avg_rate;
-		neuron_rate_timbre(index, target).rate_std = rate_std;
-		neuron_rate_timbre(index, target).actual = actual2;
-		neuron_rate_timbre(index, target).closest = closest2;
-		neuron_rate_timbre(index, target).accuracy = accuracy(ind);
-		neuron_rate_timbre(index, target).C = C;
+		neuron_rate_timbre(ind, target).putative = nat_data(index).putative;
+		neuron_rate_timbre(ind, target).ind_b = ind_b(target);
+		neuron_rate_timbre(ind, target).ind_o = ind_o(target);
+		neuron_rate_timbre(ind, target).CF = nat_data(index).CF;
+		neuron_rate_timbre(ind, target).MTF = nat_data(index).MTF;
+		neuron_rate_timbre(ind, target).rate_rep = data;
+		neuron_rate_timbre(ind, target).rate = avg_rate;
+		neuron_rate_timbre(ind, target).rate_std = rate_std;
+		neuron_rate_timbre(ind, target).actual = actual2;
+		neuron_rate_timbre(ind, target).closest = closest2;
+		neuron_rate_timbre(ind, target).accuracy = accuracy(ind, target);
+		neuron_rate_timbre(ind, target).C = C;
 		
 	end
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
-%% Plot accuracy of each neuron
-figure
-tiledlayout(4, 4)
-for ii = 1:16
-	nexttile
-	histogram(accuracy(:,ii)*100,21)
-	mean_F0 = mean(accuracy(:,ii));
-	hold on
-	xline(mean_F0*100, 'r', 'LineWidth',2)
-	ylabel('# Neurons')
-	xlabel('Prediction Accuracy (%)')
-	title('Prediction of instrument')
-end
-
-mean_all = mean(accuracy, 'all');
-fprintf('Mean for all = %0.4f\n', mean_all)
-
 %% Save data 
 
-save('Neuron_Rate_Timbre_Separate.mat', "neuron_rate_timbre")
+[base, datapath, savepath, ppi] = getPathsNT();
+save(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_Separate.mat'), ...
+	"neuron_rate_timbre")
