@@ -3,7 +3,11 @@ clear
 
 %% Load in data
 
-filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
+if ismac
+	filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
+else
+	filepath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\model_comparisons';
+end
 load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
 
 
@@ -17,7 +21,7 @@ end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
 
 % Get bassoon stimulus
-target = 'Bassoon';
+target = 'Oboe';
 listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
 files = {listing.name};
 note_names = extractBetween(files, 'ff.', '.');
@@ -31,7 +35,7 @@ response = response';
 
 %% Get all rates for each repetition for bassoon (one example neuron)
 
-sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
 num_data = numel(sesh);
 
 for ind = 1:num_data
@@ -39,9 +43,9 @@ for ind = 1:num_data
 
 	% Get data
 	h_all = [];
-	for itarget = 1:40
-		spikes_bass = nat_data(index).bass_spikerate{itarget}/1000; % ms
-		spikereps_bass = nat_data(index).bass_spikerep{itarget};
+	for itarget = 1:35
+		spikes_bass = nat_data(index).oboe_spikerate{itarget}/1000; % ms
+		spikereps_bass = nat_data(index).oboe_spikerep{itarget};
 
 		% Arrange data for SVM
 		min_dis = 0.25;
@@ -78,7 +82,7 @@ for ind = 1:num_data
 		% Initialize the predictions to the proper sizes
 		validationPredictions = response;
 		numObservations = size(predictors, 1);
-		numClasses = 40;
+		numClasses = 35;
 		validationScores = NaN(numObservations, numClasses);
 		for fold = 1:KFolds
 			trainingPredictors = predictors(cvp.training(fold), :);
@@ -118,13 +122,13 @@ for ind = 1:num_data
 
 		% Get accuracy for 1-20, 21-40
 		validationAccuracy1(ind) = sum(correctPredictions(1:400))/length(correctPredictions(1:400));
-		validationAccuracy2(ind) = sum(correctPredictions(401:800))/length(correctPredictions(401:800));
+		validationAccuracy2(ind) = sum(correctPredictions(401:end))/length(correctPredictions(401:end));
 		
 	end
 
-	figure
-	confusionchart(C)
-	title(num2str(validationAccuracy*100))
+% 	figure
+% 	confusionchart(C)
+% 	title(num2str(validationAccuracy*100))
 	
 	% Save data for each
 	neuron_time_F0(index).putative = nat_data(index).putative;
@@ -144,7 +148,7 @@ end
 
 %% Save struct of data 
 
-save('Neuron_Time_F0_Bassoon.mat', "neuron_time_F0")
+save('Neuron_Time_F0_Oboe.mat', "neuron_time_F0", '-v7.3')
 
 
 %% Plot accuracy of each neuron
