@@ -45,10 +45,10 @@ for target = 1:16
 	for ii = 1:num_data
 
 		% Arrange data for SVM
-		%X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
-		%X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
-		X1 = nat_data(sesh(ii)).bass_norm_rep(:,ind_b(target));
-		X2 = nat_data(sesh(ii)).oboe_norm_rep(:,ind_o(target));
+		X1 = nat_data(sesh(ii)).bass_raterep(:,ind_b(target));
+		X2 = nat_data(sesh(ii)).oboe_raterep(:,ind_o(target));
+		%X1 = nat_data(sesh(ii)).bass_norm_rep(:,ind_b(target));
+		%X2 = nat_data(sesh(ii)).oboe_norm_rep(:,ind_o(target));
 		X = [X1; X2];
 		data_mat(:,ii) = X;
 
@@ -108,6 +108,7 @@ classNames = [1; 2];
 % Perform cross-validation
 KFolds = 5;
 cvp = cvpartition(response, 'KFold', KFolds);
+
 % Initialize the predictions to the proper sizes
 validationPredictions = response;
 numObservations = size(predictors, 1);
@@ -132,8 +133,6 @@ for fold = 1:KFolds
 	classificationLinearPredictFcn = @(x) predict(classificationLinear, x);
 	validationPredictFcn = @(x) classificationLinearPredictFcn(x);
 
-	% Add additional fields to the result struct
-
 	% Compute validation predictions
 	validationPredictors = predictors(cvp.test(fold), :);
 	[foldPredictions, foldScores] = validationPredictFcn(validationPredictors);
@@ -149,8 +148,21 @@ isMissing = isnan(response);
 correctPredictions = correctPredictions(~isMissing);
 validationAccuracy = sum(correctPredictions)/length(correctPredictions);
 
-%% Beta weights
+%% Save model output 
 
+pop_all_timbre.trainedClassifier = trainedClassifier;
+pop_all_timbre.validationPredictions = validationPredictions;
+pop_all_timbre.response = response;
+pop_all_timbre.T = T_new;
+pop_all_timbre.putative = nat_data(sesh).putative;
+pop_all_timbre.CF = nat_data(sesh).CF;
+pop_all_timbre.MTF = nat_data(sesh).MTF;
+pop_all_timbre.oboe_rate = nat_data(sesh).oboe_rate;
+pop_all_timbre.oboe_rate_std = nat_data(sesh).oboe_rate_std;
+pop_all_timbre.bass_rate = nat_data(sesh).bass_rate;
+pop_all_timbre.bass_rate_std = nat_data(sesh).bass_rate_std;
+
+save('Pop_Rate_Timbre_All.mat', "pop_all_timbre")
 
 %% Plot model evaluations 
 
@@ -189,10 +201,12 @@ end
 
 %%
 
+%% Beta weights
+
 figure
 
 nexttile
-beta_weights = classificationLinear.Beta;
+beta_weights = trainedClassifier.ClassificationLinear.Beta;
 plot(1:180, beta_weights)
 hold on 
 yline(0)
