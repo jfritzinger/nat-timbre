@@ -101,7 +101,8 @@ for ind = 1:num_data
 		T = array2table(h_all);
 		T.Instrument = [ones(20,1); ones(20, 1)*2];
 
-		for imodelrep = 1:5
+		for imodelrep = 1
+
 			% Call SVM
 			SVMModel = fitcsvm(T,'Instrument','OptimizeHyperparameters','auto', ...
 				'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName', ...
@@ -114,8 +115,21 @@ for ind = 1:num_data
 
 			prediction = kfoldPredict(CVSVMModel);
 			C = confusionmat(prediction, T.Instrument);
-			accuracy(ind, target, imodelrep) = sum(diag(C)) / sum(C, "all");
+			accuracy(ind, target) = sum(diag(C)) / sum(C, "all");
 		end
+
+		% Set up struct to save data
+		neuron_time_timbre(index, target).putative = nat_data(index).putative;
+		neuron_time_timbre(index, target).ind_b = ind_b(target);
+		neuron_time_timbre(index, target).ind_o = ind_o(target);
+		neuron_time_timbre(index, target).CF = nat_data(index).CF;
+		neuron_time_timbre(index, target).MTF = nat_data(index).MTF;
+		neuron_time_timbre(index, target).T = T;
+		neuron_time_timbre(index, target).Instrument = T.Instrument;
+		neuron_time_timbre(index, target).prediction = prediction;
+		neuron_time_timbre(index, target).accuracy = accuracy(ind,target);
+		neuron_time_timbre(index, target).C = C;
+
 		% figure
 		% confusionchart(C)
 		% title(num2str(accuracy))
@@ -167,7 +181,7 @@ end
 mean_all = mean(acc2, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
 
-save('model_neuron_temporal_timbre.mat', "accuracy", "acc2", "mean_F0")
+save('Neuron_Time_Timbre_Separate.mat', "neuron_time_timbre")
 
 %% Putting all data together
 
@@ -255,5 +269,6 @@ xlabel('Prediction Accuracy (%)')
 xlim([0 100])
 mean_all = mean(accuracy_all, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
-save('model_neuron_temporal_timbre_all.mat', "accuracy", "mean_F0")
+
+save('Neuron_Time_Timbre_All.mat', "accuracy", "mean_F0")
 
