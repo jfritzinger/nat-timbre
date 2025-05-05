@@ -1,55 +1,6 @@
 %% model_neuron_rate_F0
 clear
 
-%% Get list of all timbre stimuli (bassoon)
-
-for iinstr = 2
-	if iinstr == 1
-		target = 'Oboe';
-	else
-		target = 'Bassoon';
-	end
-
-	if ismac
-		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-	else
-		fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-	end
-	tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
-	listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
-	target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
-	wav_nums =  find(cell2mat(target_WAV));
-
-	d = dir(fullfile(fpath,'waveforms', '*.wav'));
-	all_files = sort({d.name});
-	nfiles = length(wav_nums);
-	wav_npts = zeros(1,nfiles);
-	wav_data = cell(1,nfiles);
-
-	for i = 1:nfiles
-		files{1,i} = all_files{wav_nums(i)};
-	end
-
-	% Sort by frequency of pitch
-	index = [];
-	note_names = extractBetween(files, 'ff.','.');
-	for ii = 1:nfiles % Find index of each note in tuning spreadsheet
-		index(ii) = find(strcmp(note_names(ii), tuning.Note));
-	end
-	pitch_order = tuning.Frequency(index); % Get freqs of each note
-	[~, order] = sort(pitch_order); % Sort freqs
-
-	if iinstr == 1
-		files_o = files(order);
-		note_names_o = note_names(order);
-	else
-		files_b = files(order);
-		note_names_b = note_names(order);
-	end
-end
-bass_pitch = pitch_order(order);
-
 %% Load in data
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
@@ -140,10 +91,25 @@ for ind = 1:num_data
 		% 	bass_pitch(ind_b(target)), accuracy(ind, target)*100))
 		%
 		% Plot confusion matrix
-		nexttile
-		confusionchart(C)
+		%nexttile
+		%confusionchart(C)
 
+		% Set up struct to save data
+		neuron_rate_timbre(index, target).putative = nat_data(index).putative;
+		neuron_rate_timbre(index, target).ind_b = ind_b(target);
+		neuron_rate_timbre(index, target).ind_o = ind_o(target);
+		neuron_rate_timbre(index, target).CF = nat_data(index).CF;
+		neuron_rate_timbre(index, target).MTF = nat_data(index).MTF;
+		neuron_rate_timbre(index, target).rate_rep = data;
+		neuron_rate_timbre(index, target).rate = avg_rate;
+		neuron_rate_timbre(index, target).rate_std = rate_std;
+		neuron_rate_timbre(index, target).actual = actual2;
+		neuron_rate_timbre(index, target).closest = closest2;
+		neuron_rate_timbre(index, target).accuracy = accuracy(ind);
+		neuron_rate_timbre(index, target).C = C;
+		
 	end
+	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
 %% Plot accuracy of each neuron
@@ -157,10 +123,12 @@ for ii = 1:16
 	xline(mean_F0*100, 'r', 'LineWidth',2)
 	ylabel('# Neurons')
 	xlabel('Prediction Accuracy (%)')
-	title(['Prediction of instrument, F0=' num2str(round(bass_pitch(ind_b(ii))))])
+	title('Prediction of instrument')
 end
 
 mean_all = mean(accuracy, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
 
+%% Save data 
 
+save('Neuron_Rate_Timbre_Separate.mat', "neuron_rate_timbre")
