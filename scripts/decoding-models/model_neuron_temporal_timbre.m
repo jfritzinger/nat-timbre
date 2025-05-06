@@ -15,7 +15,7 @@ listing = dir(fullfile(base, 'waveforms', '*.wav'));
 target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
 wav_nums =  find(cell2mat(target_WAV));
 
-d = dir(fullfile(fpath,'waveforms', '*.wav'));
+d = dir(fullfile(base,'waveforms', '*.wav'));
 all_files = sort({d.name});
 nfiles = length(wav_nums);
 wav_npts = zeros(1,nfiles);
