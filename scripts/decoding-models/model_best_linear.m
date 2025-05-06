@@ -105,7 +105,9 @@ scatter(T.response, pred_F0, 'filled', 'MarkerFaceAlpha',0.5)
 % xlim([57 588])
 hold on
 plot(T_test.response, T_test.response)
-title(r2)
+title(['R^2 = ' num2str(r2)])
+ylabel('Predicted log10(F0)')
+xlabel('Actual log10(F0)')
 
 logF0 = log10(F0s1);
 for ii = 1:length(pred_F0)
