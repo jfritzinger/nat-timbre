@@ -1,62 +1,39 @@
 %% model_neuron_rate_F0
 clear
 
-%% Get list of all timbre stimuli (bassoon)
-
-for iinstr = 2
-	if iinstr == 1
-		target = 'Oboe';
-	else
-		target = 'Bassoon';
-	end
-
-	if ismac
-		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-	else
-		fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-	end
-	tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
-	listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
-	target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
-	wav_nums =  find(cell2mat(target_WAV));
-
-	d = dir(fullfile(fpath,'waveforms', '*.wav'));
-	all_files = sort({d.name});
-	nfiles = length(wav_nums);
-	wav_npts = zeros(1,nfiles);
-	wav_data = cell(1,nfiles);
-
-	for i = 1:nfiles
-		files{1,i} = all_files{wav_nums(i)};
-	end
-
-	% Sort by frequency of pitch
-	index = [];
-	note_names = extractBetween(files, 'ff.','.');
-	for ii = 1:nfiles % Find index of each note in tuning spreadsheet
-		index(ii) = find(strcmp(note_names(ii), tuning.Note));
-	end
-	pitch_order = tuning.Frequency(index); % Get freqs of each note
-	[~, order] = sort(pitch_order); % Sort freqs
-
-	if iinstr == 1
-		files_o = files(order);
-		note_names_o = note_names(order);
-	else
-		files_b = files(order);
-		note_names_b = note_names(order);
-	end
-end
-bass_pitch = pitch_order(order);
 
 %% Load in data
-if ismac
-	filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-else
-	filepath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\model_comparisons';
+
+[base, datapath, savepath, ppi] = getPathsNT();
+load(fullfile(base,'model_comparisons', 'Data_NT.mat'), 'nat_data')
+
+%% Get list of all timbre stimuli (bassoon)
+
+target = 'Bassoon';
+tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
+listing = dir(fullfile(base, 'waveforms', '*.wav'));
+target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
+wav_nums =  find(cell2mat(target_WAV));
+
+d = dir(fullfile(fpath,'waveforms', '*.wav'));
+all_files = sort({d.name});
+nfiles = length(wav_nums);
+wav_npts = zeros(1,nfiles);
+wav_data = cell(1,nfiles);
+for i = 1:nfiles
+	files{1,i} = all_files{wav_nums(i)};
 end
-load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+
+% Sort by frequency of pitch
+index = [];
+note_names = extractBetween(files, 'ff.','.');
+for ii = 1:nfiles % Find index of each note in tuning spreadsheet
+	index(ii) = find(strcmp(note_names(ii), tuning.Note));
+end
+pitch_order = tuning.Frequency(index); % Get freqs of each note
+[~, order] = sort(pitch_order); % Sort freqs
+bass_pitch = pitch_order(order);
+
 
 %% Shape data into model input
 
@@ -88,7 +65,7 @@ for ind = 1:num_data
 		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
 
 		% Arrange data for SVM 
-		min_dis = 1;
+		min_dis = 0.25;
 		edges = 0:min_dis:300;
 		t = 0+min_dis/2:min_dis:300-min_dis/2;
 		for irep = 1:20
@@ -119,47 +96,27 @@ for ind = 1:num_data
 		end
 
 		% Set up struct to save data
-		neuron_time_timbre(index, target).putative = nat_data(index).putative;
-		neuron_time_timbre(index, target).ind_b = ind_b(target);
-		neuron_time_timbre(index, target).ind_o = ind_o(target);
-		neuron_time_timbre(index, target).CF = nat_data(index).CF;
-		neuron_time_timbre(index, target).MTF = nat_data(index).MTF;
-		neuron_time_timbre(index, target).T = T;
-		neuron_time_timbre(index, target).Instrument = T.Instrument;
-		neuron_time_timbre(index, target).prediction = prediction;
-		neuron_time_timbre(index, target).accuracy = accuracy(ind,target);
-		neuron_time_timbre(index, target).C = C;
+		neuron_time_timbre(ind, target).putative = nat_data(index).putative;
+		neuron_time_timbre(ind, target).ind_b = ind_b(target);
+		neuron_time_timbre(ind, target).ind_o = ind_o(target);
+		neuron_time_timbre(ind, target).F0 = bass_pitch(ind_b(target));
+		neuron_time_timbre(ind, target).CF = nat_data(index).CF;
+		neuron_time_timbre(ind, target).MTF = nat_data(index).MTF;
+		neuron_time_timbre(ind, target).T = T;
+		neuron_time_timbre(ind, target).Instrument = T.Instrument;
+		neuron_time_timbre(ind, target).prediction = prediction;
+		neuron_time_timbre(ind, target).accuracy = accuracy(ind,target);
+		neuron_time_timbre(ind, target).C = C;
 
 		% figure
 		% confusionchart(C)
 		% title(num2str(accuracy))
-
-		% Plots
-		% figure
-		% tiledlayout(2, 1)
-		% nexttile
-		% histogram(spikes_bass, 301)
-		% nexttile
-		% histogram(spikes_oboe, 301)
-		% figure
-		% tiledlayout(2, 1)
-		% nexttile
-		% hold on
-		% for irep = 1:20
-		% 	plot(t,h_bass(irep,:)+irep)
-		% end
-		% scatter(spikes_bass, spikereps_bass, 'filled')
-		% nexttile
-		% hold on
-		% for irep = 1:20
-		% 	plot(t,h_oboe(irep,:)+irep)
-		% end
-		% scatter(spikes_oboe, spikereps_oboe, 'filled')
-
-
 	end
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
+
+save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_Separate.mat'), ...
+	"neuron_time_timbre", '-v7.3')
 
 % Plot accuracy of each neuron
 figure
@@ -177,11 +134,6 @@ for ii = 1:16
 	title(['F0=' num2str(round(bass_pitch(ind_b(ii))))])
 	xlim([0 100])
 end
-
-mean_all = mean(acc2, 'all');
-fprintf('Mean for all = %0.4f\n', mean_all)
-
-save('Neuron_Time_Timbre_Separate.mat', "neuron_time_timbre")
 
 %% Putting all data together
 
