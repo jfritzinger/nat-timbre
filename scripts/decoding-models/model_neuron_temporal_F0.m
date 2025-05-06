@@ -3,27 +3,16 @@ clear
 
 %% Load in data
 
-if ismac
-	filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-else
-	filepath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\model_comparisons';
-end
-load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+[base, datapath, savepath, ppi] = getPathsNT();
+load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
 
 
 %% Get correct output of model 
 target = 'Oboe';
 
-if ismac
-	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-else
-	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-end
-tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
 % Get bassoon stimulus
-
-listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
+tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
+listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
 files = {listing.name};
 note_names = extractBetween(files, 'ff.', '.');
 [~, index] = ismember(note_names, tuning.Note);
@@ -36,7 +25,11 @@ response = response';
 
 %% Get all rates for each repetition for bassoon (one example neuron)
 
-sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
+if strcmp(target, 'Oboe')
+	sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
+else
+	sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+end
 num_data = numel(sesh);
 
 for ind = 1:num_data
@@ -154,6 +147,5 @@ end
 
 %% Save struct of data 
 
-[base, datapath, savepath, ppi] = getPathsNT();
 save(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 	"neuron_time_F0", '-v7.3')
