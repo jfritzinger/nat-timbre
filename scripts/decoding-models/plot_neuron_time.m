@@ -3,7 +3,7 @@ clear
 
 % Currently rerunning this on H2 to get accurate models
 %% Load in data
-target = 'Bassoon';
+target = 'Oboe';
 
 pitch = getF0s(target);
 msg{1} = sprintf('%0.0f - %0.0f Hz F0', pitch(1), pitch(20));
