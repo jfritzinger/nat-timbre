@@ -14,9 +14,9 @@ load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
 % Get indices of interest
 beta_weights = pop_rate_timbre.trainedClassifier.ClassificationSVM.Beta;
 [~,originalpos] = sort(abs(beta_weights), 'descend' );
-best_ind = originalpos(1:15);
+best_ind = originalpos(1:50);
 [~,originalpos] = sort(abs(beta_weights), 'ascend' );
-worst_ind = originalpos(1:15);
+worst_ind = originalpos(1:50);
 
 % Get 180 matrix of both bassoon and timbre
 has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
@@ -27,22 +27,16 @@ sesh_all = find(has_bass & has_oboe);
 ind_b = 25:40;
 ind_o = [1 3:17];
 
+nmodels = 28;
+num_neurons = [1:4 5:5:50 1:4 5:5:50];
+for imodel = 1:nmodels
 
-for imodel = 1:6
-
-	if ismember(imodel, [1, 2, 3]) % Three good models 
+	if imodel < 15 % 6 good models 
 		index = best_ind;
-	else % Three bad models 
+	else % 6 bad models 
 		index = worst_ind;
 	end
-
-	if ismember(imodel, [1, 3])
-		num_index = 1:5;
-	elseif ismember(imodel, [2, 5])
-		num_index = 1:10;
-	else
-		num_index = 1:15;
-	end
+	num_index = 1:num_neurons(imodel);
 	sesh = sesh_all(index(num_index));
 	
 	% Model including all F0s
@@ -78,7 +72,26 @@ for imodel = 1:6
 	pop_rate_timbre(imodel).putative = putative;
 	pop_rate_timbre(imodel).sesh = sesh;
 
+	% Print out progress
+	fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
 end
+
+%% Plot accuracy 
+
+figure('Position',[1198,449,293,236])
+nneurons = [1:4 5:5:50];
+accuracy_bad = [pop_rate_timbre(15:28).accuracy]*100;
+plot(nneurons, accuracy_bad);
+
+hold on 
+accuracy_good = [pop_rate_timbre(1:14).accuracy]*100;
+plot(nneurons, accuracy_good);
+xlabel('# Neurons in Model')
+ylabel('Accuracy (%)')
+grid on
+
+legend('Worst', 'Best')
+title('Model ')
 
 %% Save outputs
 
