@@ -93,32 +93,34 @@ T_test = T(testIndices, :);
 %% Fit using fitrlinear 
 
 
-hyperopts = struct('AcquisitionFunctionName','expected-improvement-plus', 'KFold',5);
-[Mdl,FitInfo,HyperparameterOptimizationResults] = fitrlinear(T_test, 'response', ...
-    'OptimizeHyperparameters','auto', ...
-    'HyperparameterOptimizationOptions',hyperopts);
+% hyperopts = struct('AcquisitionFunctionName','expected-improvement-plus', 'KFold',5);
+% [Mdl,FitInfo,HyperparameterOptimizationResults] = fitrlinear(T_train, 'response', ...
+%     'OptimizeHyperparameters','auto', ...
+%     'HyperparameterOptimizationOptions',hyperopts);
 
 
-% Mdl = fitrlinear(T, 'response','BetaTolerance',0.0001, ...
-% 	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
-% 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
+Mdl = fitrlinear(T, 'response','BetaTolerance',0.0001, ...
+	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
+	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
 
 %%
 
-%Tpred_F0 = kfoldPredict(Mdl);
-pred_F0 = predict(Mdl, T_test);
-r = corrcoef(pred_F0, T_test.response);
+pred_F0 = kfoldPredict(Mdl);
+%pred_F0 = predict(Mdl, T_test);
+r = corrcoef(pred_F0, T.response);
 r2 = r(1, 2)^2;
 
 figure('Position',[31,910,910,413])
 nexttile
-scatter(T_test.response, pred_F0, 'filled', 'MarkerFaceAlpha',0.5)
+scatter(T.response, pred_F0, 'filled', 'MarkerFaceAlpha',0.5)
 set(gca, 'xscale', 'log', 'yscale', 'log')
 % ylim([57 588])
 % xlim([57 588])
 hold on
 plot(T_test.response, T_test.response)
-title(r2)
+title(['R^2 = ' num2str(r2)])
+xlabel('Actual F0s (Log10(F0s))')
+ylabel('Predicted F0s (Log10(F0s))')
 
 closest_cat = [];
 for ii = 1:length(pred_F0)
@@ -129,13 +131,14 @@ for ii = 1:length(pred_F0)
 end
 
 
+
 % Plot confusion matrix
 nexttile
-C = confusionmat(T_test.response, closest_cat);
+C = confusionmat(T.response, closest_cat);
 confusionchart(C)
 
 % Calculate accuracy
-chart = confusionchart(T_test.response,closest_cat); % Generate confusion chart
+chart = confusionchart(T.response,closest_cat); % Generate confusion chart
 confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
 title(sprintf('Accuracy = %0.2f%%', accuracy*100))
