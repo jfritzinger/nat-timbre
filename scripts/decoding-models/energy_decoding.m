@@ -1,4 +1,4 @@
-
+%% energy_decoding
 clear
 
 
@@ -12,13 +12,6 @@ spreadsheet_name = 'PutativeTable.xlsx';
 sessions = readtable(fullfile(base, sheetpath, spreadsheet_name),...
 	'PreserveVariableNames',true);
 
-% Load in energy
-if ismac
-	modelpath = '/Volumes/Nat-Timbre/data/manuscript';
-else
-	modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript';
-end
-
 %% Create matrices for bassoon and oboe separately
 
 % Natural timbre datasets
@@ -26,10 +19,16 @@ NT_datasets(1,:) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
 NT_datasets(2,:) = cellfun(@(s) contains(s, 'R'), sessions.Bassoon);
 NT_list = find(any(NT_datasets));
 num_sesh = length(NT_list);
-load('Energy_NT.mat', 'nat_data')
+[base, ~, ~, ~] = getPathsNT();
+load(fullfile(base, 'model_comparisons', 'Energy_NT.mat'), 'nat_data')
 
 %% Load in all data
-% 
+% % Load in energy
+% if ismac
+% 	modelpath = '/Volumes/Nat-Timbre/data/manuscript';
+% else
+% 	modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript';
+% end
 % nat_data = struct;
 % for ii = 1:num_sesh
 % 
@@ -57,8 +56,8 @@ load('Energy_NT.mat', 'nat_data')
 
 %% Reshape matrix
 
-target = 'Bassoon';
-%target = 'Oboe';
+%target = 'Bassoon';
+target = 'Oboe';
 
 if ismac
 	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -76,12 +75,13 @@ F0s1 = tuning.Frequency(index);
 [F0s, order] = sort(F0s1);
 
 % Find all rows with bassoon in them
-sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+%sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
+sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
 num_data = numel(sesh);
 
 data_mat = NaN(length(F0s)*20, num_data);
 for ii = 1:num_data
-	X1 = nat_data(sesh(ii)).bass_rate';
+	X1 = nat_data(sesh(ii)).oboe_rate';
 	X2 = reshape(repmat(X1', 1, 20)', 1, []);
 	data_mat(:,ii) = X2;
 end
@@ -103,5 +103,16 @@ T.Response = response';
 % end
 % T_new2 = T(idx,:);
 
+%% Model - same type of model as data 
 
+[trainedClassifier, validationAccuracy, validationPredictions] = ...
+	trainClassifierPopRateF0(T, F0s);
 
+%% Plot confusion matrix 
+
+figure
+
+nexttile
+C = confusionmat(T.Response, validationPredictions);
+confusionchart(C)
+title(['Energy, ' target ', Accuracy = ' num2str(round(validationAccuracy*100)) '%'])
