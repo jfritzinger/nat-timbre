@@ -58,13 +58,13 @@ for ind = 1:num_data
 
 	for target = 1:16
 
-		% Get data 
+		% Get data
 		spikes_bass = nat_data(index).bass_spikerate{ind_b(target)}/1000; % ms
 		spikereps_bass = nat_data(index).bass_spikerep{ind_b(target)};
 		spikes_oboe = nat_data(index).oboe_spikerate{ind_o(target)}/1000;
 		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
 
-		% Arrange data for SVM 
+		% Arrange data for SVM
 		min_dis = 0.25;
 		edges = 0:min_dis:300;
 		t = 0+min_dis/2:min_dis:300-min_dis/2;
@@ -74,7 +74,7 @@ for ind = 1:num_data
 		end
 		h_all = [h_bass; h_oboe];
 
-		% Put data into table 
+		% Put data into table
 		T = array2table(h_all);
 		T.Instrument = [ones(20,1); ones(20, 1)*2];
 
@@ -150,7 +150,7 @@ for ind = 1:num_data
 		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
 
 		% Arrange data for SVM
-		min_dis = 1;
+		min_dis = 0.25;
 		edges = 0:min_dis:300;
 		t = 0+min_dis/2:min_dis:300-min_dis/2;
 		for irep = 1:20
@@ -179,34 +179,47 @@ for ind = 1:num_data
 	accuracy_all(ind) = sum(diag(C)) / sum(C, "all");
 	close all
 
-	figure
-	confusionchart(C)
-	title(num2str(accuracy))
+	% 	figure
+	% 	confusionchart(C)
+	% 	title(num2str(accuracy))
 
-% 	% Plots
-% 	% figure
-% 	% tiledlayout(2, 1)
-% 	% nexttile
-% 	% histogram(spikes_bass, 301)
-% 	% nexttile
-% 	% histogram(spikes_oboe, 301)
-% 	% figure
-% 	% tiledlayout(2, 1)
-% 	% nexttile
-% 	% hold on
-% 	% for irep = 1:20
-% 	% 	plot(t,h_bass(irep,:)+irep)
-% 	% end
-% 	% scatter(spikes_bass, spikereps_bass, 'filled')
-% 	% nexttile
-% 	% hold on
-% 	% for irep = 1:20
-% 	% 	plot(t,h_oboe(irep,:)+irep)
-% 	% end
-% 	% scatter(spikes_oboe, spikereps_oboe, 'filled')
+	% Set up struct to save data
+	neuron_time_timbre(ind).putative = nat_data(index).putative;
+	neuron_time_timbre(ind).CF = nat_data(index).CF;
+	neuron_time_timbre(ind).MTF = nat_data(index).MTF;
+	neuron_time_timbre(ind).T = T;
+	neuron_time_timbre(ind).Instrument = T.Instrument;
+	neuron_time_timbre(ind).prediction = prediction;
+	neuron_time_timbre(ind).accuracy = accuracy_all(ind);
+	neuron_time_timbre(ind).C = C;
+
+	% 	% Plots
+	% 	% figure
+	% 	% tiledlayout(2, 1)
+	% 	% nexttile
+	% 	% histogram(spikes_bass, 301)
+	% 	% nexttile
+	% 	% histogram(spikes_oboe, 301)
+	% 	% figure
+	% 	% tiledlayout(2, 1)
+	% 	% nexttile
+	% 	% hold on
+	% 	% for irep = 1:20
+	% 	% 	plot(t,h_bass(irep,:)+irep)
+	% 	% end
+	% 	% scatter(spikes_bass, spikereps_bass, 'filled')
+	% 	% nexttile
+	% 	% hold on
+	% 	% for irep = 1:20
+	% 	% 	plot(t,h_oboe(irep,:)+irep)
+	% 	% end
+	% 	% scatter(spikes_oboe, spikereps_oboe, 'filled')
 
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
+
+save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'), ...
+	"neuron_time_timbre", '-v7.3')
 
 %% Plot accuracy of each neuron
 figure
