@@ -1,7 +1,6 @@
 %% plot_neuron_time
 clear
 
-% Currently rerunning this on H2 to get accurate models
 %% Load in data
 target = 'Oboe';
 
@@ -68,6 +67,59 @@ putatives = neuron_time_F0(best_ind(1)).putative;
 nexttile
 confusionchart(neuron_time_F0(best_ind(1)).C)
 title(sprintf('Best prediction, %s, %0.02f%%', putatives, temp(1)))
+
+%% Test accuracy vs neuron characteristics, like CF and MTF 
+
+
+
+
+%% Load and plot results for timbre all F0s together 
+
+% Load in data 
+[base, datapath, savepath, ppi] = getPathsNT();
+filename = 'Neuron_Time_Timbre_All.mat';
+filepath = fullfile(base, 'model_comparisons',filename);
+load(filepath, "neuron_time_timbre")
+
+% Figure
+figure('Position',[560,585,1023,263])
+tiledlayout(1, 2)
+linewidth = 2;
+
+nexttile
+accuracy = [neuron_time_timbre.accuracy]*100;
+CFs = [neuron_time_timbre.CF];
+edges = linspace(0, 100, 101);
+histogram(accuracy,edges)
+hold on
+
+% Plot chance line
+xline(50, 'k', 'LineWidth',linewidth)
+
+% Mean and median
+xline(mean(accuracy), 'r', 'LineWidth',linewidth)
+xline(median(accuracy), 'r--', 'LineWidth',linewidth)
+
+% Best
+scatter(max(accuracy), 0, 'filled')
+
+% Labels
+legend('', sprintf('Chance = 50%%'), ...
+	sprintf('Mean = %.2f%%', mean(accuracy)), ...
+	sprintf('Median = %.2f%%', median(accuracy)),...
+	sprintf('Best = %.2f%%', max(accuracy)))
+ylabel('# Neurons')
+xlabel('Prediction Accuracy (%)')
+title('Instrument Predictions')
+xlim([0 100])
+grid on
+
+% Plot accuracy vs CF
+nexttile
+scatter(CFs, accuracy, 'filled')
+set(gca, 'xscale', 'log')
+xlabel('CFs (Hz)')
+ylabel('Accuracy')
 
 
 %% FUNCTIONS 
