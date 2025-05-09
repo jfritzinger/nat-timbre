@@ -89,6 +89,11 @@ pop_rate_timbre.T = T;
 pop_rate_timbre.CFs = CFs;
 pop_rate_timbre.putative = putative;
 pop_rate_timbre.sesh = sesh;
+pop_rate_timbre.MTF = {nat_data(sesh).MTF};
+pop_rate_timbre.oboe_rate = [nat_data(sesh).oboe_rate];
+pop_rate_timbre.oboe_rate_std = [nat_data(sesh).oboe_rate_std];
+pop_rate_timbre.bass_rate = [nat_data(sesh).bass_rate];
+pop_rate_timbre.bass_rate_std = [nat_data(sesh).bass_rate_std];
 
 % Make training and test rows
 % ncond = 2;
