@@ -89,20 +89,110 @@ xlabel('CF')
 ylabel('abs(Beta Weight)')
 set(gca, 'xscale', 'log')
 
-%% Get top 3 neurons with highest abs(beta_weights)
+%% Get top/bottom 3 neurons with highest abs(beta_weights)
 
 [~,originalpos] = sort(abs(beta_weights), 'descend' );
 best_ind=originalpos(1:3);
 putatives_best = pop_rate_timbre.putative(best_ind);
 best_ind_15 = originalpos(1:15);
 
-%% Get bottom three neurons 
-
 [~,originalpos] = sort(abs(beta_weights), 'ascend' );
 worst_ind=originalpos(1:3);
 putatives_worst = pop_rate_timbre.putative(worst_ind);
 worst_ind_15 = originalpos(1:15);
 
+%% Search for patterns in MTF in beta weights 
+
+beta_weights = pop_rate_timbre.trainedClassifier.ClassificationSVM.Beta;
+CFs = pop_rate_timbre.CFs;
+MTFs = pop_rate_timbre.MTF;
+MTF_types = unique(MTFs);
+
+[weights_ordered, order_ind] = sort(beta_weights);
+figure
+bar(weights_ordered)
+
+figure
+for iMTF = 1:5
+
+	nexttile
+	ind = strcmp(MTFs, MTF_types{iMTF});
+	[weights_ordered, order_ind] = sort(beta_weights(ind));
+	bar(weights_ordered)
+	title(MTF_types{iMTF})
+	ylim([-2 2])
+end
+
+figure
+hold on
+for iMTF = 1:5
+	ind = strcmp(MTFs, MTF_types{iMTF});
+	[weights_ordered, order_ind] = sort(beta_weights(ind));
+	num_units = length(weights_ordered);
+
+	swarmchart(ones(num_units, 1)*iMTF, weights_ordered)
+	ylim([-2 2])
+
+	mean_vals(iMTF) = mean(weights_ordered);
+	std_vals(iMTF) = std(weights_ordered)/sqrt(length(weights_ordered));
+end
+errorbar(1:5, mean_vals, std_vals, 'k')
+xticks(1:5)
+xticklabels(MTF_types)
+ylabel('Beta Weights')
+
+tableMTF = table(MTFs', beta_weights);
+anova(tableMTF, 'beta_weights')
+%[~,~,stats] = anova1(beta_weights, MTFs);
+%[c,~,~,gnames] = multcompare(stats);
+
+
+%% CFs 
+
+figure
+CF_groups = [0, 2000; 2000, 4000; 4000, 14000];
+CF_names = {'Low', 'Medium', 'High'};
+for iCF = 1:3
+
+	nexttile
+	ind = CFs > CF_groups(iCF, 1) & CFs < CF_groups(iCF, 2);
+	[weights_ordered, order_ind] = sort(beta_weights(ind));
+	bar(weights_ordered)
+	title(CF_names{iCF})
+	ylim([-2 2])
+end
+
+figure
+hold on
+mean_vals = zeros(1, 3);
+std_vals = zeros(1,3);
+for iCF = 1:3
+	ind = CFs > CF_groups(iCF, 1) & CFs < CF_groups(iCF, 2);
+	[weights_ordered, order_ind] = sort(beta_weights(ind));
+	num_units = length(weights_ordered);
+
+	swarmchart(ones(num_units, 1)*iCF, weights_ordered)
+	ylim([-2 2])
+
+	mean_vals(iCF) = mean(weights_ordered);
+	std_vals(iCF) = std(weights_ordered)/sqrt(length(weights_ordered));
+end
+errorbar(1:3, mean_vals, std_vals, 'k')
+xticks(1:3)
+xticklabels(CF_names)
+ylabel('Beta Weights')
+
+tableMTF = table(CFs', beta_weights);
+anova(tableMTF, 'beta_weights')
+%[~,~,stats] = anova1(beta_weights, MTFs);
+%[c,~,~,gnames] = multcompare(stats);
+
+%% Throw into a mixed-effects model and see if anything stands out 
+
+
+
+
+%%
 %%
 % 
 % figure
