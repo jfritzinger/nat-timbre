@@ -162,146 +162,145 @@ pop_all_timbre.oboe_rate_std = nat_data(sesh).oboe_rate_std;
 pop_all_timbre.bass_rate = nat_data(sesh).bass_rate;
 pop_all_timbre.bass_rate_std = nat_data(sesh).bass_rate_std;
 
-save('Pop_Rate_Timbre_All.mat', "pop_all_timbre")
+[base, ~, ~, ~] = getPathsNT();
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), "pop_all_timbre")
 
 %% Plot model evaluations 
-
-% Compute classification using all data 
-figure
-C = confusionmat(response, validationPredictions);
-confusionchart(C)
-
-% Calculate accuracy
-chart = confusionchart(response,validationPredictions); % Generate confusion chart
-confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
-accuracy(1) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-title(sprintf('Accuracy = %0.2f%%', accuracy(1)*100))
-
-% Plot all rates/VS 
-figure
-tiledlayout(2, 1)
-mean_bass = mean(data_mat(1:20,:),1);
-mean_oboe = mean(data_mat(21:40,:),1);
-for ii = 1:2
-	nexttile
-	if ii == 1
-		scatter(CFs/1000, mean_bass, 'blue')
-		title('Bassoon')
-	else
-		scatter(CFs/1000, mean_oboe, 'red')
-		title('Oboe')
-	end
-	set(gca, 'xscale', 'log')
-	xticks([0.1 0.2 0.5 1 2 5 10])
-	xlim([0.1 10])
-	ylabel('Norm Rate')
-	xlabel('CF (kHz)')
-	grid on
-end
-
-%%
+% 
+% % Compute classification using all data 
+% figure
+% C = confusionmat(response, validationPredictions);
+% confusionchart(C)
+% 
+% % Calculate accuracy
+% chart = confusionchart(response,validationPredictions); % Generate confusion chart
+% confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
+% accuracy(1) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
+% title(sprintf('Accuracy = %0.2f%%', accuracy(1)*100))
+% 
+% % Plot all rates/VS 
+% figure
+% tiledlayout(2, 1)
+% mean_bass = mean(data_mat(1:20,:),1);
+% mean_oboe = mean(data_mat(21:40,:),1);
+% for ii = 1:2
+% 	nexttile
+% 	if ii == 1
+% 		scatter(CFs/1000, mean_bass, 'blue')
+% 		title('Bassoon')
+% 	else
+% 		scatter(CFs/1000, mean_oboe, 'red')
+% 		title('Oboe')
+% 	end
+% 	set(gca, 'xscale', 'log')
+% 	xticks([0.1 0.2 0.5 1 2 5 10])
+% 	xlim([0.1 10])
+% 	ylabel('Norm Rate')
+% 	xlabel('CF (kHz)')
+% 	grid on
+% end
 
 %% Beta weights
-
-figure
-
-nexttile
-beta_weights = trainedClassifier.ClassificationLinear.Beta;
-plot(1:180, beta_weights)
-hold on 
-yline(0)
-xlabel('Neuron #')
-ylabel('Beta Weight')
-
-nexttile
-scatter(CFs/1000, beta_weights)
-hold on 
-yline(0)
-xticks([0.1 0.2 0.5 1 2 5 10])
-%xlim([0.2 10])
-xlabel('CF')
-ylabel('Beta Weight')
-set(gca, 'xscale', 'log')
-
-nexttile
-scatter(CFs/1000, abs(beta_weights))
-hold on 
-yline(0)
-xticks([0.1 0.2 0.5 1 2 5 10])
-%xlim([0.2 10])
-xlabel('CF')
-ylabel('abs(Beta Weight)')
-set(gca, 'xscale', 'log')
-
-figure
-tiledlayout(2, 1)
-mean_bass = mean(data_mat(1:20,:),1);
-mean_oboe = mean(data_mat(21:40,:),1);
-for ii = 1:2
-	nexttile
-	if ii == 1
-		scatter(CFs/1000, mean_bass, [], beta_weights, 'filled', ...
-			'MarkerEdgeColor','k')
-		title('Bassoon')
-	else
-		scatter(CFs/1000, mean_oboe, [], beta_weights, 'filled', ...
-			'MarkerEdgeColor','k')
-		title('Oboe')
-	end
-	set(gca, 'xscale', 'log')
-	xticks([0.1 0.2 0.5 1 2 5 10])
-	%xlim([0.2 10])
-	ylabel('Norm Rate')
-	xlabel('CF (kHz)')
-	grid on
-	colorbar
-end
-
-figure
-tiledlayout(1, 2)
-mean_bass = mean(data_mat(1:20,:),1);
-mean_oboe = mean(data_mat(21:40,:),1);
-index = abs(beta_weights)>0.4;
-for ii = 1:2
-	nexttile
-	if ii == 1
-		scatter(CFs(index)/1000, mean_bass(index), [], beta_weights(index), 'filled', ...
-			'MarkerEdgeColor','k')
-		title('Bassoon')
-	else
-		scatter(CFs(index)/1000, mean_oboe(index), [], beta_weights(index), 'filled', ...
-			'MarkerEdgeColor','k')
-		title('Oboe')
-	end
-	set(gca, 'xscale', 'log')
-	xticks([0.1 0.2 0.5 1 2 5 10])
-	%xlim([0.2 10])
-	ylim([0 80])
-	ylabel('Norm Rate')
-	xlabel('CF (kHz)')
-	grid on
-	colorbar
-end
-
-%%
-
-figure
-tiledlayout(1, 2)
-nexttile
-scatter(mean_bass, mean_oboe, [], beta_weights, 'filled','MarkerEdgeColor','k')
-hold on
-plot([0 100], [0 100], 'k')
-xlabel('Bassoon Norm Rate')
-ylabel('Oboe Norm Rate')
-xlim([0 100])
-ylim([0 100])
-colorbar
-
-nexttile
-scatter(mean_bass(index), mean_oboe(index), 'filled','MarkerEdgeColor','k')
-hold on
-plot([0 100], [0 100], 'k')
-xlabel('Bassoon Norm Rate')
-ylabel('Oboe Norm Rate')
-xlim([0 100])
-ylim([0 100])
+% 
+% figure
+% 
+% nexttile
+% beta_weights = trainedClassifier.ClassificationLinear.Beta;
+% plot(1:180, beta_weights)
+% hold on 
+% yline(0)
+% xlabel('Neuron #')
+% ylabel('Beta Weight')
+% 
+% nexttile
+% scatter(CFs/1000, beta_weights)
+% hold on 
+% yline(0)
+% xticks([0.1 0.2 0.5 1 2 5 10])
+% %xlim([0.2 10])
+% xlabel('CF')
+% ylabel('Beta Weight')
+% set(gca, 'xscale', 'log')
+% 
+% nexttile
+% scatter(CFs/1000, abs(beta_weights))
+% hold on 
+% yline(0)
+% xticks([0.1 0.2 0.5 1 2 5 10])
+% %xlim([0.2 10])
+% xlabel('CF')
+% ylabel('abs(Beta Weight)')
+% set(gca, 'xscale', 'log')
+% 
+% figure
+% tiledlayout(2, 1)
+% mean_bass = mean(data_mat(1:20,:),1);
+% mean_oboe = mean(data_mat(21:40,:),1);
+% for ii = 1:2
+% 	nexttile
+% 	if ii == 1
+% 		scatter(CFs/1000, mean_bass, [], beta_weights, 'filled', ...
+% 			'MarkerEdgeColor','k')
+% 		title('Bassoon')
+% 	else
+% 		scatter(CFs/1000, mean_oboe, [], beta_weights, 'filled', ...
+% 			'MarkerEdgeColor','k')
+% 		title('Oboe')
+% 	end
+% 	set(gca, 'xscale', 'log')
+% 	xticks([0.1 0.2 0.5 1 2 5 10])
+% 	%xlim([0.2 10])
+% 	ylabel('Norm Rate')
+% 	xlabel('CF (kHz)')
+% 	grid on
+% 	colorbar
+% end
+% 
+% figure
+% tiledlayout(1, 2)
+% mean_bass = mean(data_mat(1:20,:),1);
+% mean_oboe = mean(data_mat(21:40,:),1);
+% index = abs(beta_weights)>0.4;
+% for ii = 1:2
+% 	nexttile
+% 	if ii == 1
+% 		scatter(CFs(index)/1000, mean_bass(index), [], beta_weights(index), 'filled', ...
+% 			'MarkerEdgeColor','k')
+% 		title('Bassoon')
+% 	else
+% 		scatter(CFs(index)/1000, mean_oboe(index), [], beta_weights(index), 'filled', ...
+% 			'MarkerEdgeColor','k')
+% 		title('Oboe')
+% 	end
+% 	set(gca, 'xscale', 'log')
+% 	xticks([0.1 0.2 0.5 1 2 5 10])
+% 	%xlim([0.2 10])
+% 	ylim([0 80])
+% 	ylabel('Norm Rate')
+% 	xlabel('CF (kHz)')
+% 	grid on
+% 	colorbar
+% end
+% 
+% %%
+% 
+% figure
+% tiledlayout(1, 2)
+% nexttile
+% scatter(mean_bass, mean_oboe, [], beta_weights, 'filled','MarkerEdgeColor','k')
+% hold on
+% plot([0 100], [0 100], 'k')
+% xlabel('Bassoon Norm Rate')
+% ylabel('Oboe Norm Rate')
+% xlim([0 100])
+% ylim([0 100])
+% colorbar
+% 
+% nexttile
+% scatter(mean_bass(index), mean_oboe(index), 'filled','MarkerEdgeColor','k')
+% hold on
+% plot([0 100], [0 100], 'k')
+% xlabel('Bassoon Norm Rate')
+% ylabel('Oboe Norm Rate')
+% xlim([0 100])
+% ylim([0 100])
