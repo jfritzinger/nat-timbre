@@ -1,5 +1,3 @@
-% Plot stimulus analysis
-
 %% plot_overlapping_stimuli.m
 %
 % Script that plots the oboe and bassoon sounds that have overlapping F0s. 
@@ -12,8 +10,9 @@ clear
 
 %% Set up figure
 
+addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions', '-end')
 [base, ~, ~, ppi] = getPathsNT();
-figure('Position',[68,278,4.567*ppi,2.7*ppi])
+figure('Position',[68,278,4.567*ppi,2.7*ppi]);
 titlesize = 9;
 fontsize = 8;
 labelsize = 12;
@@ -270,5 +269,3 @@ annotation('textbox',[left(1) 0.98 0.0826 0.0385],'String','A',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 annotation('textbox',[left(2) 0.98 0.0826 0.0385],'String','B',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
-
-
