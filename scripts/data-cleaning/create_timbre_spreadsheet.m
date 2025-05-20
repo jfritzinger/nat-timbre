@@ -23,6 +23,7 @@ interest_27 = sessions.Rabbit==27 & sessions.Session>421;
 interest_29 = sessions.Rabbit==29 & sessions.Session>358;
 
 stimulus2 = 'Natural_Timbre';
+names = sessions.Properties.VariableNames;
 ind = find(strcmp(names,stimulus2));
 stim_columns2 = table2array(sessions(:,ind));
 interest_stim2 = sum(stim_columns2,2);
