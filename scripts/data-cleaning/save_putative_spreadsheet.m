@@ -10,12 +10,12 @@ sessions = readtable(spreadsheet_name, 'PreserveVariableNames',true);
 sessions(strcmp(sessions.Putative_Units,""),:) = [];
 
 % Reads in spreadsheet & load data
-if ismac
-	filename = '/Volumes/Rabbit_data/session_table.xlsx';
-else
-	filename = '\\nsc-lcarney-g1\Rabbit_data\session_table.xlsx';
-end
-cellData = readtable(filename, 'PreserveVariableNames',true);
+% if ismac
+% 	filename = '/Volumes/Rabbit_data/session_table.xlsx';
+% else
+% 	filename = '\\nsc-lcarney-g1\Rabbit_data\session_table.xlsx';
+% end
+% cellData = readtable(filename, 'PreserveVariableNames',true);
 
 %% Find all putative units 
 
@@ -37,12 +37,12 @@ stimNames = ["char_spl", "char_ITD", "char_ILD", "type=RM", "type=RM_con", ...
 	"43dB_con", "63dB_con", "73dB_con", "83dB_con","Oboe", "Bassoon", "Other"];
 
 stimTypes = repmat("string", 1, length(stimNames));
-est_num_rows = 350; % set to number larger than
+est_num_rows = 75; % set to number larger than
 num_cols = length([varNames stimNames]);
 table_size = [est_num_rows num_cols];
 putative_table = table('Size',table_size,'VariableTypes',[varTypes stimTypes],'VariableNames',[varNames stimNames]);
 
-for ind = 120:123 %1:num_putative_neurons 
+for ind = 1:num_putative_neurons 
 
 	num_repeats = sum(C==ind);
 	putative_table.Putative_Units(ind) = labels_putative(ind);
@@ -62,17 +62,6 @@ for ind = 120:123 %1:num_putative_neurons
 				name = sprintf('R0%dS%3g_TT%d_N%d', rabbit, session, tetrode, neuron);
 				name = regexprep(name, ' ', '0');
 				putative_table(ind, ids-9) = {name};
-			end
-		end
-
-		% Synthetic timbre: 18-29 are synth timbre
-		if strcmp(sessions.Include_SC{ind}, "Y")
-			for ids = 28:39
-				if sessions{table_index, ids} == 1
-					name = sprintf('R0%dS%3g_TT%d_N%d', rabbit, session, tetrode, neuron);
-					name = regexprep(name, ' ', '0');
-					putative_table(ind, ids-9) = {name};
-				end
 			end
 		end
 
