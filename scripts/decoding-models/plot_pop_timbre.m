@@ -89,17 +89,6 @@ xlabel('CF')
 ylabel('abs(Beta Weight)')
 set(gca, 'xscale', 'log')
 
-%% Get top/bottom 3 neurons with highest abs(beta_weights)
-
-[~,originalpos] = sort(abs(beta_weights), 'descend' );
-best_ind=originalpos(1:3);
-putatives_best = pop_rate_timbre.putative(best_ind);
-best_ind_15 = originalpos(1:15);
-
-[~,originalpos] = sort(abs(beta_weights), 'ascend' );
-worst_ind=originalpos(1:3);
-putatives_worst = pop_rate_timbre.putative(worst_ind);
-worst_ind_15 = originalpos(1:15);
 
 %% Search for patterns in MTF in beta weights 
 
@@ -190,7 +179,59 @@ anova(tableMTF, 'beta_weights')
 %% Throw into a mixed-effects model and see if anything stands out 
 
 
+%% Get CFs/MTFs for the best and worst models 
 
+[~,originalpos] = sort(abs(beta_weights), 'descend' );
+putatives_best = pop_rate_timbre.putative(best_ind);
+best_ind = originalpos(1:10);
+
+[~,originalpos] = sort(abs(beta_weights), 'ascend' );
+putatives_worst = pop_rate_timbre.putative(worst_ind);
+worst_ind = originalpos(1:10);
+
+% Plot all rates/VS
+CFs_good = CFs(best_ind);
+beta_good = beta_weights(best_ind);
+MTFs_good = MTFs(best_ind);
+
+CFs_bad = CFs(worst_ind);
+beta_bad = beta_weights(worst_ind);
+MTFs_bad = MTFs(worst_ind);
+
+figure
+nexttile
+hold on
+scatter(CFs_good, beta_good, 'filled')
+scatter(CFs_bad, beta_bad, 'filled')
+set(gca, 'xscale', 'log')
+xlabel('CFs')
+ylabel('Beta Weights')
+title('Beta Weights vs CF')
+
+nexttile
+edges = logspace(log10(300), log10(13000), 10);
+histogram(CFs_good, edges)
+hold on
+histogram(CFs_bad, edges)
+set(gca, 'xscale', 'log')
+legend('High Beta', 'Low Beta')
+xlabel('CFs')
+ylabel('# Neurons')
+title('Distribution of CFs for high/low beta')
+
+nexttile
+MTFs_sub = [MTFs_good; MTFs_bad];
+for itype = 1:2
+	isBE(itype,:) = sum(strcmp('BE', MTFs_sub(itype,:)));
+	isBS(itype,:) = sum(strcmp('BS', MTFs_sub(itype,:)));
+	isH(itype,:) = sum(contains(MTFs_sub(itype,:),'H'));
+	isF(itype,:) = sum(strcmp('F', MTFs_sub(itype,:)));
+end
+MTF_types = [isBE, isBS, isH, isF];
+bar(MTF_types')
+xticklabels({'BE', 'BS', 'Hybrid', 'Flat'})
+legend('High Beta', 'Low Beta')
+title('MTF Types of top/bottom 10 neurons')
 
 %%
 %%
