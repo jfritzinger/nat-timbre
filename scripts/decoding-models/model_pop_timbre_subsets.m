@@ -26,15 +26,31 @@ type = 'rate';
 has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
 has_oboe = ~cellfun(@isempty, {nat_data.oboe_rate});
 sesh = find(has_bass & has_oboe);
-num_data = numel(sesh);
+num_data_all = numel(sesh);
 ind_b = 25:40;
 ind_o = [1 3:17];
-CFs = [nat_data(sesh).CF];
+CFs_all = [nat_data(sesh).CF];
 putative = {nat_data(sesh).putative};
+MTFs = {nat_data(sesh).MTF};
 
+% Get a subset of the data based on CF grouping
+% CF_groups = [0, 2000; 2000, 4000; 4000, 14000];
+% CF_names = {'Low', 'Medium', 'High'};
+% for iCF = 2
+% 	ind = CFs_all > CF_groups(iCF, 1) & CFs_all < CF_groups(iCF, 2);
+% end
 
-% EDIT %%%%%%%% 
-% Get a subset of the data based on MTF, CF, or something else 
+% Get a subset of the data based on MTF type
+isBE = strcmp('BE', MTFs);
+isBS = strcmp('BS', MTFs);
+isH = contains(MTFs,'H');
+isF = strcmp('F', MTFs);
+ind = isF;
+
+% Subset! 
+CFs = CFs_all(ind);
+sesh = sesh(ind);
+num_data = numel(sesh);
 
 %% Model including all F0s 
 
@@ -117,3 +133,69 @@ end
 pop_rate_timbre.shuffled_accuracy = shuffled_accuracy;
 
 %% Plot outputs 
+
+% Plot confusion matrix 
+figure
+tiledlayout
+
+% Compute classification using all data 
+nexttile
+C = confusionmat(pop_rate_timbre.response, pop_rate_timbre.predictions);
+confusionchart(C)
+title(sprintf('Accuracy = %0.2f%%', pop_rate_timbre.accuracy*100))
+
+nexttile
+edges = linspace(0, 100, 101);
+hold on
+histogram(pop_rate_timbre.shuffled_accuracy*100)
+xline(pop_rate_timbre.accuracy*100, '--r')
+xline(50, 'k')
+xlim([0 101])
+xlabel('Accuracy (%)')
+ylabel('# Trials')
+title('Accuracy for Shuffled Data')
+legend(...
+	sprintf('Mean = %0.0f%%', mean(pop_rate_timbre.shuffled_accuracy*100)))
+
+% Initial beta weight investigation
+
+beta_weights = pop_rate_timbre.trainedClassifier.ClassificationSVM.Beta;
+CFs = pop_rate_timbre.CFs;
+
+nexttile
+plot(1:length(beta_weights), beta_weights)
+hold on 
+yline(0)
+xlabel('Neuron #')
+ylabel('Beta Weight')
+
+nexttile
+scatter(CFs/1000, beta_weights)
+hold on 
+yline(0)
+xticks([0.1 0.2 0.5 1 2 5 10])
+xlim([0.2 10])
+xlabel('CF')
+ylabel('Beta Weight')
+set(gca, 'xscale', 'log')
+
+nexttile
+scatter(CFs/1000, abs(beta_weights))
+hold on 
+yline(0)
+xticks([0.1 0.2 0.5 1 2 5 10])
+xlim([0.2 10])
+xlabel('CF')
+ylabel('abs(Beta Weight)')
+set(gca, 'xscale', 'log')
+
+
+%% 
+
+%accuracy_low = 95.54; % n = 51
+%accuracy_med = 98.75; % n = 65 
+%accuracy_med = 99.06; % n = 64
+%accuracy_BE = 95.16; % n = 37
+%accuracy_BS = 98.95; % n = 93
+%accuracy_H = 92.81; % n = 30 
+%accuracy_F = 91.25; % n = 20 

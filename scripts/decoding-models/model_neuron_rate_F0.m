@@ -3,10 +3,10 @@ clear
 %% Load in data
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT.mat'), 'nat_data')
+load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Shape data into model input
-target = 'Bassoon';
+target = 'Oboe';
 
 if strcmp(target, 'Oboe')
 	sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));

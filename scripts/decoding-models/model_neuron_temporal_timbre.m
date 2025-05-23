@@ -5,7 +5,7 @@ clear
 %% Load in data
 
 [base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base,'model_comparisons', 'Data_NT.mat'), 'nat_data')
+load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 %% Get list of all timbre stimuli (bassoon)
 

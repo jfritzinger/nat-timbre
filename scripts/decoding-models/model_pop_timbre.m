@@ -4,7 +4,7 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 %% Get correct output of model
 

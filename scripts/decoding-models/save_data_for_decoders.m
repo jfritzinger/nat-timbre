@@ -12,11 +12,9 @@ clear
 
 % Load in spreadsheet
 addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions')
-[base, datapath, savepath, ppi] = getPaths();
+[base, datapath, savepath, ppi] = getPathsNT();
 modelpath = '/Volumes/Nat-Timbre/data/manuscript';
-sheetpath = 'data/2025-manuscript/data-cleaning';
-spreadsheet_name = 'PutativeTable.xlsx';
-sessions = readtable(fullfile(base, sheetpath, spreadsheet_name),...
+sessions = readtable(fullfile(base, 'data-cleaning', 'Data_Table.xlsx'),...
 	'PreserveVariableNames',true);
 
 %% Create matrices for bassoon and oboe separately
@@ -29,16 +27,16 @@ num_sesh = length(NT_list);
 
 %% Load in all data
 nat_data = struct;
-for ii = 1:num_sesh
+for ii = 243 %1:num_sesh
 
 	% Load in data
 	putative = sessions.Putative_Units{NT_list(ii)};
 	CF = sessions.CF(NT_list(ii));
 	MTF_shape = sessions.MTF{NT_list(ii)};
-	load(fullfile(datapath, 'neural_data', [putative '.mat']))
+	load(fullfile(datapath, [putative '.mat']))
 
 	% Analyze data
-	param = data(13:14, 2);
+	param = data(6:7, 2);
 	if ~isempty(param{1})
 		data_oboe = analyzeNT(param{1});
 	else
@@ -134,8 +132,4 @@ end
 
 %% Save dataset
 
-save('Data_NT2.mat', "nat_data");
-
-
-
-
+save('Data_NT.mat', "nat_data");

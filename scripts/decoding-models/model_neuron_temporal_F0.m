@@ -4,11 +4,11 @@ clear
 %% Load in data
 
 [base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 
 %% Get correct output of model 
-target = 'Oboe';
+target = 'Bassoon';
 
 % Get bassoon stimulus
 tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
