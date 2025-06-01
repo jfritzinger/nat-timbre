@@ -81,6 +81,7 @@ for iclus = 1:num_interest
 	listData.type_RM(iclus) = sessions.type_RM(index(iclus));
 	listData.typMTFN(iclus) = sessions.typMTFN(index(iclus));
 	listData.RVF(iclus) = sessions.RVF(index(iclus));
+	listData.SCHR(iclus) = sessions.SCHR(index(iclus));
 
 	% Get the path to each session
 	rab_num = num2str(sessions.Rabbit(index(iclus)));
@@ -122,7 +123,7 @@ end
 
 %% Save spreadsheet
 
-writetable(listData,'NTSessions_All.xlsx')
+writetable(listData,'NTSessions_All2.xlsx')
 
 
 %% Functions 
