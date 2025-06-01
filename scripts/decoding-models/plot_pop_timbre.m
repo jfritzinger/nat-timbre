@@ -63,7 +63,7 @@ figure
 tiledlayout(1, 3)
 
 nexttile
-plot(1:180, beta_weights)
+plot(1:246, beta_weights)
 hold on 
 yline(0)
 xlabel('Neuron #')
@@ -182,12 +182,12 @@ anova(tableMTF, 'beta_weights')
 %% Get CFs/MTFs for the best and worst models 
 
 [~,originalpos] = sort(abs(beta_weights), 'descend' );
-putatives_best = pop_rate_timbre.putative(best_ind);
 best_ind = originalpos(1:10);
+putatives_best = pop_rate_timbre.putative(best_ind);
 
 [~,originalpos] = sort(abs(beta_weights), 'ascend' );
-putatives_worst = pop_rate_timbre.putative(worst_ind);
 worst_ind = originalpos(1:10);
+putatives_worst = pop_rate_timbre.putative(worst_ind);
 
 % Plot all rates/VS
 CFs_good = CFs(best_ind);
@@ -232,6 +232,8 @@ bar(MTF_types')
 xticklabels({'BE', 'BS', 'Hybrid', 'Flat'})
 legend('High Beta', 'Low Beta')
 title('MTF Types of top/bottom 10 neurons')
+
+
 
 %%
 %%
