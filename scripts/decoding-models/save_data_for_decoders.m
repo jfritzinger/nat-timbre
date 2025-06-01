@@ -17,6 +17,8 @@ modelpath = '/Volumes/Nat-Timbre/data/manuscript';
 sessions = readtable(fullfile(base, 'data-cleaning', 'Data_Table.xlsx'),...
 	'PreserveVariableNames',true);
 
+RVF_sessions = load(fullfile(base, 'RVF_PC2.mat'), "RVF_sessions");
+
 %% Create matrices for bassoon and oboe separately
 
 % Natural timbre datasets
@@ -27,7 +29,7 @@ num_sesh = length(NT_list);
 
 %% Load in all data
 nat_data = struct;
-for ii = 243 %1:num_sesh
+for ii = 1:num_sesh
 
 	% Load in data
 	putative = sessions.Putative_Units{NT_list(ii)};
@@ -48,6 +50,7 @@ for ii = 243 %1:num_sesh
 		data_bass.rate = [];
 	end
 
+	% Get spont rate
 	param_RM = data{2,2};
 	if ~isempty(param_RM)
 		data_RM = analyzeRM(param_RM); 
@@ -56,6 +59,16 @@ for ii = 243 %1:num_sesh
 		data_RM = analyzeRM(param_RM); 
 	end
 	spont = data_RM.spont;
+
+	% Get PC2 score
+	has_RVF = strcmp(putative, RVF_sessions.RVF_sessions.Var1);
+	if any(has_RVF)
+		PC2_score = RVF_sessions.RVF_sessions.PC2_score(has_RVF);
+		nat_data(ii).RVF_PC2 = PC2_score;
+	else
+		nat_data(ii).RVF_PC2 = NaN;
+	end
+
 
 	% Put all datapoints into matrix (one for BE, one BS)
 	nat_data(ii).putative = putative;
@@ -132,4 +145,4 @@ end
 
 %% Save dataset
 
-save('Data_NT.mat', "nat_data");
+save('Data_NT_3.mat', "nat_data");
