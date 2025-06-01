@@ -7,6 +7,7 @@
 %
 % -------------------------------------------------------------------------
 clear 
+save_fig = 1;
 
 %% Set up figure
 
@@ -229,9 +230,29 @@ for iinstr = 1:2
 	hold on
 	scatter(F0s, center_of_mass, 10, 'filled', 'MarkerEdgeColor','k',...
 		'MarkerFaceColor',colors{iinstr})
-	curve = polyfit(F0s, center_of_mass', 3);
-	y1 = polyval(curve,F0s);
-	plot(F0s, y1, 'color', colors{iinstr}, 'DisplayName', target, LineWidth=linewidth)
+	% Model 1
+	%curve = polyfit(F0s, center_of_mass', 3);
+	%y1 = polyval(curve,F0s);
+	%plot(F0s, y1, 'color', colors{iinstr}, 'DisplayName', target, LineWidth=linewidth)
+
+	% Model 2
+	% mdl = fitlm(F0s, center_of_mass');
+	% y1 = mdl.Coefficients{2, 1}*F0s + mdl.Coefficients{1, 1};
+	% plot(F0s, y1, 'color', colors{iinstr})
+
+	% Model 3
+	mdl = fitlm(log10(F0s), log10(center_of_mass));
+	p(1) = mdl.Coefficients.Estimate(2,1);
+	p(2) = mdl.Coefficients.Estimate(1,1);
+	p(3) = mdl.Coefficients.pValue(2);
+	y1 = 10^p(2) .* F0s.^p(1);
+	plot(F0s, y1, 'color', colors{iinstr})
+	if iinstr == 1
+		mdl1msg = sprintf('10^{%0.2f} * x^{%0.2f}, p = %0.4f', p(2), p(1), p(3));
+	else 
+		mdl2msg = sprintf('10^{%0.2f} * x^{%0.2f}, p = %0.4f', p(2), p(1), p(3));
+	end
+
 	plot(F0s, F0s, 'Color',[0.7 0.7 0.7], LineWidth=linewidth)
 	xlabel('F0s (kHz)')
 	ylabel('SC (kHz)')
@@ -247,8 +268,9 @@ for iinstr = 1:2
 	clear F0s center_of_mass
 	set(gca, 'FontSize', fontsize)
 end
-legend('Oboe', '', '', 'Bassoon', '', '', 'Location','best', ...
-	'fontsize', legsize, 'position', [0.7164,0.2969,0.2082,0.1056])
+hleg = legend('Oboe', mdl1msg, '', 'Bassoon', mdl2msg, '', 'Location','best', ...
+	'fontsize', legsize, 'position', [0.7164,0.2969,0.2082,0.1056]);
+hleg.ItemTokenSize = [8, 8];
 
 %% Arrange plots 
 
@@ -269,3 +291,10 @@ annotation('textbox',[left(1) 0.98 0.0826 0.0385],'String','A',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 annotation('textbox',[left(2) 0.98 0.0826 0.0385],'String','B',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+
+%% Save figure 
+
+if save_fig == 1
+	filename = 'fig1_stimulus';
+	save_figure(filename)
+end
