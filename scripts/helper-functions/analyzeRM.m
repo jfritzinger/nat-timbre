@@ -14,6 +14,9 @@ spike_rates = num_spikes*1000/params.dur; % spikes/sec
 if length(si) == length(spike_rates)
     [rates,~,~,~] = accumstats({fi,si},spike_rates, rate_size);
 	spont = mean(rates(:,1));  
+else
+	rates = 0;
+	spont = 0;
 end
 
 data.rates = rates;
