@@ -33,8 +33,7 @@ varTypes = ["string", "double", "string", ...
 
 stimNames = ["char_spl", "char_ITD", "char_ILD", "type=RM", "type=RM_con", ...
 	"typMTFN","typMTFN_con","STRF","STRF_con","SCHR" ...
-	"43dB", "63dB", "73dB", "83dB", "43dB_100", "63dB_100", "73dB_100", "83dB_100",...
-	"43dB_con", "63dB_con", "73dB_con", "83dB_con","Oboe", "Bassoon", "Other"];
+	"RVF", "Oboe", "Bassoon", "Other"];
 
 stimTypes = repmat("string", 1, length(stimNames));
 est_num_rows = 75; % set to number larger than
@@ -54,24 +53,24 @@ for ind = 1:num_putative_neurons
 		tetrode = sessions.TT(table_index);
 		neuron = sessions.N(table_index);
 
-		putative_table(ind, 2:8) = sessions(table_index, 10:16); % change
+		putative_table(ind, 2:8) = sessions(table_index, 9:15);
 
 		% Basic stimuli: 9-18 are basic stimuli
-		for ids = 18:27
+		for ids = 17:27
 			if sessions{table_index, ids} == 1
 				name = sprintf('R0%dS%3g_TT%d_N%d', rabbit, session, tetrode, neuron);
 				name = regexprep(name, ' ', '0');
-				putative_table(ind, ids-9) = {name};
+				putative_table(ind, ids-8) = {name};
 			end
 		end
 
 		% Natural timbre: 30-32 are natural timbre
 		if strcmp(sessions.Include_NT{ind}, "Y")
-			for ids = 40:42
+			for ids = 28:29
 				if sessions{table_index, ids} == 1
 					name = sprintf('R0%dS%3g_TT%d_N%d', rabbit, session, tetrode, neuron);
 					name = regexprep(name, ' ', '0');
-					putative_table(ind, ids-9) = {name};
+					putative_table(ind, ids-8) = {name};
 				end
 			end
 		end

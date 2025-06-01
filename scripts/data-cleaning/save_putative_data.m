@@ -6,17 +6,17 @@ clear
 
 %% Load in PDF %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-spreadsheet_name = 'PutativeTable2.xlsx';
+spreadsheet_name = 'Data_Table.xlsx';
 sessions = readtable(spreadsheet_name, 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
 if ismac
-	path = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Synth-Timbre/data/manuscript/neural_data';
+	path = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/neural_data';
 else
-	path = 'C:\Users\jfritzinger\Box\02 - Code\Synth-Timbre\data\manuscript\neural_data';
+	path = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\neural_data';
 end
 
-for isesh = 1:num_data
+for isesh = 188 %1:num_data
 
 	% Name of file to save
 	filename = sessions.Putative_Units{isesh};
@@ -26,65 +26,65 @@ for isesh = 1:num_data
 	dataset_types = {'Binaural Response', 'Response Map', 'MTFN', 'SCHR', 'STRF',...
 		'RVF', 'Oboe', 'Bassoon', 'Other', 'RVF'};
 	num_dataset_types = length(dataset_types);
-	data = cell(num_dataset_types, 2);
+	data = cell(8, 2);
 
-	for ind = 10:34 
+	for ind = [11:18 20:23]
 
 		% Get the path to each session
 		full_name1 = sessions{isesh,ind};
 		full_name = full_name1{1};
 
-        if isempty(full_name)
-            full_name1 = sessions{isesh,10};
-    		full_name = full_name1{1};
-            rabbit = str2num(full_name(3:4));
-    		session = str2num(full_name(6:8));
-    		tetrode = str2num(full_name(12));
-    		neuron = str2num(full_name(15));
-            [userid, base_dir, ~, report_path, data_path] = findPaths();
-            session_name = sprintf('R%03dS%03d', rabbit, session);
-            rab_num = num2str(rabbit);
-            if ismac
-                session_dir_name = fullfile(base_dir, ['R0' num2str(rab_num)]);
-            else
-                session_dir_name = base_dir{contains(base_dir, rab_num)};
-            end
-            session_dir = fullfile(session_dir_name, session_name);
+		if isempty(full_name)
+			full_name1 = sessions{isesh,11};
+			full_name = full_name1{1};
+			rabbit = str2num(full_name(3:4));
+			session = str2num(full_name(6:8));
+			tetrode = str2num(full_name(12));
+			neuron = str2num(full_name(15));
+			[userid, base_dir, ~, report_path, data_path] = findPaths();
+			session_name = sprintf('R%03dS%03d', rabbit, session);
+			rab_num = num2str(rabbit);
+			if ismac
+				session_dir_name = fullfile(base_dir, ['R0' num2str(rab_num)]);
+			else
+				session_dir_name = base_dir{contains(base_dir, rab_num)};
+			end
+			session_dir = fullfile(session_dir_name, session_name);
+			%session_dir = fullfile('/Volumes/Rabbit_data/R027', session_name);
 
-            % Post_process
-            [clusters, params, stims] = loadPhysiologySession(session_dir, session_name, userid);
+			% Post_process
+			[clusters, params, stims] = loadPhysiologySession(session_dir, session_name, userid);
 
-            % Get data for tetrode/neuron of interest
-            cluster = clusters([clusters.tetrode] == tetrode); % Select tetrode
-            cluster = cluster([cluster.neuron] == neuron); % Select neuron
+			% Get data for tetrode/neuron of interest
+			cluster = clusters([clusters.tetrode] == tetrode); % Select tetrode
+			cluster = cluster([cluster.neuron] == neuron); % Select neuron
 
-            % Check if spreadsheet matches data
-            [bin, contra, F0_100, F0_200, level_43, level_63, level_73, level_83, even, ...
-        		oboe, bassoon, other] = finddata(params);
-            switch ind
-                case 17
-                    ST = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==2,params);
-                case 18
-                    ST = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==1,params);
-                case 19
-                    ST = cellfun(@(p)strcmp(p.type,'SCHR'),params);
-                case 20
-                    ST = cellfun(@(p)strcmp(p.type,'RVF'),params);
-                case 21
-            	    ST = any(oboe);
-                case 22
-            	    ST = any(bassoon);
-                case 23
-            	    ST = any(other);
-            end
-            if ind <17
-                ST = 0;
-            end
-            if sum(ST)>0
-               %error([full_name ': Forgot data for index ' num2str(ind)])
-            end
-            continue
-        end
+			% Check if spreadsheet matches data
+			[oboe, bassoon, other] = finddata(params);
+			switch ind
+				case 18
+					ST = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==2,params);
+				case 19
+					ST = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==1,params);
+				case 20
+					ST = cellfun(@(p)strcmp(p.type,'SCHR'),params);
+				case 21
+					ST = cellfun(@(p)strcmp(p.type,'RVF'),params);
+				case 22
+					ST = any(oboe);
+				case 23
+					ST = any(bassoon);
+				case 24
+					ST = any(other);
+			end
+			if ind <17
+				ST = 0;
+			end
+			if sum(ST)>0
+				error([full_name ': Forgot data for index ' num2str(ind)])
+			end
+			continue
+		end
 
 		rabbit = str2num(full_name(3:4));
 		session = str2num(full_name(6:8));
@@ -100,6 +100,7 @@ for isesh = 1:num_data
 			session_dir_name = base_dir{contains(base_dir, rab_num)};
 		end
 		session_dir = fullfile(session_dir_name, session_name);
+		%session_dir = fullfile('/Volumes/Rabbit_data/R029', session_name);
 
 		% Post_process
 		[clusters, params, stims] = loadPhysiologySession(session_dir, session_name, userid);
@@ -122,7 +123,7 @@ for isesh = 1:num_data
 		spl_shift = checkIfSPLShift(rabbit, session);
 
 		switch ind
-			case 10 %%%%%% Binaural noise response
+			case 11 %%%%%% Binaural noise response
 				has_bin = cellfun(@(p)strcmp(p.type,'char_spl'), params);
 				data_binnoise = params{has_bin};
 				data_binnoise.spls = [data_binnoise.spls(1:2)+spl_shift data_binnoise.spls(3)];
@@ -133,11 +134,11 @@ for isesh = 1:num_data
 				data_binnoise.cluster = cluster;
 				data{1,2} = data_binnoise;
 
-			case 11 % ITD
+			case 12 % ITD
 				% Not saving
-			case 12 % ILD
+			case 13 % ILD
 				% Not saving
-			case 13 %%%%%% RM binaural
+			case 14 %%%%%% RM binaural
 				has_rm = cellfun(@(p)strcmp(p.type,'type=RM')&&p.binmode==2, params);
 				if any(has_rm)
 					data_rm = params{has_rm};
@@ -151,7 +152,7 @@ for isesh = 1:num_data
 					data{2,2} = data_rm;
 				end
 
-			case 14 %%%%%% RM contra
+			case 15 %%%%%% RM contra
 				has_rm = cellfun(@(p)strcmp(p.type,'type=RM')&&p.binmode==1, params);
 				if any(has_rm)
 					data_rm = params{has_rm};
@@ -165,7 +166,7 @@ for isesh = 1:num_data
 					data{2,1} = data_rm;
 				end
 
-			case 15 %%%%%% MTFN binaural
+			case 16 %%%%%% MTFN binaural
 				has_mtf = cellfun(@(p)strcmp(p.type,'typMTFN')&&(p.all_mdepths(1) == 0)&&...
 					p.binmode==2, params);
 				if any(has_mtf)
@@ -176,7 +177,7 @@ for isesh = 1:num_data
 					data{3,2} = data_mtf;
 				end
 
-			case 16 %%%%%% MTFN contra
+			case 17 %%%%%% MTFN contra
 				has_mtf = cellfun(@(p)strcmp(p.type,'typMTFN')&&(p.all_mdepths(1) == 0)&&...
 					p.binmode==1, params);
 				if any(has_mtf)
@@ -187,7 +188,7 @@ for isesh = 1:num_data
 					data{3,1} = data_mtf;
 				end
 
-			case 17 %%%%%% STRF binaural
+			case 18 %%%%%% STRF binaural
 				has_strf = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==2,params);
 				if any(has_strf)
 					data_strf = params{has_strf};
@@ -197,7 +198,7 @@ for isesh = 1:num_data
 					data{4,2} = data_strf;
 				end
 
-			case 18 %%%%%% STRF contra
+			case 19 %%%%%% STRF contra
 				has_strf = cellfun(@(p) strcmp(p.type,'STRF')&&p.binmode==1,params);
 				if any(has_strf)
 					data_strf = params{has_strf};
@@ -207,7 +208,7 @@ for isesh = 1:num_data
 					data{4,1} = data_strf;
 				end
 
-			case 19 %%%%%% SCHR
+			case 20 %%%%%% SCHR
 				has_schr = cellfun(@(p)strcmp(p.type,'SCHR'),params);
 				if any(has_schr)
 					data_schr = params{has_schr};
@@ -216,7 +217,7 @@ for isesh = 1:num_data
 					data_schr.cluster = cluster;
 					data{5,2} = data_schr;
 				end
-			case 20 %%%%%% RVF
+			case 21 %%%%%% RVF
 				has_rvf = cellfun(@(p)strcmp(p.type,'RVF'),params);
 				if any(has_rvf)
 					data_rvf = params{has_rvf};
@@ -224,7 +225,7 @@ for isesh = 1:num_data
 					data_rvf.cluster = cluster;
 					data{5,1} = data_rvf;
 				end
-			case 21 %%%%%% Oboe
+			case 22 %%%%%% Oboe
 				has_oboe = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
 					(isfield(p, 'target') && strcmp(p.target, 'Oboe')||...
 					contains(p.list(1).wav_file, 'Oboe')), params);
@@ -236,7 +237,7 @@ for isesh = 1:num_data
 					data{6,2} = data_oboe;
 				end
 
-			case 22 %%%%%% Bassoon
+			case 23 %%%%%% Bassoon
 				has_bassoon = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
 					(isfield(p, 'target') && strcmp(p.target, 'Bassoon')||...
 					contains(p.list(1).wav_file, 'Bassoon')), params);
@@ -248,7 +249,7 @@ for isesh = 1:num_data
 					data{7,2} = data_bassoon;
 				end
 
-			case 23 %%%%%% Other natural timbre
+			case 24 %%%%%% Other natural timbre
 				has_nt = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre'), params);
 				index = find(has_nt);
 
@@ -283,18 +284,18 @@ end
 
 function [oboe, bassoon, other] = finddata(population)
 
-	% Find oboe 
-	oboe = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
-		(isfield(p, 'target') && strcmp(p.target, 'Oboe')||...
-		contains(p.list(1).wav_file, 'Oboe')), population);
+% Find oboe
+oboe = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
+	(isfield(p, 'target') && strcmp(p.target, 'Oboe')||...
+	contains(p.list(1).wav_file, 'Oboe')), population);
 
-	% Find bassoon
-	bassoon = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
-		(isfield(p, 'target') && strcmp(p.target, 'Bassoon')||...
-		contains(p.list(1).wav_file, 'Bassoon')), population);
+% Find bassoon
+bassoon = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre') && ...
+	(isfield(p, 'target') && strcmp(p.target, 'Bassoon')||...
+	contains(p.list(1).wav_file, 'Bassoon')), population);
 
-	% Find other
-	other = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre'), population)...
-        & ~bassoon & ~oboe;
+% Find other
+other = cellfun(@(p) ~isempty(p) && strcmp(p.type, 'Natural_Timbre'), population)...
+	& ~bassoon & ~oboe;
 
 end
