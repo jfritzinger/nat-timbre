@@ -5,13 +5,13 @@
 % distribution, BMF distribution, WMF distribution, hybrid BMF/WMF
 % distribution, and CF distribution for all neurons
 clear
+save_fig = 1;
 
 %% Load in spreadsheet
 
-[base, ~, savepath, ppi] = getPaths();
-datapath = 'scripts/data-cleaning';
-spreadsheet_name = 'PutativeTable.xlsx';
-sessions = readtable(fullfile(base, datapath, spreadsheet_name), 'PreserveVariableNames',true);
+[base, datapath, ~, ppi] = getPathsNT();
+spreadsheet_name = 'Data_Table.xlsx';
+sessions = readtable(fullfile(base, spreadsheet_name), 'PreserveVariableNames',true);
 num_units = size(sessions, 1);
 
 %% Set up figure
@@ -156,7 +156,9 @@ set(gca, 'XScale', 'log');
 ylabel('# Neurons')
 title('Hybrids', 'fontsize', titlesize)
 
-%% Save figure
+%% Save figure 
 
-savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/manuscript';
-exportgraphics(gcf, fullfile(savepath, 'data_distribution_NT.png'), 'Resolution', 600)
+if save_fig == 1
+	filename = 'figS1_data_distribution_NT';
+	save_figure(filename)
+end
