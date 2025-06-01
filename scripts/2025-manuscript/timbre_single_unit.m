@@ -2,6 +2,7 @@
 % This script plots figure 2 of the natural timbre manuscript, which is an
 % analysis of decoding models fit to individual neurons
 clear
+save_fig = 0;
 
 %% Load in data
 
@@ -16,7 +17,7 @@ filepath_timing = fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.ma
 load(filepath_timing, "neuron_time_timbre")
 
 % Load in all data
-load(fullfile(fullfile(base, 'model_comparisons', 'Data_NT2.mat')), 'nat_data')
+load(fullfile(fullfile(base, 'model_comparisons', 'Data_NT_3.mat')), 'nat_data')
 
 %% Set up figure
 
@@ -183,7 +184,9 @@ y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, 'r')
 yticks(0:5:100)
 xticks(0:5:100)
-hleg = legend('Neuron', 'Unity', 'y = 0.48*x+30.47, p=0.0000', 'fontsize', legsize);
+hleg = legend('Neuron', 'Unity', ...
+	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
+	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize);
 hleg.ItemTokenSize = [8, 8];
 title('Rate vs Timing Comparison')
 set(gca, 'fontsize', fontsize)
@@ -230,6 +233,14 @@ annotation('textbox',[labelleft(2) labelbottom(2) 0.071 0.058],...
 annotation('textbox',[labelleft(3) labelbottom(2) 0.071 0.058],...
 	'String','D','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
+
+%% Save figure 
+
+if save_fig == 1
+	filename = 'fig2_timbre_single_unit';
+	save_figure(filename)
+end
+
 
 %%
 
