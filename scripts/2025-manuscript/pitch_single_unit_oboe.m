@@ -1,5 +1,6 @@
 %% pitch_single_unit_oboe
 clear
+save_fig = 1;
 
 %% Get paths
 
@@ -7,7 +8,7 @@ clear
 
 %% Load in data 
 
-load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 filename = 'Neuron_Time_F0_Bassoon';
 filepath = fullfile(base, 'model_comparisons',filename);
@@ -54,6 +55,8 @@ set(gca, 'fontsize', fontsize)
 
 h(2) = subplot(4, 2, 2);
 scatter(CFs/1000, accuracy_time, 5, 'filled', 'MarkerEdgeColor','k')
+hold on
+yline(2.5)
 set(gca, 'xscale', 'log')
 xlabel('CFs (kHz)')
 ylabel('Accuracy (%)')
@@ -89,7 +92,8 @@ end
 
 
 h(3) = subplot(4, 2, 3);
-scatter(accuracy_rate, accuracy_time, 10, 'filled', 'MarkerEdgeColor','k')
+scatter(accuracy_rate, accuracy_time, 10, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceAlpha',0.5)
 hold on
 plot([0, 100], [0, 100], 'k')
 xlim([0 25])
@@ -101,7 +105,9 @@ y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, 'r')
 yticks(0:5:100)
 xticks(0:5:100)
-hleg = legend('Neuron', 'Unity', 'y = 0.48*x+30.47, p=0.0000', 'fontsize', legsize);
+hleg = legend('Neuron', 'Unity', ...
+	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
+	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize);
 hleg.ItemTokenSize = [8, 8];
 title('Rate vs Timing Comparison')
 set(gca, 'fontsize', fontsize)
@@ -157,7 +163,8 @@ end
 
 
 h(6) = subplot(4, 2, 6);
-scatter(accuracy_bass1, accuracy_oboe, 10, 'filled', 'MarkerEdgeColor','k')
+scatter(accuracy_bass1, accuracy_oboe, 10, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceAlpha',0.5)
 hold on
 plot([0, 100], [0, 100], 'k')
 xlim([0 65])
@@ -169,7 +176,9 @@ y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, 'r')
 yticks(0:5:100)
 xticks(0:5:100)
-hleg = legend('Neuron', 'Unity', 'y = 0.48*x+30.47, p=0.0000', 'fontsize', legsize);
+hleg = legend('Neuron', 'Unity', ...
+	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
+	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize);
 hleg.ItemTokenSize = [8, 8];
 title('Oboe vs Bassoon Comparison')
 set(gca, 'fontsize', fontsize)
@@ -205,4 +214,11 @@ for ii = 1:3
 	annotation('textbox',[labelleft(ii) labelbottom(ii) 0.071 0.058],...
 		'String',labels{ii},'FontWeight','bold','FontSize',labelsize,...
 		'EdgeColor','none');
+end
+
+%% Save figure 
+
+if save_fig == 1
+	filename = 'fig5_pitch_single_unit_oboe';
+	save_figure(filename)
 end
