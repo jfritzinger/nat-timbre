@@ -17,6 +17,5 @@ else
 end
 
 % Basic paths for loading data and saving figures 
-%datapath = fullfile(base, 'Neural_Data');
-datapath = [];
+datapath = fullfile(base, 'Neural_Data');
 end
