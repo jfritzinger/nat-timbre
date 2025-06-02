@@ -2,15 +2,16 @@
 clear
 
 %% Load in data
-target = 'Oboe';
+target = 'Bassoon';
 
 pitch = getF0s(target);
 msg{1} = sprintf('%0.0f - %0.0f Hz F0', pitch(1), pitch(20));
 msg{2} = sprintf('%0.0f - %0.0f Hz F0', pitch(21), pitch(end));
 
-[base, datapath, savepath, ppi] = getPathsNT();
+[base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 	"neuron_time_F0")
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 %% Plot accuracy of each neuron
 figure('Position',[560,618,798,230])
@@ -68,58 +69,221 @@ nexttile
 confusionchart(neuron_time_F0(best_ind(1)).C)
 title(sprintf('Best prediction, %s, %0.02f%%', putatives, temp(1)))
 
+
+%% Test VS vs accuracy 
+
+load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+
+% Get subset of units 
+VS_all = zeros(3,1);
+for ii = 1:297
+	VS_1 = nat_data(ii).bass_VS;
+	if ~isempty(VS_1)
+		VS_all(ii,:) = mean(VS_1);
+	end
+end
+VS_all(VS_all==0) = [];
+
+figure
+tiledlayout(3, 3)
+
+for ii = 1:3
+	nexttile
+	histogram(accuracy(ii,:))
+	accuracy_all = accuracy(ii,:);
+
+	nexttile
+	histogram(VS_all)
+
+	nexttile
+	scatter(VS_all, accuracy(ii,:));
+	hold on
+
+	mdl = fitlm(VS_all, accuracy(ii,:));
+	x = linspace(0, 0.6, 20);
+	y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+	plot(x, y, 'r')
+	hleg = legend('Neuron', ...
+		sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
+		mdl.Coefficients{1, 1},mdl.Coefficients{2,4}));
+	ylabel('Accuracy (%)')
+	xlabel('Vector Strength')
+end
+
 %% Test accuracy vs neuron characteristics, like CF and MTF 
 
+% Plot CF vs accuracy 
+figure
 
+nexttile
+CFs = [neuron_time_F0.CF];
+scatter(CFs, accuracy(1,:));
+set(gca, 'xscale', 'log')
+hold on
+mdl = fitlm(CFs, accuracy(1,:));
+x = linspace(300, 10000, 20);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, 'r')
+hleg = legend('Neuron', ...
+	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
+	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}));
+
+nexttile
+scatter(CFs, accuracy(2,:));
+set(gca, 'xscale', 'log')
+
+nexttile
+scatter(CFs, accuracy(2,:));
+set(gca, 'xscale', 'log')
+
+
+%% Plot MTF group vs accuracy 
+
+MTFs = {neuron_time_F0.MTF};
+MTF_types = unique(MTFs);
+
+figure
+hold on
+for iMTF = 1:5
+	ind = strcmp(MTFs, MTF_types{iMTF});
+	accur = accuracy(1,ind);
+	num_units = length(accur);
+
+	swarmchart(ones(num_units, 1)*iMTF, accur)
+
+	mean_vals(iMTF) = mean(accur);
+	std_vals(iMTF) = std(accur)/sqrt(length(accur));
+end
+errorbar(1:5, mean_vals, std_vals, 'k')
+xticks(1:5)
+xticklabels(MTF_types)
+xlabel('MTF Groups')
+ylabel('Accuracy')
+
+tableMTF = table(MTFs', accuracy(1,:)');
+anova(tableMTF, 'Var2')
+[~,~,stats] = anova1(accuracy(1,:), MTFs);
+[c,~,~,gnames] = multcompare(stats);
+grid on
+
+
+%% Plot PC2 vs accuracy
+
+
+VS_all = zeros(3,1);
+for ii = 1:297
+	VS_1 = nat_data(ii).bass_VS;
+	if ~isempty(VS_1)
+		PC2_score(ii,:) = nat_data(ii).RVF_PC2;
+	else
+		PC2_score(ii,:) = 0;
+	end
+end
+PC2_score(PC2_score==0) = [];
+
+
+% Plot PCA2 score vs beta weights 
+figure
+scatter(PC2_score, accuracy(1,:), 'filled', 'MarkerEdgeColor','k')
+xlabel('PC2 RVF score')
+ylabel('Accuracy')
+hold on
+
+mdl = fitlm(PC2_score, accuracy(1,:));
+x = linspace(-2, 1, 20);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, 'r')
+hleg = legend('Neuron', ...
+	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', 7, ...
+	'location', 'northwest', 'box', 'off');
+hleg.ItemTokenSize = [8, 8];
+grid on
+
+
+
+%% Rate vs timing comparison 
+
+% Get best single-unit timbre neurons 
+[base, ~, ~, ppi] = getPathsNT();
+filepath = fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat');
+load(filepath, "neuron_rate_F0")
+accuracy_rate = [neuron_rate_F0.accuracy]*100;
+accuracy_time = accuracy(1,:);
+
+figure
+hold on
+scatter(accuracy_rate, accuracy_time, 'filled', 'MarkerEdgeColor','k')
+xlabel('Rate Accuracy')
+ylabel('Timing Accuracy')
+plot([0 100], [0 100], 'k')
+
+xlim([0 20])
+ylim([0 60])
+
+mdl = fitlm(accuracy_rate, accuracy_time);
+x = linspace(0, 60, 10);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, 'r')
+hleg = legend('Neuron', 'p=7.1671e-25');
+hleg.ItemTokenSize = [8, 8];
+title('Rate vs Timing')
+
+figure
+edges = linspace(0, 20, 21);
+histogram(accuracy_rate,edges)
+
+figure
+edges = linspace(0, 60, 21);
+histogram(accuracy_time, edges)
 
 
 %% Load and plot results for timbre all F0s together 
-
-% Load in data 
-[base, datapath, savepath, ppi] = getPathsNT();
-filename = 'Neuron_Time_Timbre_All.mat';
-filepath = fullfile(base, 'model_comparisons',filename);
-load(filepath, "neuron_time_timbre")
-
-% Figure
-figure('Position',[560,585,1023,263])
-tiledlayout(1, 2)
-linewidth = 2;
-
-nexttile
-accuracy = [neuron_time_timbre.accuracy]*100;
-CFs = [neuron_time_timbre.CF];
-edges = linspace(0, 100, 101);
-histogram(accuracy,edges)
-hold on
-
-% Plot chance line
-xline(50, 'k', 'LineWidth',linewidth)
-
-% Mean and median
-xline(mean(accuracy), 'r', 'LineWidth',linewidth)
-xline(median(accuracy), 'r--', 'LineWidth',linewidth)
-
-% Best
-scatter(max(accuracy), 0, 'filled')
-
-% Labels
-legend('', sprintf('Chance = 50%%'), ...
-	sprintf('Mean = %.2f%%', mean(accuracy)), ...
-	sprintf('Median = %.2f%%', median(accuracy)),...
-	sprintf('Best = %.2f%%', max(accuracy)))
-ylabel('# Neurons')
-xlabel('Prediction Accuracy (%)')
-title('Instrument Predictions')
-xlim([0 100])
-grid on
-
-% Plot accuracy vs CF
-nexttile
-scatter(CFs, accuracy, 'filled')
-set(gca, 'xscale', 'log')
-xlabel('CFs (Hz)')
-ylabel('Accuracy')
+% 
+% % Load in data 
+% [base, datapath, savepath, ppi] = getPathsNT();
+% filename = 'Neuron_Time_Timbre_All.mat';
+% filepath = fullfile(base, 'model_comparisons',filename);
+% load(filepath, "neuron_time_timbre")
+% 
+% % Figure
+% figure('Position',[560,585,1023,263])
+% tiledlayout(1, 2)
+% linewidth = 2;
+% 
+% nexttile
+% accuracy = [neuron_time_timbre.accuracy]*100;
+% CFs = [neuron_time_timbre.CF];
+% edges = linspace(0, 100, 101);
+% histogram(accuracy,edges)
+% hold on
+% 
+% % Plot chance line
+% xline(50, 'k', 'LineWidth',linewidth)
+% 
+% % Mean and median
+% xline(mean(accuracy), 'r', 'LineWidth',linewidth)
+% xline(median(accuracy), 'r--', 'LineWidth',linewidth)
+% 
+% % Best
+% scatter(max(accuracy), 0, 'filled')
+% 
+% % Labels
+% legend('', sprintf('Chance = 50%%'), ...
+% 	sprintf('Mean = %.2f%%', mean(accuracy)), ...
+% 	sprintf('Median = %.2f%%', median(accuracy)),...
+% 	sprintf('Best = %.2f%%', max(accuracy)))
+% ylabel('# Neurons')
+% xlabel('Prediction Accuracy (%)')
+% title('Instrument Predictions')
+% xlim([0 100])
+% grid on
+% 
+% % Plot accuracy vs CF
+% nexttile
+% scatter(CFs, accuracy, 'filled')
+% set(gca, 'xscale', 'log')
+% xlabel('CFs (Hz)')
+% ylabel('Accuracy')
 
 
 %% FUNCTIONS 
