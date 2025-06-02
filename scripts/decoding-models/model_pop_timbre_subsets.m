@@ -181,3 +181,8 @@ plot(1:7, max_acc, 'k')
 % 
 % [p,tbl,stats] = anova1(accuracy_all');
 % results = multcompare(stats);
+
+%% Save accuracies 
+
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+	"accuracies", "CF_names")
