@@ -6,7 +6,7 @@ clear
 [base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
 	"pop_rate_timbre")
-load(fullfile(base, 'model_comparisons', 'Data_NT.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 
 %% Set up data matrices and run model
@@ -63,14 +63,14 @@ for imodel = 1:nmodels
 	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
 
 	[trainedClassifier, accuracy, predictions] = trainClassifierPopRateTimbre(T);
-	pop_rate_timbre(imodel).trainedClassifier = trainedClassifier;
-	pop_rate_timbre(imodel).accuracy = accuracy;
-	pop_rate_timbre(imodel).predictions = predictions;
-	pop_rate_timbre(imodel).response = T.Instrument;
-	pop_rate_timbre(imodel).T = T;
-	pop_rate_timbre(imodel).CFs = CFs;
-	pop_rate_timbre(imodel).putative = putative;
-	pop_rate_timbre(imodel).sesh = sesh;
+	pop_rate_timbre_best(imodel).trainedClassifier = trainedClassifier;
+	pop_rate_timbre_best(imodel).accuracy = accuracy;
+	pop_rate_timbre_best(imodel).predictions = predictions;
+	pop_rate_timbre_best(imodel).response = T.Instrument;
+	pop_rate_timbre_best(imodel).T = T;
+	pop_rate_timbre_best(imodel).CFs = CFs;
+	pop_rate_timbre_best(imodel).putative = putative;
+	pop_rate_timbre_best(imodel).sesh = sesh;
 
 	% Print out progress
 	fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
@@ -80,11 +80,11 @@ end
 
 figure('Position',[1198,449,293,236])
 nneurons = [1:4 5:5:50];
-accuracy_bad = [pop_rate_timbre(15:28).accuracy]*100;
+accuracy_bad = [pop_rate_timbre_best(15:28).accuracy]*100;
 plot(nneurons, accuracy_bad);
 
 hold on 
-accuracy_good = [pop_rate_timbre(1:14).accuracy]*100;
+accuracy_good = [pop_rate_timbre_best(1:14).accuracy]*100;
 plot(nneurons, accuracy_good);
 xlabel('# Neurons in Model')
 ylabel('Accuracy (%)')
@@ -93,12 +93,7 @@ grid on
 legend('Worst', 'Best')
 title('Model ')
 
-
-%% 
-
-
-
 %% Save outputs
 
-% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
-% 	"pop_rate_timbre")
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Best.mat'), ...
+	"pop_rate_timbre_best")
