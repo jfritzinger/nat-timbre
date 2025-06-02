@@ -89,11 +89,15 @@ Mdl = fitrlinear(T, 'response','BetaTolerance',0.0001, ...
 	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
 
-%% 
-
+%% Save
 
 pred_F0 = kfoldPredict(Mdl);
 %pred_F0 = predict(Mdl, T_test);
+[base, datapath, ~, ppi] = getPathsNT();
+save(fullfile(base, 'model_comparisons', 'Best_Linear_F0.mat'), "pred_F0", "T")
+
+%% 
+
 r = corrcoef(pred_F0, T.response);
 r2 = r(1, 2)^2;
 
