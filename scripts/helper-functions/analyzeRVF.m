@@ -159,5 +159,5 @@ max_rate = max(max(psths_to_plot));
 
 data.velocities = velocities;
 data.rate = rate_smart;
-
+data.rate_std = chirp_stderror;
 end
