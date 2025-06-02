@@ -160,3 +160,8 @@ ylim([0.78 1])
 
 % [p,tbl,stats] = anova1(accuracy_all');
 % results = multcompare(stats);
+
+%% Save accuracies 
+
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
+	"accuracy_all", "MTF_names")
