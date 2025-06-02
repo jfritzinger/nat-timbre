@@ -3,13 +3,15 @@ clear
 
 %% Get list of all timbre stimuli (bassoon)
 
-target = 'Bassoon';
-for iinstr = 1:2
-	if iinstr == 1
-		target = 'Oboe';
-	else
-		target = 'Bassoon';
-	end
+[base, ~, ~, ~] = getPathsNT();
+
+target = 'Oboe';
+%for iinstr = 1:2
+	% if iinstr == 1
+	% 	target = 'Oboe';
+	% else
+	% 	target = 'Bassoon';
+	% end
 
 	if ismac
 		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -43,7 +45,7 @@ for iinstr = 1:2
 
 	pitches = pitch_order(order);
 	files_ordered = files(order);
-end
+%end
 
 %% Calculate modulation depth and ERR 
 
@@ -79,10 +81,9 @@ for ii = 1:nfiles
 	% Plot envelope
 	nexttile
 	plot(t, stim); hold on;
-	plot(t, env, 'r', 'LineWidth', 2);
-	legend('Signal', 'Envelope');
+	plot(t, env, 'r', 'LineWidth', 0.5);
 	hold off;
-	title(sprintf('F0 = %0.0f, ERR = %0.0f, ModDepth = %0.2f', F0, ERR(ii), modDepth(ii)))
+	title(sprintf('ERR = %0.0f, ModDepth = %0.2f', ERR(ii), modDepth(ii)))
 
 end
 
@@ -90,8 +91,15 @@ end
 
 figure
 nexttile
-plot(ERR)
+scatter(pitches, ERR)
 title('ERR')
+set(gca, 'xscale', 'log')
+
 nexttile
-plot(modDepth)
+scatter(pitches, modDepth, 15, 'filled')
 title('Modulation Depth')
+set(gca, 'xscale', 'log')
+
+%% Save data 
+
+save(fullfile(base, 'ERR_ModDpth_Oboe.mat'), "ERR", "modDepth", "pitches")
