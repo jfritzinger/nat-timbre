@@ -14,6 +14,13 @@ spreadsheet_name = 'Data_Table.xlsx';
 sessions = readtable(fullfile(base, spreadsheet_name), 'PreserveVariableNames',true);
 num_units = size(sessions, 1);
 
+%% Number of units for each stimulus
+ 
+% Natural timbre datasets
+NT_datasets(1,:) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
+NT_datasets(2,:) = cellfun(@(s) contains(s, 'R'), sessions.Bassoon);
+RVF = cellfun(@(s) contains(s, 'R'), sessions.RVF);
+
 %% Set up figure
 
 figure('Position',[194,1045,1175,226])
