@@ -1,6 +1,6 @@
 %% timbre_population
 clear 
-save_fig = 1;
+save_fig = 0;
 
 %% Load in data 
 
@@ -23,7 +23,7 @@ end
 num_data = length(sesh);
 
 beta_weights = pop_rate_timbre.trainedClassifier.ClassificationSVM.Beta;
-
+%beta_weights = pop_rate_timbre.imp.ImportanceMean;
 
 %% Create figure 
 
