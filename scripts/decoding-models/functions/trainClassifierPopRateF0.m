@@ -38,7 +38,7 @@ function [trainedClassifier, validationAccuracy, validationPredictions] = ...
 % T2 must be a table containing at least the same predictor columns as used
 % during training. For details, enter:
 %   trainedClassifier.HowToPredict
-
+	
 numClasses = length(F0s);
 
 nrep = 1; %50;
