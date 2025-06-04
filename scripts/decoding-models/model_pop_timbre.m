@@ -95,6 +95,12 @@ pop_rate_timbre.oboe_rate_std = [nat_data(sesh).oboe_rate_std];
 pop_rate_timbre.bass_rate = [nat_data(sesh).bass_rate];
 pop_rate_timbre.bass_rate_std = [nat_data(sesh).bass_rate_std];
 
+% Permutation test for importance 
+Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
+imp = permutationImportance(Mdl);
+pop_rate_timbre.imp = imp;
+
+
 % Make training and test rows
 % ncond = 2;
 % ind_test = false(ncond*20, 1); % Preallocate a logical array for 800 elements (40 * 20)
