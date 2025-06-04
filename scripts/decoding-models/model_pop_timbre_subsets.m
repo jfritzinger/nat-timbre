@@ -72,7 +72,6 @@ for iCF = 1:7
 				randsample(ind_high, 30, false)];
 		end
 
-
 		% Get a subset of the data based on MTF type
 		% isBE = strcmp('BE', MTFs);
 		% isBS = strcmp('BS', MTFs);
