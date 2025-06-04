@@ -158,8 +158,71 @@ for j1 = 1:n_overlap
 		set(gca,'fontsize',14)
 end
 
-%% Export
+%% Load and plot all - timing 
 
-savepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/figures/manuscript';
-exportgraphics(gcf, fullfile(savepath, 'plot-overlapping-stimuli.png'), 'Resolution', 600)
+figure('Position',[68,278,1126,686])
+t1 = tiledlayout(4, 4, "TileSpacing","compact", 'Padding','compact');
+colors = {"#0072BD", "#D95319"};
+for j1 = 1:n_overlap
 
+		% Load in data 
+		[oboe, ~] = audioread(fullfile(fpath, 'waveforms', oboe_files{j1}));
+		[bassoon, Fs] = audioread(fullfile(fpath, 'waveforms', bassoon_files{j1}));
+		name =  extractBetween(oboe_files{j1}, 'ff.','.');
+
+		% Analyze spectrograms & plot
+		nexttile
+		hold on
+		for ii = 1:2
+
+			% Calculate spectra
+			F0 = F0s(j1);
+			dist = round(F0/4);
+			if ii == 1
+				stim = oboe;
+			else
+				stim = bassoon;
+			end
+
+			% Modulation depth
+			env = abs(hilbert(stim)); % [1][2]
+			Emax = max(env);
+			Emin = min(env);
+			modDepth(ii) = (Emax - Emin) / (Emax + Emin);
+
+			% Plot
+			t = linspace(0, length(stim)/Fs, length(stim));
+			plot(t, stim+(ii*0.4), 'color', colors{ii}); 
+			plot(t, env+(ii*0.4), 'LineWidth', 1, 'color', 'k');
+			
+
+		end
+		
+		% Figure Properties	
+		xlim([0.1 0.13])
+		hold on
+		box on
+		ax = gca;
+		ax.XGrid='on';
+		ax.XMinorGrid='off';
+
+		if ismember(j1, 13:16)
+			xlabel('Time (s)')
+		else
+			xticklabels([])
+		end
+
+		if ismember(j1, [1, 5, 9, 13])
+			ylabel('Mag. (dB SPL)')
+		else
+			yticklabels([])
+		end
+
+		if j1 == 1
+			legend('Oboe','', 'Bassoon')
+		end
+
+		text(0.05, 0.95, name{1}, 'Units', 'normalized', ...
+			'VerticalAlignment', 'top', 'FontSize',16)
+		set(gca,'fontsize',14)
+end
