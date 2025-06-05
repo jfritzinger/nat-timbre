@@ -3,7 +3,7 @@ clear
 %% Load in data 
 
 filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT2.mat'), 'nat_data')
+load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Get correct output of model 
 target = 'Bassoon';
@@ -67,7 +67,7 @@ T.response = response';
 
 %% Split into training and testing data 
 
-for group = 0:39
+for group = 0:34 %0:39
 
     % Calculate group range (1-20, 21-40, etc.)
     startIdx = group*20 + 1;
@@ -130,8 +130,6 @@ for ii = 1:length(pred_F0)
 	closest_cat(ii) = F0s(closest_column_index);
 end
 
-
-
 % Plot confusion matrix
 nexttile
 C = confusionmat(T.response, closest_cat);
@@ -143,36 +141,42 @@ confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
 title(sprintf('Accuracy = %0.2f%%', accuracy*100))
 
+%% Save data 
+
+base = getPathsNT;
+save(fullfile(base, 'model_comparisons', ['pop_rate_F0_linear_' target '.mat']),...
+	"pred_F0", "T_test", "T", "r2", "C", "accuracy", "F0s")
+
 
 %% Leave-one-out linear regression decoding
-
-% Example data
-R = data_mat'; % Neural data: [neurons x elements]
-F0 = reshape(repmat(F0s, 1, 20)', 1, []);
-
-% Transpose R for regression: [elements x neurons]
-X = R';
-
-% Leave-one-out cross-validation
-predF0 = zeros(800, 1);
-
-for v = 1:800
-    train_idx = setdiff(1:800, v);
-    X_train = X(train_idx, :);
-    y_train = F0(train_idx);
-    
-    % Add intercept
-    X_train_aug = [ones(length(train_idx),1), X_train];
-    
-    % Fit linear regression
-    beta = X_train_aug \ y_train';
-    
-    % Predict for held-out element
-    X_test = [1, X(v,:)];
-    predF0(v) = X_test * beta;
-end
-
-% Compute R^2
-F0_mean = mean(F0);
-R2 = 1 - sum((F0 - predF0).^2) / sum((F0 - F0_mean).^2);
+% 
+% % Example data
+% R = data_mat'; % Neural data: [neurons x elements]
+% F0 = reshape(repmat(F0s, 1, 20)', 1, []);
+% 
+% % Transpose R for regression: [elements x neurons]
+% X = R';
+% 
+% % Leave-one-out cross-validation
+% predF0 = zeros(length(pred_F0), 1);
+% 
+% for v = 1:length(pred_F0)
+%     train_idx = setdiff(1:length(pred_F0), v);
+%     X_train = X(train_idx, :);
+%     y_train = F0(train_idx);
+% 
+%     % Add intercept
+%     X_train_aug = [ones(length(train_idx),1), X_train];
+% 
+%     % Fit linear regression
+%     beta = X_train_aug \ y_train';
+% 
+%     % Predict for held-out element
+%     X_test = [1, X(v,:)];
+%     predF0(v) = X_test * beta;
+% end
+% 
+% % Compute R^2
+% F0_mean = mean(F0);
+% R2 = 1 - sum((F0 - predF0).^2) / sum((F0 - F0_mean).^2);
 
