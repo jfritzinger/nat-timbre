@@ -39,17 +39,19 @@ MTFs = {nat_data(sesh_all).MTF};
 %% Run model
 
 CF_groups = [0, 14000; 0, 2000; 2000, 4000; 4000, 14000];
-accuracies = NaN(7, 500);
-totalnum = 88; % bassoon
+%accuracies = NaN(7, 500);
+%totalnum = 88; % bassoon
+totalnum = 30;
 for iCF = 1:7
-	parfor irep = 1:500
+	timerVal = tic;
+	parfor irep = 1:1000
 
 		% Get random assortment of 60 units from each (for all, gets 20 per
 		% group)
+		ind_low = find(CFs_all > CF_groups(2, 1) & CFs_all < CF_groups(2, 2));
+		ind_med = find(CFs_all > CF_groups(3, 1) & CFs_all < CF_groups(3, 2));
+		ind_high = find(CFs_all > CF_groups(4, 1) & CFs_all < CF_groups(4, 2));
 		if iCF == 1
-			ind_low = find(CFs_all > CF_groups(2, 1) & CFs_all < CF_groups(2, 2));
-			ind_med = find(CFs_all > CF_groups(3, 1) & CFs_all < CF_groups(3, 2));
-			ind_high = find(CFs_all > CF_groups(4, 1) & CFs_all < CF_groups(4, 2));
 			rand_ind = [randsample(ind_low, int8(totalnum/3), false) ...
 				randsample(ind_med, int8(totalnum/3), false)...
 				randsample(ind_high, int8(totalnum/3), false)];
@@ -64,7 +66,7 @@ for iCF = 1:7
 				randsample(ind_high, totalnum/2, false)];
 		elseif iCF == 7
 			rand_ind = [randsample(ind_med, totalnum/2, false) ...
-				randsample(ind_high, int(totalnum/2), false)];
+				randsample(ind_high, totalnum/2, false)];
 		end
 
 		% Subset!
@@ -107,15 +109,28 @@ for iCF = 1:7
 		C = confusionmat(response, validationPredictions1);
 
 		accuracies(iCF, irep) = sum(diag(C))/sum(C, 'all');
-		fprintf('%d/%d, %0.2f%% done!\n', irep, 500, irep/500*100)
+		%fprintf('%d/%d, %0.2f%% done!\n', irep, 500, irep/500*100)
 	end
 
 	% Print out progress
+	timer = toc(timerVal);
+	fprintf('Models took %0.2g minutes\n', timer/60)
 	fprintf('%d/%d, %0.2f%% done!\n', iCF, 7, iCF/7*100)
 end
 
-	%% Plot outputs
+%% 
+CF_names = {'Low', 'Medium', 'High', 'Low+Med', 'Low+High', 'Med+High','All'};
 
-save(fullfile(base, 'model_comparisons', 'Pop_Rate_F0_Subset_CF.mat'), ...
-	"accuracies", "CF_names")
+figure
+boxchart(accuracies')
+xticklabels(CF_names)
+hold on
+max_accur = max(accuracies, [], 2);
+plot(1:7, max_accur)
+
+
+%% Plot outputs
+% 
+% save(fullfile(base, 'model_comparisons', 'Pop_Rate_F0_Subset_CF.mat'), ...
+% 	"accuracies")
 
