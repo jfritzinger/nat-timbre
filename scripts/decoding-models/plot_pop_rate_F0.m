@@ -45,6 +45,61 @@ title(sprintf('Accuracy = %0.2f%%', accuracy(1)*100))
 % % Accuracy within +/- 4 semitones % 319 / 800
 % num_acc4 =  sum(diag(confusionMatrix, 4)) + sum(diag(confusionMatrix, -4));
 
+%% Plot confusion matrix again 
+
+nexttile
+imagesc(pop_rate_F0.C)
+xlabel('Predicted Class')
+ylabel('Actual Class')
+
+%% Plot CF/MTF vs importance 
+nexttile
+beta_mean = pop_rate_F0.imp.ImportanceMean;
+CFs = [pop_rate_F0.CF];
+MTFs = pop_rate_F0.MTF;
+isMTF(1,:) = strcmp(MTFs, 'BE');
+isMTF(2,:) = strcmp(MTFs, 'BS');
+isMTF(3,:) = contains(MTFs, 'H');
+isMTF(4,:) = strcmp(MTFs, 'F');
+
+hold on
+for iMTF = 1:4
+	scatter(CFs(isMTF(iMTF, :)), beta_mean(isMTF(iMTF, :)), 10, 'filled', ...
+		'MarkerEdgeColor','k')
+end
+set(gca, 'xscale', 'log')
+xticks([100 200 500 1000 2000 5000 10000])
+xticklabels([100 200 500 1000 2000 5000 10000]/1000)
+ylabel('Beta weight')
+xlabel('CF (kHz)')
+set(gca, 'fontsize', fontsize)
+grid on
+%set(gca, 'yscale', 'log')
+legend('BE', 'BS', 'H', 'F')
+
+
+%% Histogram of importance 
+
+beta_mean = pop_rate_F0.imp.ImportanceMean;
+beta_std = pop_rate_F0.imp.ImportanceStandardDeviation;
+
+% nexttile
+% errorbar(1:length(beta_mean), beta_mean, beta_std);
+
+% nexttile
+% histogram(beta_mean)
+
+[~,originalpos] = sort(abs(beta_mean), 'descend' );
+nexttile
+ordered_mean = beta_mean(originalpos);
+ordered_std = beta_std(originalpos);
+
+bar(ordered_mean)
+hold on
+errorbar(1:length(beta_mean), ordered_mean, ordered_std/sqrt(10), ...
+	'CapSize',2, 'color', 'k', 'LineStyle', 'none');
+xlim([0 100])
+
 %% Shuffled accuracy
 
 nexttile
