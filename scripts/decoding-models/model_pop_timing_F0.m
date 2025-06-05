@@ -51,7 +51,7 @@ worst_ind = originalpos(1:100);
 %% Get data
 
 h_all2 = [];
-num_neurons = [1:4 5:5:50 1:4 5:5:50];
+num_neurons = [1:4 5:5:40 1:4 5:5:40];
 nmodels = length(num_neurons);
 timerVal = tic;
 for imodel = 1:nmodels
