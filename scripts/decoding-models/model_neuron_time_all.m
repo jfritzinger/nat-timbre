@@ -56,7 +56,8 @@ response = response';
 
 %% Run model for each neuron
 
-for ind = 1 %:num_data
+for ind = 1:num_data
+	timerVal = tic;
 
 	% Set up index 
 	index = sesh(ind);
@@ -96,13 +97,34 @@ for ind = 1 %:num_data
 
 	%% Run model
 
+	[trainedClassifier, validationAccuracy, validationPredictions] = ...
+		trainClassifierNeuronTimeAll(T);
 
+	C = confusionmat(validationPredictions, response);
+	accuracy(ind) = sum(diag(C)) / sum(C(:)); % Calculate accuracy
+	confusionchart(C)
 
+	% Save data for each
+	neuron_time_all(ind).putative = nat_data(index).putative;
+	neuron_time_all(ind).CF = nat_data(index).CF;
+	neuron_time_all(ind).MTF = nat_data(index).MTF;
+	neuron_time_all(ind).response = response;
+	neuron_time_all(ind).predictors = predictors;
+	neuron_time_all(ind).T = T;
+	neuron_time_all(ind).validationPredictions = validationPredictions;
+	neuron_time_all(ind).accuracy = accuracy(ind);
+	neuron_time_all(ind).C = C;
+	
+
+	timer = toc(timerVal);
+	fprintf('Models took %0.2g minutes\n', timer/60)
+	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
 %% Plot outputs 
 
-
+save(fullfile(base, 'model_comparisons', 'Neuron_Time_All.mat'), ...
+	"neuron_time_all")
 
 
 
