@@ -124,7 +124,7 @@ end
 %% Plot outputs 
 
 save(fullfile(base, 'model_comparisons', 'Neuron_Time_All.mat'), ...
-	"neuron_time_all")
+	"neuron_time_all", "-v7.3")
 
 
 
