@@ -35,10 +35,10 @@ for igood = 1:2
 
 	accuracy_rate = [neuron_rate_timbre.accuracy]*100;
 	if igood == 1
-		[~, originalpos] = sort(accuracy_rate, 'descend');
+		[ac, originalpos] = sort(accuracy_rate, 'descend');
 		h_ind = [1, 7];
 	else
-		[~, originalpos] = sort(accuracy_rate, 'ascend');
+		[ac, originalpos] = sort(accuracy_rate, 'ascend');
 		h_ind = [13 19];
 	end
 	ind_high=originalpos(1:2);
