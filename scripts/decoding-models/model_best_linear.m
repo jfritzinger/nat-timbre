@@ -54,29 +54,29 @@ T.response = response;
 
 
 %% Split into training and testing data 
-
-for group = 0:39
-
-    % Calculate group range (1-20, 21-40, etc.)
-    startIdx = group*20 + 1;
-    endIdx = (group+1)*20;
-    
-    % Random permutation within current group
-    shuffled = randperm(20) + startIdx - 1;
-    
-    % Store indices
-    trainStart = group*16 + 1;
-    trainEnd = (group+1)*16;
-    testStart = group*4 + 1;
-    testEnd = (group+1)*4;
-    
-    trainIndices(trainStart:trainEnd) = shuffled(1:16);
-    testIndices(testStart:testEnd) = shuffled(17:20);
-end
-
-% Create training and testing sets
-T_train = T(trainIndices, :);
-T_test = T(testIndices, :);
+% 
+% for group = 0:39
+% 
+%     % Calculate group range (1-20, 21-40, etc.)
+%     startIdx = group*20 + 1;
+%     endIdx = (group+1)*20;
+% 
+%     % Random permutation within current group
+%     shuffled = randperm(20) + startIdx - 1;
+% 
+%     % Store indices
+%     trainStart = group*16 + 1;
+%     trainEnd = (group+1)*16;
+%     testStart = group*4 + 1;
+%     testEnd = (group+1)*4;
+% 
+%     trainIndices(trainStart:trainEnd) = shuffled(1:16);
+%     testIndices(testStart:testEnd) = shuffled(17:20);
+% end
+% 
+% % Create training and testing sets
+% T_train = T(trainIndices, :);
+% T_test = T(testIndices, :);
 
 %% Fit using fitrlinear 
 
@@ -84,15 +84,16 @@ T_test = T(testIndices, :);
 % [Mdl,FitInfo,HyperparameterOptimizationResults] = fitrlinear(T_test, 'response', ...
 %     'OptimizeHyperparameters','auto', ...
 %     'HyperparameterOptimizationOptions',hyperopts);
+%pred_F0 = predict(Mdl, T_test);
 
 Mdl = fitrlinear(T, 'response','BetaTolerance',0.0001, ...
 	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
+pred_F0 = kfoldPredict(Mdl);
+
 
 %% Save
 
-pred_F0 = kfoldPredict(Mdl);
-%pred_F0 = predict(Mdl, T_test);
 [base, datapath, ~, ppi] = getPathsNT();
 save(fullfile(base, 'model_comparisons', 'Best_Linear_F0.mat'), "pred_F0", "T")
 
