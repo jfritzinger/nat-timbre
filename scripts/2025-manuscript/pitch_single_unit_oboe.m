@@ -116,7 +116,7 @@ yticklabels([])
 grid on
 
 
-% D. Timing: Oboe vs Bassoon
+%% D. Timing: Oboe vs Bassoon
 
 % Find all rows with bassoon and oboe
 has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
