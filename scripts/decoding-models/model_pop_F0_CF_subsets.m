@@ -44,7 +44,7 @@ CF_groups = [0, 14000; 0, 2000; 2000, 4000; 4000, 14000];
 totalnum = 30;
 for iCF = 1:7
 	timerVal = tic;
-	parfor irep = 1:1000
+	for irep = 1:500
 
 		% Get random assortment of 60 units from each (for all, gets 20 per
 		% group)
