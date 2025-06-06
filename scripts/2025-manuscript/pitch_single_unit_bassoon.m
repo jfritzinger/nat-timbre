@@ -7,9 +7,15 @@ save_fig = 1;
 target = 'Bassoon';
 pitch = getF0s(target);
 [base, ~, ~, ppi] = getPathsNT();
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Oboe.mat'), ...
+	"neuron_time_F0")
+neuron_time_F0_oboe = neuron_time_F0;
 load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 	"neuron_time_F0")
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+
+accuracy_time = [neuron_time_F0.accuracy]*100;
+CFs = [neuron_time_F0.CF];
 
 accuracy = [neuron_time_F0.accuracy]*100;
 % accuracy(2,:) = [neuron_time_F0.accuracy_low]*100;
@@ -82,6 +88,7 @@ xticks([200 500 1000 2000 5000 10000])
 xticklabels([0.2 0.5 1 2 5 10])
 xlabel('CF (kHz)')
 ylabel('Accuracy')
+grid on
 
 %% C. MTF vs accuracy 
 h(5) = subplot(3, 3, 5);
@@ -137,12 +144,13 @@ mdl = fitlm(PC2_score, accuracy(1,:));
 x = linspace(-2, 1, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, 'r')
-hleg = legend('Neuron', ...
-	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', 7, ...
-	'location', 'northwest', 'box', 'off');
-hleg.ItemTokenSize = [8, 8];
+% hleg = legend('Neuron', ...
+% 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', 7, ...
+% 	'location', 'northwest', 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
 grid on
 set(gca, 'fontsize', fontsize)
+grid on
 
 
 %% E. VS vs accuracy
@@ -167,15 +175,16 @@ mdl = fitlm(VS_all, accuracy);
 x = linspace(0, 0.6, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, 'r')
-hleg = legend('Neuron', ...
-	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'box', 'off');
-hleg.ItemTokenSize = [8, 8];
+% hleg = legend('Neuron', ...
+% 	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
 ylabel('Accuracy (%)')
 xlabel('Vector Strength')
 set(gca, 'fontsize', fontsize)
 ylim([0 62])
+grid on
 
-%% G. Low vs high 
+%% F. Low vs high 
 h(8) = subplot(3, 3, 8);
 
 accuraclo = [neuron_time_F0.accuracy_low]*100;
@@ -197,6 +206,52 @@ xlim([0 100])
 % 	sprintf('Mean = %.2f%%', mean(accuracyhi)), 'fontsize', legsize);
 % hleg.ItemTokenSize = [8, 8];
 box off 
+set(gca, 'fontsize', fontsize)
+grid on
+
+%% G. 
+
+neuron_time_bass = neuron_time_F0;
+
+h(9) = subplot(3, 3, 9);
+
+% Find all rows with bassoon and oboe
+has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
+has_oboe = ~cellfun(@isempty, {nat_data.oboe_rate});
+sesh = find(has_bass & has_oboe);
+putative = {nat_data(sesh).putative};
+nneurons = length(sesh);
+
+for i = 1:nneurons
+
+	putative1 = putative{i};
+	ind_bass = find(strcmp(putative1, {neuron_time_bass.putative}));
+	ind_oboe = find(strcmp(putative1, {neuron_time_F0_oboe.putative}));
+
+	accuracy_oboe(i) = neuron_time_F0_oboe(ind_oboe).accuracy*100;
+	accuracy_bass1(i) = neuron_time_bass(ind_bass).accuracy*100;
+end
+
+scatter(accuracy_bass1, accuracy_oboe, 10, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceAlpha',0.5)
+hold on
+plot([0, 100], [0, 100], 'k')
+xlim([0 65])
+ylim([0 30])
+
+mdl = fitlm(accuracy_bass1, accuracy_oboe);
+x = linspace(0, 100, 20);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, 'r')
+yticks(0:10:100)
+xticks(0:10:100)
+% hleg = legend('Neuron', 'Unity', ...
+% 	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'fontsize', legsize, 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
+% set(gca, 'fontsize', fontsize)
+grid on
+ylabel('Oboe Accuracy')
+xlabel('Bassoon Accuracy')
 set(gca, 'fontsize', fontsize)
 
 
@@ -223,6 +278,7 @@ set(h(5), 'position', [left(2) bottom(2) width height])
 set(h(6), 'position', [left(3) bottom(2) width height])
 set(h(7), 'position', [left(1) bottom(1) width height])
 set(h(8), 'position', [left(2) bottom(1) width height])
+set(h(9), 'position', [left(3) bottom(1) width height])
 
 %% Set labels 
 
@@ -245,6 +301,9 @@ annotation('textbox',[labelleft(2) labelbottom(1) 0.071 0.058],...
 	'EdgeColor','none');
 annotation('textbox',[labelleft(3) labelbottom(1) 0.071 0.058],...
 	'String','F','FontWeight','bold','FontSize',labelsize,...
+	'EdgeColor','none');
+annotation('textbox',[labelleft(4) labelbottom(1) 0.071 0.058],...
+	'String','G','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
 
 %% Save figure 
