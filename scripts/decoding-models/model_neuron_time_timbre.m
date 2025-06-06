@@ -51,90 +51,6 @@ ind_b = 25:40;
 ind_o = [1 3:17];
 target = 1;
 
-%% Get all rates for each repetition for bassoon (one example neuron)
-
-for ind = 1:num_data
-	index = sesh(ind);
-
-	for target = 1:16
-
-		% Get data
-		spikes_bass = nat_data(index).bass_spikerate{ind_b(target)}/1000; % ms
-		spikereps_bass = nat_data(index).bass_spikerep{ind_b(target)};
-		spikes_oboe = nat_data(index).oboe_spikerate{ind_o(target)}/1000;
-		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
-
-		% Arrange data for SVM
-		min_dis = 0.25;
-		edges = 0:min_dis:300;
-		t = 0+min_dis/2:min_dis:300-min_dis/2;
-		for irep = 1:20
-			h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
-			h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
-		end
-		h_all = [h_bass; h_oboe];
-
-		% Put data into table
-		T = array2table(h_all);
-		T.Instrument = [ones(20,1); ones(20, 1)*2];
-
-		for imodelrep = 1
-
-			% Call SVM
-			SVMModel = fitcsvm(T,'Instrument','OptimizeHyperparameters','auto', ...
-				'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName', ...
-				'expected-improvement-plus', 'Verbose', 0));
-			close gcf
-			close gcf
-
-			CVSVMModel = crossval(SVMModel, 'KFold', 5);
-			classLoss = kfoldLoss(CVSVMModel);
-
-			prediction = kfoldPredict(CVSVMModel);
-			C = confusionmat(prediction, T.Instrument);
-			accuracy(ind, target) = sum(diag(C)) / sum(C, "all");
-		end
-
-		% Set up struct to save data
-		neuron_time_timbre(ind, target).putative = nat_data(index).putative;
-		neuron_time_timbre(ind, target).ind_b = ind_b(target);
-		neuron_time_timbre(ind, target).ind_o = ind_o(target);
-		neuron_time_timbre(ind, target).F0 = bass_pitch(ind_b(target));
-		neuron_time_timbre(ind, target).CF = nat_data(index).CF;
-		neuron_time_timbre(ind, target).MTF = nat_data(index).MTF;
-		neuron_time_timbre(ind, target).T = T;
-		neuron_time_timbre(ind, target).Instrument = T.Instrument;
-		neuron_time_timbre(ind, target).prediction = prediction;
-		neuron_time_timbre(ind, target).accuracy = accuracy(ind,target);
-		neuron_time_timbre(ind, target).C = C;
-
-		% figure
-		% confusionchart(C)
-		% title(num2str(accuracy))
-	end
-	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
-end
-
-save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_Separate.mat'), ...
-	"neuron_time_timbre", '-v7.3')
-
-% Plot accuracy of each neuron
-figure
-tiledlayout(4, 4)
-acc2 = max(accuracy, [], 3);
-for ii = 1:16
-	nexttile
-	histogram(acc2(:,ii)*100,21)
-	mean_F0 = mean(acc2(:,ii));
-	hold on
-	xline(50, 'k')
-	xline(mean_F0*100, 'r', 'LineWidth',2)
-	ylabel('# Neurons')
-	xlabel('Prediction Accuracy (%)')
-	title(['F0=' num2str(round(bass_pitch(ind_b(ii))))])
-	xlim([0 100])
-end
-
 %% Putting all data together
 
 for ind = 1:num_data
@@ -166,22 +82,10 @@ for ind = 1:num_data
 	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
 
 	% Call SVM
-	SVMModel = fitcsvm(T,'Instrument','OptimizeHyperparameters','auto', ...
-		'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName', ...
-		'expected-improvement-plus', 'Verbose', 0));
-
-	CVSVMModel = crossval(SVMModel, 'KFold', 5);
-	classLoss = kfoldLoss(CVSVMModel);
-
-	prediction = kfoldPredict(CVSVMModel);
-	C = confusionmat(prediction, T.Instrument);
-	accuracy = sum(diag(C)) / sum(C, "all");
+	[trainedClassifier, validationAccuracy, validationPredictions] = ...
+		trainClassifierNeuronTimeTimbre(T);
+	C = confusionmat(validationPredictions, T.Instrument);
 	accuracy_all(ind) = sum(diag(C)) / sum(C, "all");
-	close all
-
-	% 	figure
-	% 	confusionchart(C)
-	% 	title(num2str(accuracy))
 
 	% Set up struct to save data
 	neuron_time_timbre(ind).putative = nat_data(index).putative;
@@ -189,39 +93,42 @@ for ind = 1:num_data
 	neuron_time_timbre(ind).MTF = nat_data(index).MTF;
 	neuron_time_timbre(ind).T = T;
 	neuron_time_timbre(ind).Instrument = T.Instrument;
-	neuron_time_timbre(ind).prediction = prediction;
+	neuron_time_timbre(ind).prediction = validationPredictions;
 	neuron_time_timbre(ind).accuracy = accuracy_all(ind);
 	neuron_time_timbre(ind).C = C;
 
-	% 	% Plots
-	% 	% figure
-	% 	% tiledlayout(2, 1)
-	% 	% nexttile
-	% 	% histogram(spikes_bass, 301)
-	% 	% nexttile
-	% 	% histogram(spikes_oboe, 301)
-	% 	% figure
-	% 	% tiledlayout(2, 1)
-	% 	% nexttile
-	% 	% hold on
-	% 	% for irep = 1:20
-	% 	% 	plot(t,h_bass(irep,:)+irep)
-	% 	% end
-	% 	% scatter(spikes_bass, spikereps_bass, 'filled')
-	% 	% nexttile
-	% 	% hold on
-	% 	% for irep = 1:20
-	% 	% 	plot(t,h_oboe(irep,:)+irep)
-	% 	% end
-	% 	% scatter(spikes_oboe, spikereps_oboe, 'filled')
+	% Plots
+	% figure
+	% tiledlayout(2, 1)
+	% nexttile
+	% histogram(spikes_bass, 301)
+	% nexttile
+	% histogram(spikes_oboe, 301)
+	% figure
+	% tiledlayout(2, 1)
+	% nexttile
+	% hold on
+	% for irep = 1:20
+	% 	plot(t,h_bass(irep,:)+irep)
+	% end
+	% scatter(spikes_bass, spikereps_bass, 'filled')
+	% nexttile
+	% hold on
+	% for irep = 1:20
+	% 	plot(t,h_oboe(irep,:)+irep)
+	% end
+	% scatter(spikes_oboe, spikereps_oboe, 'filled')
 
-	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
+	fprintf('%d/%d, %0.2f%% done! Accur=%0.2f%%\n', ind, ...
+		num_data, ind/num_data*100, accuracy_all(ind)*100)
 end
 
 save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'), ...
 	"neuron_time_timbre", '-v7.3')
 
 %% Plot accuracy of each neuron
+
+
 figure
 histogram(accuracy_all*100,21)
 mean_F0 = mean(accuracy_all);
@@ -235,5 +142,88 @@ xlim([0 100])
 mean_all = mean(accuracy_all, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
 
-save('Neuron_Time_Timbre_All.mat', "accuracy", "mean_F0")
+%save('Neuron_Time_Timbre_All.mat', "accuracy", "mean_F0")
 
+%% Get all rates for each repetition for bassoon (one example neuron)
+%
+% for ind = 1:num_data
+% 	index = sesh(ind);
+%
+% 	for target = 1:16
+%
+% 		% Get data
+% 		spikes_bass = nat_data(index).bass_spikerate{ind_b(target)}/1000; % ms
+% 		spikereps_bass = nat_data(index).bass_spikerep{ind_b(target)};
+% 		spikes_oboe = nat_data(index).oboe_spikerate{ind_o(target)}/1000;
+% 		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
+%
+% 		% Arrange data for SVM
+% 		min_dis = 0.25;
+% 		edges = 0:min_dis:300;
+% 		t = 0+min_dis/2:min_dis:300-min_dis/2;
+% 		for irep = 1:20
+% 			h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
+% 			h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
+% 		end
+% 		h_all = [h_bass; h_oboe];
+%
+% 		% Put data into table
+% 		T = array2table(h_all);
+% 		T.Instrument = [ones(20,1); ones(20, 1)*2];
+%
+% 		for imodelrep = 1
+%
+% 			% Call SVM
+% 			SVMModel = fitcsvm(T,'Instrument','OptimizeHyperparameters','auto', ...
+% 				'HyperparameterOptimizationOptions',struct('AcquisitionFunctionName', ...
+% 				'expected-improvement-plus', 'Verbose', 0));
+% 			close gcf
+% 			close gcf
+%
+% 			CVSVMModel = crossval(SVMModel, 'KFold', 5);
+% 			classLoss = kfoldLoss(CVSVMModel);
+%
+% 			prediction = kfoldPredict(CVSVMModel);
+% 			C = confusionmat(prediction, T.Instrument);
+% 			accuracy(ind, target) = sum(diag(C)) / sum(C, "all");
+% 		end
+%
+% 		% Set up struct to save data
+% 		neuron_time_timbre(ind, target).putative = nat_data(index).putative;
+% 		neuron_time_timbre(ind, target).ind_b = ind_b(target);
+% 		neuron_time_timbre(ind, target).ind_o = ind_o(target);
+% 		neuron_time_timbre(ind, target).F0 = bass_pitch(ind_b(target));
+% 		neuron_time_timbre(ind, target).CF = nat_data(index).CF;
+% 		neuron_time_timbre(ind, target).MTF = nat_data(index).MTF;
+% 		neuron_time_timbre(ind, target).T = T;
+% 		neuron_time_timbre(ind, target).Instrument = T.Instrument;
+% 		neuron_time_timbre(ind, target).prediction = prediction;
+% 		neuron_time_timbre(ind, target).accuracy = accuracy(ind,target);
+% 		neuron_time_timbre(ind, target).C = C;
+%
+% 		% figure
+% 		% confusionchart(C)
+% 		% title(num2str(accuracy))
+% 	end
+% 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
+% end
+%
+% save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_Separate.mat'), ...
+% 	"neuron_time_timbre", '-v7.3')
+%
+% % Plot accuracy of each neuron
+% figure
+% tiledlayout(4, 4)
+% acc2 = max(accuracy, [], 3);
+% for ii = 1:16
+% 	nexttile
+% 	histogram(acc2(:,ii)*100,21)
+% 	mean_F0 = mean(acc2(:,ii));
+% 	hold on
+% 	xline(50, 'k')
+% 	xline(mean_F0*100, 'r', 'LineWidth',2)
+% 	ylabel('# Neurons')
+% 	xlabel('Prediction Accuracy (%)')
+% 	title(['F0=' num2str(round(bass_pitch(ind_b(ii))))])
+% 	xlim([0 100])
+% end
