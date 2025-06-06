@@ -27,6 +27,8 @@ for iinstru = 1:2
 		"accuracies", "num_neurons")
 	load(fullfile(base, 'model_comparisons', ['pop_rate_F0_linear_' target '.mat']),...
 		"pred_F0", "T_test", "T", "r2", "C", "accuracy", "F0s")
+
+	
 	%% A. Plot confusion matrix
 	nexttile
 	imagesc(pop_rate_F0.C)
