@@ -57,7 +57,7 @@ timerVal = tic;
 for imodel = 1:nmodels
 	timerVal = tic;
 
-	for irep = 1:10
+	for inrep = 1:10
 
 		if imodel < nmodels/2+1 % 6 good models
 			index = best_ind;
@@ -111,8 +111,8 @@ for imodel = 1:nmodels
 		% Calculate accuracy
 		accuracy = sum(diag(C)) / sum(C(:)); % Calculate accuracy
 		title(sprintf('%d neurons, Accuracy = %0.2f%%', num_data, accuracy*100))
-		accur_all(imodel, irep) = accuracy;
-		C_all{imodel, irep} = C;
+		accur_all(imodel, inrep) = accuracy;
+		C_all{imodel, inrep} = C;
 	end
 	timer = toc(timerVal);
 	fprintf('Models took %0.2g minutes\n', timer/60)
@@ -143,5 +143,5 @@ legend('Best', 'Worst')
 %% Save data
 
 save(fullfile(base, 'model_comparisons', 'pop_timing_F0_bassoon_subset.mat'), ...
-	"accur_all, C_all", "num_neurons", "mean_acc", "std_acc")
+	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
 
