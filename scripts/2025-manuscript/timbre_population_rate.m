@@ -197,13 +197,12 @@ grid on
 %% H. Subset CF groups 
 h(9) = subplot(4, 3, 10);
 
-
 load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
 	"accuracies", "CF_names")
 
 hold on
 for iCF = 1:7
-	swarmchart(ones(size(accuracies, 2), 1)*iCF, accuracies(iCF,:), scattersize)
+	swarmchart(ones(size(accuracies, 2), 1)*iCF, accuracies(iCF,:), scattersize-4)
 end
 xlabel('CF Groups')
 xticks(1:7)
@@ -219,13 +218,12 @@ grid on
 %% I. Subset MTF groups 
 h(10) = subplot(4, 3, 11);
 
-
 load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
 	"accuracy_all", "MTF_names")
 
 hold on
 for iCF = 1:5
-	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize)
+	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize-4)
 end
 xlabel('MTF Groups')
 xticks(1:5)
@@ -241,7 +239,6 @@ grid on
 
 %% G. Subset accuracies 
 h(11) = subplot(4, 3, 12);
-
 
 load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Best.mat'), ...
 	"pop_rate_timbre_best")
