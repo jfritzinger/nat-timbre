@@ -6,8 +6,8 @@ filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre
 load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Get correct output of model 
-target = 'Bassoon';
-%target = 'Oboe';
+%target = 'Bassoon';
+target = 'Oboe';
 
 if ismac
 	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -97,16 +97,19 @@ T_test = T(testIndices, :);
 % [Mdl,FitInfo,HyperparameterOptimizationResults] = fitrlinear(T_train, 'response', ...
 %     'OptimizeHyperparameters','auto', ...
 %     'HyperparameterOptimizationOptions',hyperopts);
+%pred_F0 = predict(Mdl, T_test);
 
 
 Mdl = fitrlinear(T, 'response','BetaTolerance',0.0001, ...
 	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
+pred_F0 = kfoldPredict(Mdl);
+
+% [trainedModel, validationRMSE, pred_F0] =...
+% 	trainRegressionModelPopTimeF0(T);
 
 %%
 
-pred_F0 = kfoldPredict(Mdl);
-%pred_F0 = predict(Mdl, T_test);
 r = corrcoef(pred_F0, T.response);
 r2 = r(1, 2)^2;
 
@@ -146,37 +149,4 @@ title(sprintf('Accuracy = %0.2f%%', accuracy*100))
 base = getPathsNT;
 save(fullfile(base, 'model_comparisons', ['pop_rate_F0_linear_' target '.mat']),...
 	"pred_F0", "T_test", "T", "r2", "C", "accuracy", "F0s")
-
-
-%% Leave-one-out linear regression decoding
-% 
-% % Example data
-% R = data_mat'; % Neural data: [neurons x elements]
-% F0 = reshape(repmat(F0s, 1, 20)', 1, []);
-% 
-% % Transpose R for regression: [elements x neurons]
-% X = R';
-% 
-% % Leave-one-out cross-validation
-% predF0 = zeros(length(pred_F0), 1);
-% 
-% for v = 1:length(pred_F0)
-%     train_idx = setdiff(1:length(pred_F0), v);
-%     X_train = X(train_idx, :);
-%     y_train = F0(train_idx);
-% 
-%     % Add intercept
-%     X_train_aug = [ones(length(train_idx),1), X_train];
-% 
-%     % Fit linear regression
-%     beta = X_train_aug \ y_train';
-% 
-%     % Predict for held-out element
-%     X_test = [1, X(v,:)];
-%     predF0(v) = X_test * beta;
-% end
-% 
-% % Compute R^2
-% F0_mean = mean(F0);
-% R2 = 1 - sum((F0 - predF0).^2) / sum((F0 - F0_mean).^2);
 
