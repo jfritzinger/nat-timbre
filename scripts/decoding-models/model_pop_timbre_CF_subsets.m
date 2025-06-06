@@ -36,17 +36,12 @@ CFs_all = [nat_data(sesh_all).CF];
 putative = {nat_data(sesh_all).putative};
 MTFs = {nat_data(sesh_all).MTF};
 
-% ind_all(1,:) = strcmp('BE', MTFs);
-% ind_all(2,:) = strcmp('BS', MTFs);
-% 
-% CFs_all = CFs_all(ind_all(1,:));
-% putative = putative(ind_all(1,:));
-% MTFs = MTFs(ind_all(1,:));
-
 % Get a subset of the data based on CF grouping
 CF_groups = [0, 14000; 0, 2000; 2000, 4000; 4000, 14000];
-for iCF = 1:7
+num_subset = 12;
 
+for iCF = 1:7
+	timerVal = tic;
 	for irep = 1:500
 		
 		% Get random assortment of 60 units from each (for all, gets 20 per
@@ -55,29 +50,22 @@ for iCF = 1:7
 			ind_low = find(CFs_all > CF_groups(2, 1) & CFs_all < CF_groups(2, 2));
 			ind_med = find(CFs_all > CF_groups(3, 1) & CFs_all < CF_groups(3, 2));
 			ind_high = find(CFs_all > CF_groups(4, 1) & CFs_all < CF_groups(4, 2));
-			rand_ind = [randsample(ind_low, 20, false) ...
-				randsample(ind_med, 20, false)...
-				randsample(ind_high, 20, false)];
+			rand_ind = [randsample(ind_low, num_subset/3, false) ...
+				randsample(ind_med, num_subset/3, false)...
+				randsample(ind_high, num_subset/3, false)];
 		elseif ismember(iCF, [2, 3, 4])
 			ind = CFs_all > CF_groups(iCF, 1) & CFs_all < CF_groups(iCF, 2);
-			rand_ind = randsample(find(ind), 60, false);
+			rand_ind = randsample(find(ind), num_subset, false);
 		elseif iCF == 5
-			rand_ind = [randsample(ind_low, 30, false) ...
-				randsample(ind_med, 30, false)];
+			rand_ind = [randsample(ind_low, num_subset/2, false) ...
+				randsample(ind_med, num_subset/2, false)];
 		elseif iCF == 6
-			rand_ind = [randsample(ind_low, 30, false) ...
-				randsample(ind_high, 30, false)];
+			rand_ind = [randsample(ind_low, num_subset/2, false) ...
+				randsample(ind_high, num_subset/2, false)];
 		elseif iCF == 7
-			rand_ind = [randsample(ind_med, 30, false) ...
-				randsample(ind_high, 30, false)];
+			rand_ind = [randsample(ind_med, num_subset/2, false) ...
+				randsample(ind_high, num_subset/2, false)];
 		end
-
-		% Get a subset of the data based on MTF type
-		% isBE = strcmp('BE', MTFs);
-		% isBS = strcmp('BS', MTFs);
-		% isH = contains(MTFs,'H');
-		% isF = strcmp('F', MTFs);
-		% ind = isF;
 
 		% Subset!
 		CFs = CFs_all(rand_ind);
@@ -126,33 +114,10 @@ for iCF = 1:7
 		pop_rate_timbre.bass_rate_std = [nat_data(sesh).bass_rate_std];
 		accuracy_all(iCF, irep) = accuracy;
 	end
-	%% Plot outputs
-	% 
-	% % Compute classification using all data
-	% nexttile
-	% C = confusionmat(pop_rate_timbre.response, pop_rate_timbre.predictions);
-	% confusionchart(C)
-	% title(sprintf('Accuracy = %0.2f%%, n=%d', pop_rate_timbre.accuracy*100,...
-	% 	length(pop_rate_timbre.CFs)))
-	% 
-	% % Initial beta weight investigation
-	% beta_weights = pop_rate_timbre.trainedClassifier.ClassificationSVM.Beta;
-	% CFs = pop_rate_timbre.CFs;
-	% 
-	% nexttile
-	% scatter(CFs/1000, abs(beta_weights), 'filled', 'MarkerEdgeColor','k', ...
-	% 	'MarkerFaceAlpha',0.5)
-	% hold on
-	% yline(0)
-	% xticks([0.1 0.2 0.5 1 2 5 10])
-	% xlim([0.2 10])
-	% xlabel('CF')
-	% ylabel('abs(Beta Weight)')
-	% set(gca, 'xscale', 'log')
-	% title(CF_names{iCF})
-
-
+	timer = toc(timerVal);
+	fprintf('Models took %0.2g minutes\n', timer/60)
 end
+
 
 %%
 
@@ -174,14 +139,12 @@ end
 max_acc = max(accuracies, [], 2);
 mean_acc = median(accuracies, 2);
 plot(1:7, max_acc, 'k')
-%plot(1:7, mean_acc, 'r')
+plot(1:7, mean_acc, 'r')
 
-
-% 
 % [p,tbl,stats] = anova1(accuracy_all');
 % results = multcompare(stats);
 
 %% Save accuracies 
 
-save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
-	"accuracies", "CF_names")
+% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+% 	"accuracies", "CF_names")
