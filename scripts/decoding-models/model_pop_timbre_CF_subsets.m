@@ -37,34 +37,40 @@ putative = {nat_data(sesh_all).putative};
 MTFs = {nat_data(sesh_all).MTF};
 
 % Get a subset of the data based on CF grouping
-CF_groups = [0, 14000; 0, 2000; 2000, 4000; 4000, 14000];
-num_subset = 12;
+CF_groups = [0, 14000; 0, 1000; 1000 2000; 2000 3000;3000 4000; ...
+	4000, 6000;6000 9000;9000 14000];
+num_subset = 14;
 
-for iCF = 1:7
+for iCF = 1:8
 	timerVal = tic;
-	for irep = 1:500
+	for irep = 1:750
 		
 		% Get random assortment of 60 units from each (for all, gets 20 per
 		% group)
 		if iCF == 1
-			ind_low = find(CFs_all > CF_groups(2, 1) & CFs_all < CF_groups(2, 2));
-			ind_med = find(CFs_all > CF_groups(3, 1) & CFs_all < CF_groups(3, 2));
-			ind_high = find(CFs_all > CF_groups(4, 1) & CFs_all < CF_groups(4, 2));
-			rand_ind = [randsample(ind_low, num_subset/3, false) ...
-				randsample(ind_med, num_subset/3, false)...
-				randsample(ind_high, num_subset/3, false)];
-		elseif ismember(iCF, [2, 3, 4])
+			for itry = 1:7
+				ind_part{itry} = find(CFs_all > CF_groups(itry+1, 1) ...
+					& CFs_all < CF_groups(itry+1, 2));
+			end
+			rand_ind = [randsample(ind_part{1}, num_subset/7, false) ...
+				randsample(ind_part{2}, num_subset/7, false)...
+				randsample(ind_part{3}, num_subset/7, false)...
+				randsample(ind_part{4}, num_subset/7, false)...
+				randsample(ind_part{5}, num_subset/7, false)...
+				randsample(ind_part{6}, num_subset/7, false)...
+				randsample(ind_part{7}, num_subset/7, false)];
+		else % ismember(iCF, [2, 3, 4])
 			ind = CFs_all > CF_groups(iCF, 1) & CFs_all < CF_groups(iCF, 2);
 			rand_ind = randsample(find(ind), num_subset, false);
-		elseif iCF == 5
-			rand_ind = [randsample(ind_low, num_subset/2, false) ...
-				randsample(ind_med, num_subset/2, false)];
-		elseif iCF == 6
-			rand_ind = [randsample(ind_low, num_subset/2, false) ...
-				randsample(ind_high, num_subset/2, false)];
-		elseif iCF == 7
-			rand_ind = [randsample(ind_med, num_subset/2, false) ...
-				randsample(ind_high, num_subset/2, false)];
+		% elseif iCF == 5
+		% 	rand_ind = [randsample(ind_low, num_subset/2, false) ...
+		% 		randsample(ind_med, num_subset/2, false)];
+		% elseif iCF == 6
+		% 	rand_ind = [randsample(ind_low, num_subset/2, false) ...
+		% 		randsample(ind_high, num_subset/2, false)];
+		% elseif iCF == 7
+		% 	rand_ind = [randsample(ind_med, num_subset/2, false) ...
+		% 		randsample(ind_high, num_subset/2, false)];
 		end
 
 		% Subset!
@@ -121,9 +127,11 @@ end
 
 %%
 
-accuracies = [accuracy_all(2:7,:); accuracy_all(1,:)];
-CF_names = {'Low', 'Medium', 'High', 'Low+Med', 'Low+High', 'Med+High','All'};
-
+accuracies = [accuracy_all(2:8,:); accuracy_all(1,:)];
+%CF_names = {'Low', 'Medium', 'High', 'Low+Med', 'Low+High', 'Med+High','All'};
+CF_names = {'<1000', '<2000', '<3000', '<4000', '<6000', '<8000', '<14000','All'};
+% CF_groups = [0, 14000; 0, 1000; 1000 2000; 2000 3000;3000 4000; ...
+% 	4000, 6000;6000 8000;8000 14000];
 figure
 boxplot(accuracies','Notch','on')
 xlabel('Subset')
@@ -132,14 +140,14 @@ title('Model Accuracies (500 model repetitions)')
 hold on
 
 scattersize = 10;
-for iCF = 1:7
+for iCF = 1:8
 	swarmchart(ones(size(accuracies, 2), 1)*iCF, accuracies(iCF,:), scattersize)
 end
 
 max_acc = max(accuracies, [], 2);
 mean_acc = median(accuracies, 2);
-plot(1:7, max_acc, 'k')
-plot(1:7, mean_acc, 'r')
+plot(1:8, max_acc, 'k')
+plot(1:8, mean_acc, 'r')
 
 % [p,tbl,stats] = anova1(accuracy_all');
 % results = multcompare(stats);
