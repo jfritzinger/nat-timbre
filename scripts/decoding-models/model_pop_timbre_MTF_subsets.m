@@ -60,13 +60,13 @@ for iMTF = 1:5
 			ind_H = find(ind_all(4,:));
 			ind_F = find(ind_all(5,:));
 
-			rand_ind = [randsample(ind_BE, 6, false) ... % 51/246, 21% (6)
-				randsample(ind_BS, 14, false)... % 123/246, 50% (14) 
-				randsample(ind_H, 5, false)... % 43/246, 17% (5)
-				randsample(ind_F, 3, false)]; % 29/246, 12% (3)
+			rand_ind = [randsample(ind_BE, 3, false) ... % 6 % 51/246, 21% (6)
+				randsample(ind_BS, 7, false)... % 14 % 123/246, 50% (14) 
+				randsample(ind_H, 3, false)... %5 % 43/246, 17% (5)
+				randsample(ind_F, 1, false)]; % 3 % 29/246, 12% (3)
 			%rand_ind = randsample(ind, 28,false);
 		else
-			rand_ind = randsample(find(ind), 28, false);
+			rand_ind = randsample(find(ind), 14, false); % 28
 		end
 		
 		% Subset!
@@ -156,7 +156,7 @@ scattersize = 10;
 for iCF = 1:5
 	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize)
 end
-ylim([0.78 1])
+ylim([0.5 1])
 
 % [p,tbl,stats] = anova1(accuracy_all');
 % results = multcompare(stats);
