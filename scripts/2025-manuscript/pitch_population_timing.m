@@ -16,12 +16,15 @@ scattersize = 10;
 %% Load in data
 
 hind = [1 4];
+targets = {'Bassoon', 'Oboe'}; 
 for iinstru = 1:2
 
-	target = 'Bassoon';
-	%target = 'Oboe';
-	load(fullfile(base, 'model_comparisons', 'pop_timing_F0_bassoon_subset.mat'), ...
+	target = targets{iinstru};
+	load(fullfile(base, 'model_comparisons', ...
+		['pop_timing_F0_' target '_subset.mat']), ...
 		"accur_all","C_all", "num_neurons")
+	load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '3.mat']),...
+		"pop_rate_F0")
 
 	if ismac
 		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -60,9 +63,9 @@ for iinstru = 1:2
 
 	%%
 
-	C_diag_all = NaN(nmodels, 40);
+	C_diag_all = NaN(nmodels, length(F0s));
 	for ii = 1:nmodels
-
+		C_diag = NaN(10, length(F0s));
 		for irep = 1:10
 			C_diag(irep,:) = diag(C_all{ii,irep});
 		end
@@ -81,7 +84,8 @@ for iinstru = 1:2
 	title('Best Units')
 	a=colorbar;
 	a.Label.String = '# Accurate Predictions';
-	xticks([55 110 220 440])
+	xticks([50 100 250 500 1000 1500])
+	xticklabels([50 100 250 500 1000 1500]/1000)
 	set(gca, 'FontSize', fontsize)
 	box off
 
@@ -96,9 +100,44 @@ for iinstru = 1:2
 	title('Worst Units')
 	a=colorbar;
 	a.Label.String = '# Accurate Predictions';
-	xticks([55 110 220 440])
+	xticks([50 100 250 500 1000 1500])
+	xticklabels([50 100 250 500 1000 1500]/1000)
 	set(gca, 'FontSize', fontsize)
 	box off
+
+	%% Extra
+	figure
+	C_timing = C_all{12, 1};
+	response = pop_rate_F0.response;
+	order = F0s;
+
+	pred_time = zeros(size(response)); % Preallocate
+	idx = 1;
+	for i = 1:length(F0s)
+		true_class = order(i);
+		% Find indices of samples with this true class
+		true_idx = find(response == true_class);
+		% For each predicted class, assign the appropriate number of predictions
+		count = 0;
+		for j = 1:length(F0s)
+			pred_class = order(j);
+			n = C_timing(i,j);
+			if n > 0
+				pred_time(true_idx(count+1:count+n)) = pred_class;
+				count = count + n;
+			end
+		end
+	end
+	pred_rate = pop_rate_F0.validationPredictions;
+	pred_rate2 = response' - pred_rate;
+	pred_time2 = response - pred_time;
+
+	scatter(response, pred_time)
+	hold on
+	scatter(response, pred_rate)
+	set(gca, 'xscale', 'log', 'yscale', 'log')
+
+
 end
 
 %% Arrange positions
@@ -123,9 +162,21 @@ annotation("textbox", [0.05517 0.6 0.1386 0.1088], "String", "Bassoon",...
 annotation("textbox", [0.0348 0.18 0.09778 0.05666], "String", "Oboe",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 
+labelleft = left-0.06;
+annotation('textbox',[labelleft(1) 0.96 0.071 0.058],...
+	'String','A','FontWeight','bold','FontSize',labelsize,...
+	'EdgeColor','none');
+annotation('textbox',[labelleft(2) 0.96 0.071 0.058],...
+	'String','B','FontWeight','bold','FontSize',labelsize,...
+	'EdgeColor','none');
+annotation('textbox',[labelleft(3) 0.96 0.071 0.058],...
+	'String','C','FontWeight','bold','FontSize',labelsize,...
+	'EdgeColor','none');
+
+
 %% Save figure
 
 if save_fig == 1
-	filename = 'figsomething';
+	filename = 'fig8_pitch_population_timing';
 	save_figure(filename)
 end
