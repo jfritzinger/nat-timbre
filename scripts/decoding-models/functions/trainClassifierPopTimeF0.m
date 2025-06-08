@@ -118,7 +118,8 @@ for fold = 1:KFolds
 end
 
 % Compute validation accuracy
-correctPredictions = (validationPredictions == response);
-isMissing = isnan(response);
-correctPredictions = correctPredictions(~isMissing);
+correctPredictions = strcmp(validationPredictions, response);
+%correctPredictions = (validationPredictions == response);
+% = isnan(response);
+%correctPredictions = correctPredictions(~isMissing);
 validationAccuracy = sum(correctPredictions)/length(correctPredictions);
