@@ -97,7 +97,7 @@ pop_rate_timbre.bass_rate_std = [nat_data(sesh).bass_rate_std];
 
 % Permutation test for importance 
 Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
-imp = permutationImportance(Mdl);
+imp = permutationImportance(Mdl, T, 'Instrument');
 pop_rate_timbre.imp = imp;
 
 
