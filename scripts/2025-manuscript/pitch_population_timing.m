@@ -20,11 +20,20 @@ targets = {'Bassoon', 'Oboe'};
 for iinstru = 1:2
 
 	target = targets{iinstru};
-	load(fullfile(base, 'model_comparisons', ...
-		['pop_timing_F0_' target '_subset.mat']), ...
+	if iinstru == 2
+		load(fullfile(base, 'model_comparisons', 'pop_timing_F0_Oboe_subset2.mat'), ...
+			"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
+		accur_all2 = accur_all;
+		C_all2 = C_all;
+		num_neurons2 = num_neurons;
+		mean_acc2 = mean_acc;
+		std_acc2 = std_acc;
+	end
+	load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
 		"accur_all","C_all", "num_neurons")
 	load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '3.mat']),...
 		"pop_rate_F0")
+	
 
 	if ismac
 		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
@@ -43,9 +52,18 @@ for iinstru = 1:2
 
 	%% Plot
 
+	if iinstru == 1
 	nmodels = length(num_neurons);
 	mean_acc = mean(accur_all,2);
 	std_acc = std(accur_all, [], 2);
+	else
+		nmodels = length(num_neurons) + length(num_neurons2);
+		mean_acc1 = mean(accur_all,2);
+		mean_acc = [mean_acc1(1:12); mean_acc2(1:3); mean_acc1(13:end); mean_acc2(4:6)];
+		std_acc1 = std(accur_all, [], 2);
+		std_acc = [std_acc1(1:12); std_acc2(1:3); std_acc1(13:end); std_acc2(4:6)];
+		num_neurons = [num_neurons(1:12) num_neurons2(1:3) num_neurons(13:24) num_neurons2(4:6)];
+	end
 
 	h(hind(iinstru)) = subplot(2, 3, hind(iinstru));
 	errorbar(num_neurons(1:nmodels/2), mean_acc(1:nmodels/2), std_acc(1:nmodels/2)/sqrt(10));
@@ -56,7 +74,7 @@ for iinstru = 1:2
 	hleg = legend('Best', 'Worst', 'fontsize', legsize);
 	hleg.ItemTokenSize = [8, 8];
 	title('Model Accuracy')
-	ylim([0 1.2])
+	ylim([0 1])
 	grid on
 	set(gca, 'FontSize', fontsize)
 	box off
@@ -64,39 +82,58 @@ for iinstru = 1:2
 	%%
 
 	C_diag_all = NaN(nmodels, length(F0s));
-	for ii = 1:nmodels
-		C_diag = NaN(10, length(F0s));
-		for irep = 1:10
-			C_diag(irep,:) = diag(C_all{ii,irep});
-		end
+	if iinstru == 1
+		for ii = 1:nmodels
+			C_diag = NaN(10, length(F0s));
+			for irep = 1:10
+				C_diag(irep,:) = diag(C_all{ii,irep});
+			end
 
-		C_diag_all(ii,:) = mean(C_diag);
+			C_diag_all(ii,:) = mean(C_diag);
+		end
+	else
+		iii = 1;
+		iiii = 1;
+		for ii = 1:nmodels
+			if ~ismember(ii, [13, 14, 15, 28, 29, 30])
+				C_diag = NaN(10, length(F0s));
+				for irep = 1:10
+					C_diag(irep,:) = diag(C_all{iiii,irep});
+				end
+				iiii = iiii +1;
+				C_diag_all(ii,:) = mean(C_diag);
+			else
+				C_diag_all(ii,:) = diag(C_all2{iii});
+				iii = iii +1;
+			end
+		end
 	end
-	y = num_neurons(1:12);
-	x = F0s;
+	y = F0s;
+	x = num_neurons(1:nmodels/2);
 
 	h(hind(iinstru)+1) = subplot(2, 3, hind(iinstru)+1);
-	pcolor(x, y, C_diag_all(1:12,:), 'EdgeColor','none')
-	set(gca, 'xscale', 'log')
+	pcolor(x, y, C_diag_all(1:nmodels/2,:)', 'EdgeColor','none')
+	set(gca, 'yscale', 'log')
 	clim([0 20])
-	ylabel('# Neurons in Model')
-	xlabel('F0s')
+	xlabel('# Neurons in Model')
+	%shading interp
+	ylabel('F0 (Hz)')
 	title('Best Units')
 	a=colorbar;
 	a.Label.String = '# Accurate Predictions';
-	xticks([50 100 250 500 1000 1500])
-	xticklabels([50 100 250 500 1000 1500]/1000)
+	yticks([50 100 250 500 1000 1500])
+	yticklabels([50 100 250 500 1000 1500]/1000)
 	set(gca, 'FontSize', fontsize)
 	box off
 
 	%%
 
 	h(hind(iinstru)+2) = subplot(2, 3, hind(iinstru)+2);
-	pcolor(x, y, C_diag_all(13:24,:), 'EdgeColor','none')
+	pcolor(y, x, C_diag_all(nmodels/2+1:end,:), 'EdgeColor','none')
 	set(gca, 'xscale', 'log')
 	clim([0 20])
 	ylabel('# Neurons in Model')
-	xlabel('F0s')
+	xlabel('F0 (Hz)')
 	title('Worst Units')
 	a=colorbar;
 	a.Label.String = '# Accurate Predictions';
@@ -106,36 +143,36 @@ for iinstru = 1:2
 	box off
 
 	%% Extra
-	figure
-	C_timing = C_all{12, 1};
-	response = pop_rate_F0.response;
-	order = F0s;
-
-	pred_time = zeros(size(response)); % Preallocate
-	idx = 1;
-	for i = 1:length(F0s)
-		true_class = order(i);
-		% Find indices of samples with this true class
-		true_idx = find(response == true_class);
-		% For each predicted class, assign the appropriate number of predictions
-		count = 0;
-		for j = 1:length(F0s)
-			pred_class = order(j);
-			n = C_timing(i,j);
-			if n > 0
-				pred_time(true_idx(count+1:count+n)) = pred_class;
-				count = count + n;
-			end
-		end
-	end
-	pred_rate = pop_rate_F0.validationPredictions;
-	pred_rate2 = response' - pred_rate;
-	pred_time2 = response - pred_time;
-
-	scatter(response, pred_time)
-	hold on
-	scatter(response, pred_rate)
-	set(gca, 'xscale', 'log', 'yscale', 'log')
+	% figure
+	% C_timing = C_all{12, 1};
+	% response = pop_rate_F0.response;
+	% order = F0s;
+	% 
+	% pred_time = zeros(size(response)); % Preallocate
+	% idx = 1;
+	% for i = 1:length(F0s)
+	% 	true_class = order(i);
+	% 	% Find indices of samples with this true class
+	% 	true_idx = find(response == true_class);
+	% 	% For each predicted class, assign the appropriate number of predictions
+	% 	count = 0;
+	% 	for j = 1:length(F0s)
+	% 		pred_class = order(j);
+	% 		n = C_timing(i,j);
+	% 		if n > 0
+	% 			pred_time(true_idx(count+1:count+n)) = pred_class;
+	% 			count = count + n;
+	% 		end
+	% 	end
+	% end
+	% pred_rate = pop_rate_F0.validationPredictions;
+	% pred_rate2 = response' - pred_rate;
+	% pred_time2 = response - pred_time;
+	% 
+	% scatter(response, pred_time)
+	% hold on
+	% scatter(response, pred_rate)
+	% set(gca, 'xscale', 'log', 'yscale', 'log')
 
 
 end

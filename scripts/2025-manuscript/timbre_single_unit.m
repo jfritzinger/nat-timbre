@@ -26,22 +26,29 @@ linewidth = 1;
 fontsize = 8;
 labelsize = 12;
 legsize = 6;
+colorsData = {"#0072BD", "#D95319"};
+colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
+colorsTimbre = '#1b9e77';
+scattersize = 12;
 
 %% A, B. Plot examples of accurate and inaccurate
 
 
 pitch = getBassoonF0s();
+ylimits = [100, 40; 65, 45];
 for igood = 1:2
 
 	accuracy_rate = [neuron_rate_timbre.accuracy]*100;
 	if igood == 1
 		[ac, originalpos] = sort(accuracy_rate, 'descend');
 		h_ind = [1, 7];
+		ind_high=originalpos([2 3]);
 	else
 		[ac, originalpos] = sort(accuracy_rate, 'ascend');
 		h_ind = [13 19];
+		ind_high=originalpos([3 8]);
 	end
-	ind_high=originalpos(1:2);
+	
 	putative = {neuron_rate_timbre(ind_high).putative};
 	ind_b = 25:40;
 	ind_o = [1 3:17];
@@ -60,27 +67,29 @@ for igood = 1:2
 		bass_rate = nat_data(index).bass_rate(ind_b);
 		bass_std = nat_data(index).bass_rate_std(ind_b);
 
-		errorbar(pitches, oboe_rate, oboe_std/sqrt(20), 'b', 'LineWidth', linewidth, ...
-			'CapSize',3);
+		errorbar(pitches, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
+			'LineWidth', linewidth, 'CapSize',3);
 		hold on
-		errorbar(pitches, bass_rate, bass_std/sqrt(20), 'r', 'LineWidth', linewidth,...
-			'CapSize',3);
+		errorbar(pitches, bass_rate, bass_std/sqrt(20), 'color',colorsData{2}, ...
+			'LineWidth', linewidth, 'CapSize',3);
 		box off 
 		grid on
-		xticks([110 220 440 660])
+		xticks([50 100 250 500 1000])
+		ylim([0 ylimits(igood, iexample)])
 		yticks([0 25 50 75 100])
 
 		if iexample == 1
 			xticklabels([])
 			ylabel('Avg Rate (sp/s)               ')
 		else
-			xlabel('F0 (Hz)')
-			xticklabels([110 220 440 660])
+			xlabel('F0 (kHz)')
+			xticklabels([50 100 250 500 1000]/1000)
 		end
 		set(gca, 'fontsize', fontsize)
 
 		if iexample == 1 && igood == 2
-			hleg = legend('Oboe', 'Bassoon', 'fontsize', legsize);
+			hleg = legend('Oboe', 'Bassoon', 'fontsize', legsize, ...
+				'numcolumns', 2, 'box', 'off', 'position', [0.0738,0.4264,0.1474,0.0462]);
 			hleg.ItemTokenSize = [8, 8];
 		end
 	end
@@ -99,8 +108,8 @@ isMTF(4,:) = strcmp(MTFs, 'F');
 h(5) = subplot(4, 6, [2, 3, 8, 9]);
 hold on
 for iMTF = 1:4
-	scatter(CFs(isMTF(iMTF, :)), accuracy_rate(isMTF(iMTF, :)), 10, 'filled', ...
-		'MarkerEdgeColor','k')
+	scatter(CFs(isMTF(iMTF, :)), accuracy_rate(isMTF(iMTF, :)), scattersize, 'filled', ...
+		'MarkerEdgeColor','k', 'MarkerFaceColor',colorsMTF{iMTF})
 end
 ylim([40 100])
 set(gca, 'xscale', 'log')
@@ -118,10 +127,11 @@ CFs = [neuron_time_timbre.CF];
 h(6) = subplot(4, 6, [14, 15, 20, 21]);
 hold on
 for iMTF = 1:4
-	scatter(CFs(isMTF(iMTF, :)), accuracy_time(isMTF(iMTF, :)), 10, 'filled', ...
-		'MarkerEdgeColor','k')
+	scatter(CFs(isMTF(iMTF, :)), accuracy_time(isMTF(iMTF, :)), scattersize, 'filled', ...
+		'MarkerEdgeColor','k', 'MarkerFaceColor',colorsMTF{iMTF})
 end
-hleg = legend('BE', 'BS', 'Hybrid', 'Flat', 'fontsize', legsize);
+hleg = legend('BE', 'BS', 'Hybrid', 'Flat', 'fontsize', legsize, ...
+	'numcolumns', 2, 'box', 'off', 'position', [0.301,0.402,0.1214,0.080]);
 hleg.ItemTokenSize = [8, 8];
 set(gca, 'xscale', 'log')
 xlabel('CFs (Hz)')
@@ -145,20 +155,25 @@ for iplot = 1:2
 	end
 	edges = linspace(0, 100, 51);
 	if iplot == 1
-		histogram(accuracy,edges, 'Orientation','horizontal')
+		histogram(accuracy,edges, 'Orientation','horizontal', 'FaceColor', colorsTimbre)
 		ylim([40 85])
 		ylabel('Timing Prediction Accuracy (%)')
-		yline(50, 'k', 'LineWidth',linewidth)
-		yline(mean(accuracy), 'r', 'LineWidth',linewidth)
-		yline(median(accuracy), 'r--', 'LineWidth',linewidth)
+		yline(50, 'color', [0.4 0.4 0.4], 'LineWidth',linewidth)
+		yticks(0:5:100)
+		xticks([0 30])
+		%yline(mean(accuracy), 'r', 'LineWidth',linewidth)
+		%yline(median(accuracy), 'r--', 'LineWidth',linewidth)
 	else
-		histogram(accuracy,edges)
+		histogram(accuracy,edges, 'FaceColor', colorsTimbre)
 		xlim([40 85])
 		xlabel('Rate Prediction Accuracy (%)')
-		xline(50, 'k', 'LineWidth',linewidth)
-		xline(mean(accuracy), 'r', 'LineWidth',linewidth)
-		xline(median(accuracy), 'r--', 'LineWidth',linewidth)
+		xline(50, 'color', [0.4 0.4 0.4], 'LineWidth',linewidth)
+		xticks(0:5:100)
+		yticks([0 30])
+		%xline(mean(accuracy), 'r', 'LineWidth',linewidth)
+		%xline(median(accuracy), 'r--', 'LineWidth',linewidth)
 	end
+	box off
 	hold on
 
 	%legend('', sprintf('Chance = 50%%'), ...
@@ -172,21 +187,24 @@ end
 % Scatter
 h(9) = subplot(4, 6, [5, 6, 11, 12, 17, 18]);
 hold on
-scatter(accuracy_rate, accuracy_time,10, 'filled', 'MarkerEdgeColor','k', ...
-	MarkerFaceAlpha=0.5)
+scatter(accuracy_rate, accuracy_time,scattersize, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceAlpha', 0.5, 'MarkerFaceColor', colorsTimbre)
 plot([0, 100], [0, 100], 'k')
+plot([0 50], [50, 50], 'color', [0.4 0.4 0.4])
+plot([50 50], [0, 50], 'color', [0.4 0.4 0.4])
 xlim([40 85])
 ylim([40 85])
 
 mdl = fitlm(accuracy_rate, accuracy_time);
 x = linspace(0, 100, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 yticks(0:5:100)
 xticks(0:5:100)
-hleg = legend('Neuron', 'Unity', ...
+hleg = legend('Neuron', 'Unity','Chance','', ...
 	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
-	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize);
+	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize, ...
+	'position', [0.682,0.720,0.1877,0.1487], 'box', 'off');
 hleg.ItemTokenSize = [8, 8];
 title('Rate vs Timing Comparison')
 set(gca, 'fontsize', fontsize)

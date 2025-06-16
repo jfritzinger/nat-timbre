@@ -24,12 +24,16 @@ accuracy = [neuron_time_F0.accuracy]*100;
 %% Set up figure 
 
 figure('position', [50 50 6.7*ppi 3*ppi])
-scattersize = 5;
+scattersize = 8;
 titlesize = 9;
 fontsize = 8;
 labelsize = 12;
 legsize = 7;
 linewidth = 1;
+colorsData = {"#0072BD", "#D95319"};
+colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
+colorsPitch = '#0072B2';
+
 
 %% A. 
 
@@ -42,7 +46,7 @@ accuracy_time = accuracy;
 h(1) = subplot(3, 3, 1);
 set(gca, 'fontsize', fontsize)
 edges = linspace(0, 20, 21);
-histogram(accuracy_rate,edges)
+histogram(accuracy_rate,edges, 'FaceColor', colorsPitch)
 xlabel('Rate Accuracy')
 grid on
 box off 
@@ -51,7 +55,7 @@ set(gca, 'fontsize', fontsize)
 h(2) = subplot(3, 3, 2);
 set(gca, 'fontsize', fontsize)
 edges = linspace(0, 60, 21);
-histogram(accuracy_time, edges, 'Orientation','horizontal')
+histogram(accuracy_time, edges, 'Orientation','horizontal', 'FaceColor', colorsPitch)
 ylabel('Timing Accuracy')
 grid on
 box off
@@ -59,7 +63,8 @@ set(gca, 'fontsize', fontsize)
 
 h(3) = subplot(3, 3, 3);
 hold on
-scatter(accuracy_rate, accuracy_time, scattersize, 'filled', 'MarkerEdgeColor','k')
+scatter(accuracy_rate, accuracy_time, scattersize, 'filled',...
+	'MarkerEdgeColor','k', 'MarkerFaceColor', colorsPitch)
 plot([0 100], [0 100], 'k')
 grid on
 xlim([0 20])
@@ -80,7 +85,8 @@ yticklabels([])
 h(4) = subplot(3, 3, 4);
 
 CFs = [neuron_time_F0.CF];
-scatter(CFs, accuracy(1,:), scattersize, 'filled', 'MarkerEdgeColor','k');
+scatter(CFs, accuracy(1,:), scattersize, 'filled', 'MarkerEdgeColor',...
+	'k', 'MarkerFaceColor', colorsPitch);
 set(gca, 'xscale', 'log')
 hold on
 set(gca, 'fontsize', fontsize)
@@ -96,19 +102,24 @@ h(5) = subplot(3, 3, 5);
 MTFs = {neuron_time_F0.MTF};
 MTF_types = unique(MTFs);
 hold on
-for iMTF = 1:5
-	ind = strcmp(MTFs, MTF_types{iMTF});
+for iMTF = 1:4
+	if iMTF == 4
+		ind = strcmp(MTFs, MTF_types{iMTF}) | strcmp(MTFs, MTF_types{iMTF+1});
+	else
+		ind = strcmp(MTFs, MTF_types{iMTF});
+	end
 	accur = accuracy(1,ind);
 	num_units = length(accur);
 
-	swarmchart(ones(num_units, 1)*iMTF, accur, scattersize)
+	RGB = hex2rgb(colorsMTF{iMTF});
+	swarmchart(ones(num_units, 1)*iMTF, accur, scattersize, RGB)
 
 	mean_vals(iMTF) = mean(accur);
 	std_vals(iMTF) = std(accur)/sqrt(length(accur));
 end
-errorbar(1:5, mean_vals, std_vals, 'k')
-xticks(1:5)
-xticklabels(MTF_types)
+errorbar(1:4, mean_vals, std_vals, 'k')
+xticks(1:4)
+xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
 ylabel('Accuracy')
 
@@ -135,7 +146,8 @@ PC2_score(PC2_score==0) = [];
 
 
 % Plot PCA2 score vs beta weights 
-scatter(PC2_score, accuracy(1,:), scattersize, 'filled', 'MarkerEdgeColor','k')
+scatter(PC2_score, accuracy(1,:), scattersize, 'filled',...
+	'MarkerEdgeColor','k', 'MarkerFaceColor', colorsPitch)
 xlabel('PC2 RVF score')
 ylabel('Accuracy')
 hold on
@@ -143,7 +155,7 @@ hold on
 mdl = fitlm(PC2_score, accuracy(1,:));
 x = linspace(-2, 1, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 % hleg = legend('Neuron', ...
 % 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', 7, ...
 % 	'location', 'northwest', 'box', 'off');
@@ -168,13 +180,14 @@ for ii = 1:297
 end
 VS_all(VS_all==0) = [];
 
-scatter(VS_all, accuracy, scattersize, 'filled', 'MarkerEdgeColor','k');
+scatter(VS_all, accuracy, scattersize, 'filled',...
+	'MarkerEdgeColor','k', 'MarkerFaceColor', colorsPitch);
 hold on
 
 mdl = fitlm(VS_all, accuracy);
 x = linspace(0, 0.6, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 % hleg = legend('Neuron', ...
 % 	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'box', 'off');
 % hleg.ItemTokenSize = [8, 8];
@@ -232,8 +245,8 @@ for i = 1:nneurons
 	accuracy_bass1(i) = neuron_time_bass(ind_bass).accuracy*100;
 end
 
-scatter(accuracy_bass1, accuracy_oboe, 10, 'filled', 'MarkerEdgeColor','k', ...
-	'MarkerFaceAlpha',0.5)
+scatter(accuracy_bass1, accuracy_oboe, scattersize, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceAlpha',0.5, 'MarkerFaceColor', colorsPitch)
 hold on
 plot([0, 100], [0, 100], 'k')
 xlim([0 65])
@@ -242,7 +255,7 @@ ylim([0 30])
 mdl = fitlm(accuracy_bass1, accuracy_oboe);
 x = linspace(0, 100, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 yticks(0:10:100)
 xticks(0:10:100)
 % hleg = legend('Neuron', 'Unity', ...

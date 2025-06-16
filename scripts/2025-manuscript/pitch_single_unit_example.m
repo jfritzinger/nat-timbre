@@ -40,17 +40,35 @@ spont_color = [0.4 0.4 0.4];
 CF_color = [0.7 0.7 0.7];
 
 %% A. 
+% Get bassoon stimulus
+tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
+target = 'Bassoon';
+listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
+files = {listing.name};
+note_names = extractBetween(files, 'ff.', '.');
+[~, index] = ismember(note_names, tuning.Note);
+F0s = round(tuning.Frequency(index));
+[F0s, ~] = sort(F0s);
 
 % Plot confusion matrix
 h(1) = subplot(3, 4, 1);
 C = confusionmat(neuron_time_F0(index).response, ...
 	neuron_time_F0(index).validationPredictions);
+
 %confusionchart(C)
-imagesc(C)
+x = F0s;
+y = F0s;
+pcolor(x, y, C, 'EdgeColor','none')
+set(gca, 'xscale', 'log', 'yscale', 'log')
+xticks([60 100 250 500])
+yticks([60 100 250 500])
+
 set(gca,'fontsize',fontsize)
-xlabel('Prediction Class')
-ylabel('True Class')
+xlabel('Predicted F0 (Hz)')
+ylabel('Acutal F0 (Hz)')
 title('Confusion Matrix', 'fontsize', titlesize)
+
+
 
 %% B. 
 h(2) = subplot(4, 4, 2);

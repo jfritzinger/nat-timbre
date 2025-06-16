@@ -33,7 +33,9 @@ titlesize = 9;
 fontsize = 8;
 labelsize = 12;
 legsize = 7;
-
+colorsData = {"#0072BD", "#D95319"};
+colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
+colorsTimbre = '#1b9e77';
 
 %% A. Example 
 
@@ -44,7 +46,8 @@ h = plot_example_populations_timbre();
 h(4) = subplot(4, 3, 5);
 edges = linspace(0, 1, 41);
 hold on
-histogram(pop_rate_timbre.shuffled_accuracy, edges)
+histogram(pop_rate_timbre.shuffled_accuracy, edges, ...
+	'FaceColor', 'k')
 xline(pop_rate_timbre.accuracy, '--r')
 xline(0.5, 'k')
 xlim([0 1])
@@ -60,7 +63,8 @@ grid on
 h(5) = subplot(4, 3, 6);
 
 hold on
-scatter(accuracy_rate, abs(beta_weights),scattersize, 'filled', 'MarkerEdgeColor','k')
+scatter(accuracy_rate, abs(beta_weights),scattersize, 'filled', ...
+	'MarkerEdgeColor','k', 'MarkerFaceColor',colorsTimbre)
 xlabel('Single-Unit Rate Accuracy')
 xlim([40 100])
 xticks(0:20:100)
@@ -72,7 +76,7 @@ yticks(0:0.5:5)
 mdl = fitlm(accuracy_rate, abs(beta_weights));
 x = linspace(0, 100, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 hleg = legend('Neuron',sprintf('p=%0.04f',mdl.Coefficients{2,4}), ...
 	'fontsize', legsize, 'location', 'northwest', 'box', 'off');
 hleg.ItemTokenSize = [8, 8];
@@ -111,14 +115,15 @@ h(6) = subplot(4, 3, 7);
 % set(gca, 'fontsize', fontsize)
 
 CFs = pop_rate_timbre.CFs;
-scatter(CFs, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k');
+scatter(CFs, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceColor',colorsTimbre);
 hold on
 set(gca, 'xscale', 'log')
 
 mdl = fitlm(CFs, beta_weights);
 x = linspace(300, 14000, 50);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 hleg = legend('Neuron', ...
 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
 	'location', 'northwest', 'box', 'off');
@@ -150,7 +155,8 @@ for iMTF = 1:4
 	[weights_ordered, order_ind] = sort(beta_weights(ind));
 	num_units = length(weights_ordered);
 
-	swarmchart(ones(num_units, 1)*iMTF, weights_ordered, scattersize)
+	RGB = hex2rgb(colorsMTF{iMTF});
+	swarmchart(ones(num_units, 1)*iMTF, weights_ordered, scattersize, RGB)
 	ylim([-2 2])
 
 	mean_vals(iMTF) = mean(weights_ordered);
@@ -177,7 +183,8 @@ PCA_scores = [nat_data.RVF_PC2];
 PC2_score = PCA_scores(sesh)';
 
 % Plot PCA2 score vs beta weights 
-scatter(PC2_score, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k')
+scatter(PC2_score, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k', ...
+	'MarkerFaceColor',colorsTimbre)
 xlabel('PC2 RVF score')
 ylabel('Beta Weights')
 hold on
@@ -185,7 +192,7 @@ hold on
 mdl = fitlm(PC2_score, beta_weights);
 x = linspace(-2, 1, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
+plot(x, y, ':k')
 hleg = legend('Neuron', ...
 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
 	'location', 'northwest', 'box', 'off');
@@ -223,7 +230,12 @@ load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
 
 hold on
 for iCF = 1:5
-	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize-4)
+	if iCF == 1
+		RGB = hex2rgb(colorsTimbre);
+	else
+		RGB = hex2rgb(colorsMTF{iCF-1});
+	end
+	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize-4, RGB)
 end
 xlabel('MTF Groups')
 xticks(1:5)

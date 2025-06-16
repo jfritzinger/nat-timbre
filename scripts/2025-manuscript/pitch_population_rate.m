@@ -1,6 +1,6 @@
 %% plot_pitch_population_rate
 clear
-save_fig = 1;
+save_fig = 0;
 
 %% Set up figure
 [base, ~, ~, ppi] = getPathsNT();
@@ -13,6 +13,7 @@ legsize = 7;
 titlesize = 10;
 labelsize = 12;
 scattersize = 10;
+colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
 
 %% Plot each row as bassoon or oboe
 
@@ -107,7 +108,7 @@ for iinstru = 1:2
 	hold on
 	for iMTF = 1:4
 		scatter(CFs(isMTF(iMTF, :)), beta_mean(isMTF(iMTF, :)), 10, 'filled', ...
-			'MarkerEdgeColor','k')
+			'MarkerEdgeColor','k', 'MarkerFaceColor',colorsMTF{iMTF})
 	end
 	set(gca, 'xscale', 'log')
 	xticks([100 200 500 1000 2000 5000 10000])
@@ -163,7 +164,6 @@ for iinstru = 1:2
 	%y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 	plot(x, y, 'r')
 
-	%title(['R^2 = ' num2str(r2)])
 	if iinstru == 2
 		xlabel('Actual F0 (Hz)')
 	end
@@ -176,6 +176,12 @@ for iinstru = 1:2
 	xticklabels([10 20 50 100 200 500 1000 1600]/1000)
 	yticks([10 20 50 100 200 500 1000 1600])
 	yticklabels([10 20 50 100 200 500 1000 1600]/1000)
+	grid on 
+
+	% Annotate 
+	msg = ['R^2 = ' num2str(round(r2, 2))];
+	text(0.05, 0.95, msg, 'Units', 'normalized', ...
+			'VerticalAlignment', 'top', 'FontSize',legsize)
 
 	%% F. 
 
