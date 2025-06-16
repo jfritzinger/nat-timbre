@@ -11,7 +11,9 @@ msg{2} = sprintf('%0.0f - %0.0f Hz F0', pitch(21), pitch(end));
 [base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 	"neuron_time_F0")
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+% load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
+% 	"neuron_time_timbre")
+% neuron_time_F0 = neuron_time_timbre;
 
 %% Plot accuracy of each neuron
 figure('Position',[560,618,798,230])
@@ -236,6 +238,24 @@ figure
 edges = linspace(0, 60, 21);
 histogram(accuracy_time, edges)
 
+%% Plot imagesc for diag for each neuron 
+
+[~,best_ind] = sort(abs(accuracy(1,:)), 'ascend' );
+for ii = 1:287
+	C_acc(ii,:) = diag(neuron_time_F0(best_ind(ii)).C);
+end
+
+x = getF0s(target);
+y = 1:287;
+
+figure
+pcolor(x, y, C_acc, 'EdgeColor','none')
+set(gca, 'xscale', 'log')
+xticks([60 100 200 350 550])
+xlabel('F0 (Hz)')
+ylabel('All Neurons')
+colorbar
+title('Correct predictions of\newlineeach F0 for all neurons')
 
 %% Load and plot results for timbre all F0s together 
 % 

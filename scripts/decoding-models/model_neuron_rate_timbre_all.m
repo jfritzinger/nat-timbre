@@ -9,16 +9,7 @@ load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Shape data into model input
 
-% Find all rows with bassoon in them
-sesh = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	rate2 = nat_data(ii).oboe_rate;
-	if ~isempty(rate) && ~isempty(rate2)
-		sesh = [sesh ii];
-	end
-end
-num_data = length(sesh);
+[sesh, num_data] = getTimbreSessions(nat_data);
 ind_b = 25:40;
 ind_o = [1 3:17];
 target = 1;
@@ -37,7 +28,15 @@ for ind = 1:num_data
 		data(idx, :) = data_1;
 	end
 
+	% Rearrange data 
+	data_all = [data(:,1); data(:,2)];
+	T = array2table(data_all);
+	response = [ones(1, 320) repmat(2, 1, 320)]';
+	T.Instrument = response;
+
 	%% Calculate simple rate prediction
+
+	[trainedClassifier, accuracy_SVM(ind)] = trainClassifierNeuronTimbre(T);
 
 	% Initialize variables to store results
 	closest = zeros(size(data, 1), size(data, 2));
@@ -95,22 +94,51 @@ for ind = 1:num_data
 	%confusionchart(C)
 
 	% Set up struct to save data
-	neuron_rate_timbre(ind).putative = nat_data(index).putative;
-	neuron_rate_timbre(ind).ind_b = ind_b(target);
-	neuron_rate_timbre(ind).ind_o = ind_o(target);
-	neuron_rate_timbre(ind).CF = nat_data(index).CF;
-	neuron_rate_timbre(ind).MTF = nat_data(index).MTF;
-	neuron_rate_timbre(ind).rate_rep = data;
-	neuron_rate_timbre(ind).actual = actual2;
-	neuron_rate_timbre(ind).closest = closest2;
-	neuron_rate_timbre(ind).accuracy = accuracy(ind);
-	neuron_rate_timbre(ind).C = C;
+	% neuron_rate_timbre(ind).putative = nat_data(index).putative;
+	% neuron_rate_timbre(ind).ind_b = ind_b(target);
+	% neuron_rate_timbre(ind).ind_o = ind_o(target);
+	% neuron_rate_timbre(ind).CF = nat_data(index).CF;
+	% neuron_rate_timbre(ind).MTF = nat_data(index).MTF;
+	% neuron_rate_timbre(ind).rate_rep = data;
+	% neuron_rate_timbre(ind).actual = actual2;
+	% neuron_rate_timbre(ind).closest = closest2;
+	% neuron_rate_timbre(ind).accuracy = accuracy(ind);
+	% neuron_rate_timbre(ind).C = C;
 
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
-%% Save data
+%% Plot outputs 
 
-[base, datapath, savepath, ppi] = getPathsNT();
-save(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
-	"neuron_rate_timbre")
+figure
+nexttile
+scatter(accuracy, accuracy_SVM, 'filled', 'MarkerFaceAlpha',0.5)
+hold on
+plot([0.4 1], [0.4 1])
+ylabel('SVM Accuracy')
+xlabel('Rate Discrimination Accuracy')
+title('Comparing SVM to manual discrimination')
+
+% Load in timing models
+filepath_timing = fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat');
+load(filepath_timing, "neuron_time_timbre")
+accuracy_time = [neuron_time_timbre.accuracy];
+nexttile
+scatter(accuracy, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
+hold on
+plot([0.4 1], [0.4 1])
+ylabel('Time')
+xlabel('Rate Discrimination Accuracy')
+
+nexttile
+scatter(accuracy_SVM, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
+hold on
+plot([0.4 1], [0.4 1])
+ylabel('Time')
+xlabel('SVM Rate Accuracy')
+
+%% Save data
+% 
+% [base, datapath, savepath, ppi] = getPathsNT();
+% save(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
+% 	"neuron_rate_timbre")

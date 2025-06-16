@@ -28,7 +28,7 @@ ind_b = 25:40;
 ind_o = [1 3:17];
 
 nmodels = 28;
-num_neurons = [1:4 5:5:50 1:4 5:5:50];
+num_neurons = [1:4 5:5:50 50:10:100 1:4 5:5:50];
 for imodel = 1:nmodels
 
 	if imodel < 15 % 6 good models 

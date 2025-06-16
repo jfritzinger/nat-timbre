@@ -24,10 +24,8 @@ note_names = extractBetween(files, 'ff.', '.');
 F0s1 = tuning.Frequency(index);
 [F0s1, order] = sort(F0s1);
 response = reshape(repmat(F0s1, 1, 20)', 1, []);
-response = log10(response)';
 
 %% Get all rates for each repetition for bassoon (one example neuron)
-
 
 putative = 'R29_TT3_P2_N06'; % Good
 index = find(strcmp({nat_data.putative}, putative));

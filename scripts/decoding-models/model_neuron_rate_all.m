@@ -2,20 +2,12 @@
 
 %% Load in spreadsheet 
 
-[base, datapath, savepath, ppi] = getPathsNT();
+[base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 %% Find all rows with bassoon and oboe in them
 
-sesh = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	rate2 = nat_data(ii).oboe_rate;
-	if ~isempty(rate) && ~isempty(rate2)
-		sesh = [sesh ii];
-	end
-end
-num_data = length(sesh);
+[sesh, num_data] = getTimbreSessions(nat_data);
 
 %% Set responses 
 % 75 * 20 = 1500 responses
@@ -129,5 +121,8 @@ figure
 histogram(accuracy)
 hold on
 xline(1/75)
+
+%% Run using classification model 
+
 
 

@@ -83,7 +83,7 @@ for ind = 1:num_data
 
 	% Call SVM
 	[trainedClassifier, validationAccuracy, validationPredictions] = ...
-		trainClassifierNeuronTimeTimbre(T);
+		trainClassifierTimeTimbre(T);
 	C = confusionmat(validationPredictions, T.Instrument);
 	accuracy_all(ind) = sum(diag(C)) / sum(C, "all");
 
@@ -96,6 +96,38 @@ for ind = 1:num_data
 	neuron_time_timbre(ind).prediction = validationPredictions;
 	neuron_time_timbre(ind).accuracy = accuracy_all(ind);
 	neuron_time_timbre(ind).C = C;
+
+	h = [];
+	clear h_bass h_oboe
+	for target = 1:16
+
+		% Get data
+		spikes_bass = nat_data(index).bass_spikerate{ind_b(target)}/1000; % ms
+		spikereps_bass = nat_data(index).bass_spikerep{ind_b(target)};
+		spikes_oboe = nat_data(index).oboe_spikerate{ind_o(target)}/1000;
+		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
+
+		% Arrange data for SVM
+		min_dis = 5;
+		edges = 0:min_dis:300;
+		t = 0+min_dis/2:min_dis:300-min_dis/2;
+		for irep = 1:20
+			h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
+			h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
+		end
+		h_all = [h_bass; h_oboe];
+		h = [h; h_all];
+	end
+
+	% Put data into table
+	T = array2table(h);
+	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+
+	% Call SVM
+	[trainedClassifier, validationAccuracy, validationPredictions] = ...
+		trainClassifierTimeTimbre(T);
+	C = confusionmat(validationPredictions, T.Instrument);
+	accuracy_60(ind) = sum(diag(C)) / sum(C, "all");
 
 	% Plots
 	% figure
@@ -123,8 +155,8 @@ for ind = 1:num_data
 		num_data, ind/num_data*100, accuracy_all(ind)*100)
 end
 
-save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'), ...
-	"neuron_time_timbre", '-v7.3')
+% save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'), ...
+% 	"neuron_time_timbre", '-v7.3')
 
 %% Plot accuracy of each neuron
 
