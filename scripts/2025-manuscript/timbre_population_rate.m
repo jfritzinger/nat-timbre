@@ -1,6 +1,6 @@
 %% timbre_population
 clear 
-save_fig = 0;
+save_fig = 1;
 
 %% Load in data 
 
@@ -36,6 +36,7 @@ legsize = 7;
 colorsData = {"#0072BD", "#D95319"};
 colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
 colorsTimbre = '#1b9e77';
+linewidth = 1;
 
 %% A. Example 
 
@@ -169,144 +170,191 @@ xlabel('MTF Groups')
 ylabel('Beta Weights')
 
 tableMTF = table(MTFs', beta_weights);
-anova(tableMTF, 'beta_weights')
+%anova(tableMTF, 'beta_weights')
 % [~,~,stats] = anova1(beta_weights, MTFs);
 % [c,~,~,gnames] = multcompare(stats);
 set(gca, 'fontsize', fontsize)
 grid on
 
 %% F. Beta weights vs PCA for RVF 
+% 
+% h(8) = subplot(4, 3, 9);
+% 
+% PCA_scores = [nat_data.RVF_PC2];
+% PC2_score = PCA_scores(sesh)';
+% 
+% % Plot PCA2 score vs beta weights 
+% scatter(PC2_score, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k', ...
+% 	'MarkerFaceColor',colorsTimbre)
+% xlabel('PC2 RVF score')
+% ylabel('Beta Weights')
+% hold on
+% 
+% mdl = fitlm(PC2_score, beta_weights);
+% x = linspace(-2, 1, 20);
+% y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+% plot(x, y, ':k')
+% hleg = legend('Neuron', ...
+% 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
+% 	'location', 'northwest', 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
+% set(gca, 'fontsize', fontsize)
+% ylim([-1.8 3])
+% grid on
 
-h(8) = subplot(4, 3, 9);
-
-PCA_scores = [nat_data.RVF_PC2];
-PC2_score = PCA_scores(sesh)';
-
-% Plot PCA2 score vs beta weights 
-scatter(PC2_score, beta_weights, scattersize, 'filled', 'MarkerEdgeColor','k', ...
-	'MarkerFaceColor',colorsTimbre)
-xlabel('PC2 RVF score')
-ylabel('Beta Weights')
-hold on
-
-mdl = fitlm(PC2_score, beta_weights);
-x = linspace(-2, 1, 20);
-y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, ':k')
-hleg = legend('Neuron', ...
-	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
-	'location', 'northwest', 'box', 'off');
-hleg.ItemTokenSize = [8, 8];
-set(gca, 'fontsize', fontsize)
-ylim([-1.8 3])
-grid on
-
-%% H. Subset CF groups 
-h(9) = subplot(4, 3, 10);
-
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
-	"accuracies", "CF_names")
-
-hold on
-for iCF = 1:7
-	swarmchart(ones(size(accuracies, 2), 1)*iCF, accuracies(iCF,:), scattersize-4)
-end
-xlabel('CF Groups')
-xticks(1:7)
-xticklabels(CF_names)
-max_acc = max(accuracies, [], 2);
-plot(1:7, max_acc, 'k')
-mean_acc = median(accuracies, 2);
-plot(1:7, mean_acc, 'k')
-set(gca, 'fontsize', fontsize)
-ylabel('Model Accuracy')
-grid on
-
-%% I. Subset MTF groups 
+%% G. Subset CF groups 
 h(10) = subplot(4, 3, 11);
 
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
-	"accuracy_all", "MTF_names")
+colorsCF = [27/256, 158/256, 119/256;0.0660 0.4430 0.7450; 0.8660 0.3290 0.0000;0.9290 0.6940 0.1250];
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF2.mat'), ...
+	"accuracy", "std_acc", "MTF_names")
+acc_MTF = accuracy;
+std_MTF = std_acc;
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF2.mat'), ...
+	"accuracy", "std_acc", "CF_groups")
+num_subset = [1, 2, 3, 4, 5:5:90];
+
+colorsMTF = {'#1b9e77', '#648FFF', '#DC267F', '#785EF0', '#FFB000'};
+hold on
+for iMTF = 1:5
+	plot(num_subset, acc_MTF(iMTF,:), 'Color', colorsMTF{iMTF}, 'linewidth', linewidth)
+end
+ylabel('Accuracy')
+xlabel('# Neurons in Model')
+hleg = legend({'Best Neurons', MTF_names{2:5}}, 'Location','southeast');
+hleg.ItemTokenSize = [8, 8];
+
+grid on 
+box off
+set(gca, 'fontsize', fontsize)
+xticks(0:20:100)
+xtickangle(0)
+
+
+% load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+% 	"accuracies", "CF_names")
+% 
+% hold on
+% for iCF = 1:7
+% 	swarmchart(ones(size(accuracies, 2), 1)*iCF, accuracies(iCF,:), scattersize-4)
+% end
+% xlabel('CF Groups')
+% xticks(1:7)
+% xticklabels(CF_names)
+% max_acc = max(accuracies, [], 2);
+% plot(1:7, max_acc, 'k')
+% mean_acc = median(accuracies, 2);
+% plot(1:7, mean_acc, 'k')
+% set(gca, 'fontsize', fontsize)
+% ylabel('Model Accuracy')
+% grid on
+
+%% H. Subset accuracies 
+h(9) = subplot(4, 3, 10);
 
 hold on
-for iCF = 1:5
-	if iCF == 1
-		RGB = hex2rgb(colorsTimbre);
-	else
-		RGB = hex2rgb(colorsMTF{iCF-1});
-	end
-	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize-4, RGB)
+for i = 1:4
+	plot(num_subset, accuracy(i,:), 'linewidth', linewidth, 'Color',colorsCF(i,:))
 end
-xlabel('MTF Groups')
-xticks(1:5)
-xticklabels(MTF_names)
-ylim([0.78 1])
-max_acc = max(accuracy_all, [], 2);
-plot(1:5, max_acc, 'k')
-mean_acc = median(accuracy_all, 2);
-plot(1:5, mean_acc, 'k')
-set(gca, 'fontsize', fontsize)
-ylabel('Model Accuracy')
-grid on
-
-%% G. Subset accuracies 
-h(11) = subplot(4, 3, 12);
-
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Best.mat'), ...
-	"pop_rate_timbre_best")
-
-nneurons = [1:4 5:5:50];
-accuracy_bad = [pop_rate_timbre_best(15:28).accuracy];
-plot(nneurons, accuracy_bad);
-
-hold on 
-accuracy_good = [pop_rate_timbre_best(1:14).accuracy];
-plot(nneurons, accuracy_good);
+ylabel('Accuracy')
 xlabel('# Neurons in Model')
-ylabel('Model Accuracy')
-grid on
-box off
-hleg = legend('Worst', 'Best', 'fontsize', legsize, 'location', 'best', 'box', 'off');
+hleg = legend('Best Neurons', 'CF = 0-2 kHz', 'CF = 2-4 kHz', ...
+	'CF = 4-8 kHz', 'Location','southeast');
 hleg.ItemTokenSize = [8, 8];
+
+grid on 
+box off
 set(gca, 'fontsize', fontsize)
+xticks(0:20:100)
+xtickangle(0)
+
+% load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Best.mat'), ...
+% 	"pop_rate_timbre_best")
+% nneurons = [1:4 5:5:50];
+% accuracy_bad = [pop_rate_timbre_best(15:28).accuracy];
+% plot(nneurons, accuracy_bad);
+% 
+% hold on 
+% accuracy_good = [pop_rate_timbre_best(1:14).accuracy];
+% plot(nneurons, accuracy_good);
+% xlabel('# Neurons in Model')
+% ylabel('Model Accuracy')
+% grid on
+% box off
+% hleg = legend('Worst', 'Best', 'fontsize', legsize, 'location', 'best', 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
+% set(gca, 'fontsize', fontsize)
+
+
+
+%% I. Subset MTF groups 
+% h(10) = subplot(4, 3, 11);
+% 
+% load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
+% 	"accuracy_all", "MTF_names")
+% 
+% hold on
+% for iCF = 1:5
+% 	if iCF == 1
+% 		RGB = hex2rgb(colorsTimbre);
+% 	else
+% 		RGB = hex2rgb(colorsMTF{iCF-1});
+% 	end
+% 	swarmchart(ones(size(accuracy_all, 2), 1)*iCF, accuracy_all(iCF,:), scattersize-4, RGB)
+% end
+% xlabel('MTF Groups')
+% xticks(1:5)
+% xticklabels(MTF_names)
+% ylim([0.78 1])
+% max_acc = max(accuracy_all, [], 2);
+% plot(1:5, max_acc, 'k')
+% mean_acc = median(accuracy_all, 2);
+% plot(1:5, mean_acc, 'k')
+% set(gca, 'fontsize', fontsize)
+% ylabel('Model Accuracy')
+% grid on
+
+
 
 %% Set position
 
 left = linspace(0.1, 0.74, 3);
-bottom = linspace(0.13, 0.75, 3);
-height = 0.21;
+bottom = [0.07 0.36 0.64];
+height1 = 0.21;
+height = 0.32;
 width = 0.23;
 
-set(h(3), 'Position', [left(1) bottom(3) width height/3])
-set(h(2), 'Position', [left(1) bottom(3)+height/3 width height/3])
-set(h(1), 'Position', [left(1) bottom(3)+height/3*2 width height/3])
+set(h(3), 'Position', [left(1) bottom(3) 0.87 height/3])
+set(h(2), 'Position', [left(1) bottom(3)+height/3 0.87 height/3])
+set(h(1), 'Position', [left(1) bottom(3)+height/3*2 0.87 height/3])
 
-set(h(4), 'position', [left(2) bottom(3) width height])
-set(h(5), 'position', [left(3) bottom(3) width height])
-set(h(6), 'position', [left(1) bottom(2) width height])
-set(h(7), 'position', [left(2) bottom(2) width height])
-set(h(8), 'position', [left(3) bottom(2) width height])
-set(h(9), 'position', [left(1) bottom(1) width height])
-set(h(10), 'position', [left(2) bottom(1) width height])
-set(h(11), 'position', [left(3) bottom(1) width height])
+set(h(4), 'position', [left(1) bottom(2) width height1])
+set(h(5), 'position', [left(1) bottom(1) width height1])
+
+set(h(6), 'position', [left(2) bottom(2) width height1])
+set(h(7), 'position', [left(3) bottom(2) width height1])
+%set(h(8), 'position', [left(3) bottom(2) width height])
+set(h(9), 'position', [left(2) bottom(1) width height1])
+set(h(10), 'position', [left(3) bottom(1) width height1])
+%set(h(11), 'position', [left(3) bottom(1) width height])
 
 
 %% Annotate 
 
-left = linspace(0.01, 0.68, 3);
-bottom = linspace(0.36, 0.97, 3);
+left = linspace(0.03, 0.68, 3);
+bottom = [0.3, 0.57, 0.97];
 
 label = {'A', 'B', 'C'};
-for ii = 1:3
+for ii = 1
 	annotation('textbox',[left(ii) bottom(3) 0.0826 0.0385],'String',label{ii},...
 		'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 end
-label = {'D', 'E', 'F'};
+label = {'B', 'C', 'D'};
 for ii = 1:3
 	annotation('textbox',[left(ii) bottom(2) 0.0826 0.0385],'String',label{ii},...
 		'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 end
-label = {'G', 'H', 'I'};
+label = {'E', 'F', 'G'};
 for ii = 1:3
 	annotation('textbox',[left(ii) bottom(1) 0.0826 0.0385],'String',label{ii},...
 		'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
@@ -315,6 +363,6 @@ end
 %% Save figure 
 
 if save_fig == 1
-	filename = 'fig3_timbre_population_rate';
+	filename = 'fig5_timbre_population_rate';
 	save_figure(filename)
 end
