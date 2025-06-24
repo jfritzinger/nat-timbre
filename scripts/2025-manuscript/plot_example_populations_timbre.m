@@ -7,12 +7,9 @@ load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Figure properties 
 
-scattersize = 5;
-titlesize = 9;
+scattersize = 15;
 fontsize = 8;
-labelsize = 12;
 legsize = 7;
-
 
 %% Create matrix of stimulus spectra 
 
@@ -92,49 +89,46 @@ end
 
 sesh = [];
 for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
+	rate = nat_data(ii).bass_norm_rate;
 	if ~isempty(rate)
 		sesh = [sesh ii];
 	end
 end
-num_data = length(sesh);
-bass_rate = [nat_data(sesh).bass_rate];
+bass_rate = [nat_data(sesh).bass_norm_rate];
 bass_CFs = [nat_data(sesh).CF];
 
 sesh = [];
 for ii = 1:length(nat_data)
-	rate = nat_data(ii).oboe_rate;
+	rate = nat_data(ii).oboe_norm_rate;
 	if ~isempty(rate)
 		sesh = [sesh ii];
 	end
 end
-num_data = length(sesh);
-oboe_rate = [nat_data(sesh).oboe_rate];
+oboe_rate = [nat_data(sesh).oboe_norm_rate];
 oboe_CFs = [nat_data(sesh).CF];
 
 %% Plot population of vector strengths 
 
 ind_b = 25:40;
 ind_o = [1 3:17];
-for ind = 8
-
+for ind = 4
 	F0 = F0s(ind);
 	dist = round(F0/4);
 
 	h(1) = subplot(4, 3, 1);
 	hold on
-	plot(f_all(ind_b(ind), :)/1000, mdB_all(ind_b(ind),:), 'LineWidth', 1, 'Color',"#0072BD");
+	plot(f_all(ind_b(ind), :)/1000, mdB_all(ind_b(ind),:), 'LineWidth', 0.8, 'Color',"#0072BD");
 	[pks, locs] = findpeaks(mdB_all(ind_b(ind),:), 'MinPeakDistance', dist);
 	freqs = f(locs);
-	plot(freqs/1000, pks, '--', 'LineWidth', 1.5, 'Color',"#0072BD");
+	plot(freqs/1000, pks, '--', 'LineWidth', 1, 'Color',"#0072BD");
 
-	plot(f_all_oboe(ind_o(ind), :)/1000, mdB_all_oboe(ind_o(ind),:), 'LineWidth', 1, 'Color',"#D95319");
+	plot(f_all_oboe(ind_o(ind), :)/1000, mdB_all_oboe(ind_o(ind),:), 'LineWidth', 0.8, 'Color',"#D95319");
 	[pks, locs] = findpeaks(mdB_all_oboe(ind_o(ind),:), 'MinPeakDistance', dist);
 	freqs = f(locs);
 	plot(freqs/1000, pks, '--', 'LineWidth', 1, 'Color',"#D95319");
 
 	ylabel('Mag.')
-	xlim([0.1 10])
+	xlim([0.2 10])
 	xlabel('Frequency (kHz)')
 	set(gca, 'xscale', 'log')
 	xticks([0.1 0.2 0.5 1 2 5 10])
@@ -147,12 +141,13 @@ for ind = 8
 	VS2 = VS(ind_b(ind),:);
 	h(2) = subplot(4, 3, 2);
  
-	scatter(CFs/1000, VS2, scattersize, 'filled', 'MarkerEdgeColor','k')
+	scatter(CFs/1000, VS2, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 	set(gca, 'xscale', 'log')
 	xticks([0.1 0.2 0.5 1 2 5 10])
-	xlim([0.1 10])
+	xlim([0.2 10])
 	xticklabels([])
-	yticks([0 100])
+	%yticks([0 100])
+	ylim([-0.5 1.5])
 	grid on
 	set(gca, 'fontsize', fontsize)
 	hleg = legend('Bassoon', 'fontsize', legsize, 'location', 'northwest', 'box', 'off');
@@ -162,13 +157,13 @@ for ind = 8
 	CFs = oboe_CFs;
 	VS2 = VS(ind_o(ind),:);
 	h(3) = subplot(4, 3, 3);
-	scatter(CFs/1000, VS2, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceColor',	"#D95319")
+	scatter(CFs/1000, VS2, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceColor',	"#D95319", 'MarkerFaceAlpha',0.5)
 	set(gca, 'xscale', 'log')
 	xticks([0.1 0.2 0.5 1 2 5 10])
-	xlim([0.1 10])
-	yticks([0 100])
-	ylabel('        Rate (sp/s)')
-	%ylim([0 1])
+	xlim([0.2 10])
+	%yticks([0 100])
+	ylabel('             Driven Rate (sp/s)')
+	ylim([-0.5 1.5])
 	xlabel('CF (kHz)')
 	grid on
 	set(gca, 'fontsize', fontsize)
