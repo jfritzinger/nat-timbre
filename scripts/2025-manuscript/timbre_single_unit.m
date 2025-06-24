@@ -43,6 +43,7 @@ for igood = 1:2
 		[ac, originalpos] = sort(accuracy_rate, 'descend');
 		h_ind = [1, 7];
 		ind_high=originalpos([2 3]);
+		%ind_high=originalpos([6 7]);
 	else
 		[ac, originalpos] = sort(accuracy_rate, 'ascend');
 		h_ind = [13 19];
@@ -98,6 +99,8 @@ end
 
 %% C. Plot rate accuracy vs CF (add MTF type)
 
+load(fullfile(base, 'stimuli_avg_env_diff.mat'), 'avg_env_diff', "freq")
+
 CFs = [neuron_rate_timbre.CF];
 MTFs = {neuron_rate_timbre.MTF};
 isMTF(1,:) = strcmp(MTFs, 'BE');
@@ -106,6 +109,7 @@ isMTF(3,:) = contains(MTFs, 'H');
 isMTF(4,:) = strcmp(MTFs, 'F');
 
 h(5) = subplot(4, 6, [2, 3, 8, 9]);
+yyaxis left
 hold on
 for iMTF = 1:4
 	scatter(CFs(isMTF(iMTF, :)), accuracy_rate(isMTF(iMTF, :)), scattersize, 'filled', ...
@@ -115,9 +119,16 @@ ylim([40 100])
 set(gca, 'xscale', 'log')
 xticks([100 200 500 1000 2000 5000 10000])
 xticklabels([])
+yline(50, 'k')
 ylabel('Rate Accuracy (%)')
 set(gca, 'fontsize', fontsize)
 grid on
+
+yyaxis right 
+plot(freq, avg_env_diff, 'k')
+yline(0, 'k')
+ylabel('Stim. Env. Diff. (dB SPL)')
+ylim([-80 17])
 
 %% D. Plot timing accuracy vs CF (add MTF type)
 
@@ -125,14 +136,14 @@ accuracy_time = [neuron_time_timbre.accuracy]*100;
 CFs = [neuron_time_timbre.CF];
 
 h(6) = subplot(4, 6, [14, 15, 20, 21]);
+yyaxis left
+
 hold on
 for iMTF = 1:4
 	scatter(CFs(isMTF(iMTF, :)), accuracy_time(isMTF(iMTF, :)), scattersize, 'filled', ...
 		'MarkerEdgeColor','k', 'MarkerFaceColor',colorsMTF{iMTF})
 end
-hleg = legend('BE', 'BS', 'Hybrid', 'Flat', 'fontsize', legsize, ...
-	'numcolumns', 2, 'box', 'off', 'position', [0.301,0.402,0.1214,0.080]);
-hleg.ItemTokenSize = [8, 8];
+
 set(gca, 'xscale', 'log')
 xlabel('CFs (Hz)')
 ylabel('Timing Accuracy (%)')
@@ -141,6 +152,18 @@ xticks([100 200 500 1000 2000 5000 10000])
 xticklabels([100 200 500 1000 2000 5000 10000]/1000)
 grid on
 ylim([40 100])
+yline(50, 'k')
+
+
+yyaxis right 
+plot(freq, avg_env_diff, 'k')
+yline(0, 'k')
+ylabel('Stim. Env. Diff. (dB SPL)')
+ylim([-80 17])
+
+hleg = legend('BE', 'BS', 'Hybrid', 'Flat','Chance', '', '', 'fontsize', legsize, ...
+	'numcolumns', 2, 'box', 'off', 'position', [0.301,0.402,0.1214,0.080]);
+hleg.ItemTokenSize = [8, 8];
 
 %% E. Plot histogram and scatters of rate vs timing
 
