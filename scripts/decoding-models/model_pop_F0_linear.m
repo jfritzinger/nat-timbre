@@ -144,9 +144,13 @@ confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
 accuracy = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
 title(sprintf('Accuracy = %0.2f%%', accuracy*100))
 
+%% Get highest weighted rates 
+
+
+
 %% Save data 
 
-base = getPathsNT;
-save(fullfile(base, 'model_comparisons', ['pop_rate_F0_linear_' target '.mat']),...
-	"pred_F0", "T_test", "T", "r2", "C", "accuracy", "F0s")
+% base = getPathsNT;
+% save(fullfile(base, 'model_comparisons', ['pop_rate_F0_linear_' target '.mat']),...
+% 	"pred_F0", "T_test", "T", "r2", "C", "accuracy", "F0s")
 
