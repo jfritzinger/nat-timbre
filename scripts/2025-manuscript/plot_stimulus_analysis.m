@@ -274,46 +274,46 @@ hleg = legend('Oboe', '', '', 'Bassoon', '', '', 'Location','best', ...
 hleg.ItemTokenSize = [8, 8];
 
 %% Plot modulation depth 
-h(6) = subplot(2, 3, 6);
-scattersize = 10;
-%figure
-
-% Load in ERR and mod depth 
-load(fullfile(base, 'ERR_ModDpth_Oboe.mat'),  "modDepth", "pitches")
-modDepth_oboe = modDepth;
-pitches_oboe = pitches; 
-load(fullfile(base, 'ERR_ModDpth_Bassoon.mat'), "modDepth", "pitches")
-
-% Plot 
-scatter(pitches_oboe, modDepth_oboe, scattersize, 'filled', 'MarkerEdgeColor', 'k')
-hold on
-scatter(pitches, modDepth, scattersize, 'filled', 'MarkerEdgeColor', 'k')
-
-labels = [50 100 200 500 1000 2000 5000 10000];
-xticks(labels)
-xticklabels(labels/1000)
-xlim([56 1662])
-
-mdl = fitlm(pitches_oboe,modDepth_oboe);
-x = linspace(pitches_oboe(1), pitches_oboe(end), 20);
-y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'b')
-mdl = fitlm(pitches,modDepth);
-x = linspace(pitches(1), pitches(end), 20);
-p(1) = mdl.Coefficients.Estimate(2,1);
-p(2) = mdl.Coefficients.Estimate(1,1);
-p(3) = mdl.Coefficients.pValue(2);
-y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, 'r')
-set(gca, 'xscale', 'log')
-
-% hleg = legend('', ...
-% 	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'box', 'off');
-hleg.ItemTokenSize = [8, 8];
-xlabel('F0 (kHz)')
-ylabel('Mod. Depth')
-set(gca,'fontsize',fontsize)
-grid on
+% h(6) = subplot(2, 3, 6);
+% scattersize = 10;
+% %figure
+% 
+% % Load in ERR and mod depth 
+% load(fullfile(base, 'ERR_ModDpth_Oboe.mat'),  "modDepth", "pitches")
+% modDepth_oboe = modDepth;
+% pitches_oboe = pitches; 
+% load(fullfile(base, 'ERR_ModDpth_Bassoon.mat'), "modDepth", "pitches")
+% 
+% % Plot 
+% scatter(pitches_oboe, modDepth_oboe, scattersize, 'filled', 'MarkerEdgeColor', 'k')
+% hold on
+% scatter(pitches, modDepth, scattersize, 'filled', 'MarkerEdgeColor', 'k')
+% 
+% labels = [50 100 200 500 1000 2000 5000 10000];
+% xticks(labels)
+% xticklabels(labels/1000)
+% xlim([56 1662])
+% 
+% mdl = fitlm(pitches_oboe,modDepth_oboe);
+% x = linspace(pitches_oboe(1), pitches_oboe(end), 20);
+% y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+% plot(x, y, 'b')
+% mdl = fitlm(pitches,modDepth);
+% x = linspace(pitches(1), pitches(end), 20);
+% p(1) = mdl.Coefficients.Estimate(2,1);
+% p(2) = mdl.Coefficients.Estimate(1,1);
+% p(3) = mdl.Coefficients.pValue(2);
+% y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+% plot(x, y, 'r')
+% set(gca, 'xscale', 'log')
+% 
+% % hleg = legend('', ...
+% % 	sprintf('p=%0.04f', mdl.Coefficients{2,4}), 'box', 'off');
+% hleg.ItemTokenSize = [8, 8];
+% xlabel('F0 (kHz)')
+% ylabel('Mod. Depth')
+% set(gca,'fontsize',fontsize)
+% grid on
 
 %% Arrange plots 
 
@@ -326,8 +326,8 @@ set(h(1), 'position', [left(1) bottom(2) width height])
 set(h(2), 'position', [left(2) bottom(2) width height])
 set(h(3), 'position', [left(1) bottom(1) width height])
 set(h(4), 'position', [left(2) bottom(1) width height])
-set(h(5), 'position', [left(3) 0.6 width 0.33])
-set(h(6), 'position', [left(3) bottom(1) width 0.33])
+set(h(5), 'position', [left(3) 0.53 width 0.4])
+% set(h(6), 'position', [left(3) bottom(1) width 0.33])
 
 
 left = [0, 0.63];
@@ -335,8 +335,8 @@ annotation('textbox',[left(1) 0.98 0.0826 0.0385],'String','A',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 annotation('textbox',[left(2) 0.98 0.0826 0.0385],'String','B',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
-annotation('textbox',[left(2) 0.5 0.0826 0.0385],'String','C',...
-	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+% annotation('textbox',[left(2) 0.5 0.0826 0.0385],'String','C',...
+% 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 
 %% Save figure 
 
