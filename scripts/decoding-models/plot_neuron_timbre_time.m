@@ -66,3 +66,57 @@ hleg = legend('Neuron', ...
 	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}));
 ylabel('Accuracy (%)')
 xlabel('Vector Strength')
+
+%% Plot all histograms 
+
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Shuffled.mat'), ...
+	"neuron_time_timbre")
+acc_shuffled = [neuron_time_timbre.accuracy];
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'), ...
+	"neuron_time_timbre")
+acc_025ms = [neuron_time_timbre.accuracy];
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse100.mat'), ...
+	"neuron_time_timbre")
+acc_100ms = [neuron_time_timbre.accuracy];
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse150.mat'), ...
+	"neuron_time_timbre")
+acc_150ms = [neuron_time_timbre.accuracy];
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse300.mat'), ...
+	"neuron_time_timbre")
+acc_300ms = [neuron_time_timbre.accuracy];
+
+load(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
+	"neuron_rate_timbre")
+accuracy_rate = [neuron_rate_timbre.accuracy];
+
+%%
+
+figure
+accur_all = [acc_shuffled; acc_025ms; acc_100ms; accuracy_rate];
+boxplot(accur_all')
+
+hold on
+
+swarmchart(ones(length(acc_shuffled), 1), acc_shuffled)
+swarmchart(ones(length(acc_025ms), 1)*2, acc_025ms)
+swarmchart(ones(length(acc_100ms), 1)*3, acc_100ms)
+swarmchart(ones(length(accuracy_rate), 1)*4, accuracy_rate)
+
+xlabel('Groups')
+ylabel('Accuracy')
+xticks(1:4)
+xticklabels({'Shuffled', '0.25 ms bin', '100 ms bin', 'Rate'})
+
+[p12, ~] = ranksum(acc_shuffled, acc_025ms);  
+[p13, ~] = ranksum(acc_shuffled, acc_100ms);  
+[p23, ~] = ranksum(acc_025ms, acc_100ms);  
+adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
+
+[p, tbl, stats] = anova1(accur_all');
+[c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
+
