@@ -184,3 +184,7 @@ plot(freq, avg_env_diff)
 yline(0, 'k')
 set(gca, 'xscale', 'log')
 grid on
+
+%% Save data 
+
+save(fullfile(base, 'stimuli_avg_env_diff.mat'), 'avg_env_diff', "freq", "env_diff")
