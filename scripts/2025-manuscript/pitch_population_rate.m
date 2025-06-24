@@ -5,7 +5,7 @@ save_fig = 0;
 %% Set up figure
 [base, ~, ~, ppi] = getPathsNT();
 
-figure('Position',[50,50,8*ppi,3*ppi])
+figure('Position',[50,50,6.8*ppi,3*ppi])
 %tiledlayout(2, 6, 'TileSpacing','tight', 'Padding','compact')
 linewidth = 1;
 fontsize = 8;
@@ -18,7 +18,7 @@ colorsMTF = {'#648FFF', '#DC267F', '#785EF0', '#FFB000'};
 %% Plot each row as bassoon or oboe
 
 targets = {'Bassoon', 'Oboe'};
-ind = [0, 6];
+ind = [0, 5];
 
 for iinstru = 1:2
 	target = targets{iinstru};
@@ -70,6 +70,8 @@ for iinstru = 1:2
 	yticks([50 100 200 500 1000 1600])
 	yticklabels([50 100 200 500 1000 1600]/1000)
 	set(gca, 'FontSize', fontsize)
+	clim([0 10])
+	colormap(brewermap([],"Blues"))
 
 	%% B. Plot weights
 
@@ -85,7 +87,7 @@ for iinstru = 1:2
 	hold on
 	errorbar(1:length(beta_mean), ordered_mean, ordered_std/sqrt(10), ...
 		'CapSize',2, 'color', 'k', 'LineStyle', 'none');
-	xlim([0 50])
+	xlim([0 25])
 	box off
 	set(gca, 'FontSize', fontsize)
 	if iinstru == 2
@@ -135,10 +137,10 @@ for iinstru = 1:2
 	h(ind(iinstru)+4) = subplot(2, 6, ind(iinstru)+4);
 	errorbar(num_neurons(1:nmodels/2), mean_acc(1:nmodels/2), std_acc(1:nmodels/2)/sqrt(10));
 	hold on
-	errorbar(num_neurons(nmodels/2+1:end), mean_acc(nmodels/2+1:end), std_acc(nmodels/2+1:end)/sqrt(10))
+	%errorbar(num_neurons(nmodels/2+1:end), mean_acc(nmodels/2+1:end), std_acc(nmodels/2+1:end)/sqrt(10))
 	ylabel('Accuracy')
 	if iinstru == 1
-		hleg = legend('Best', 'Worst', 'fontsize', legsize);
+		hleg = legend('Best Neurons', 'fontsize', legsize);
 		hleg.ItemTokenSize = [8, 8];
 	else
 		xlabel('# Neurons')
@@ -150,7 +152,8 @@ for iinstru = 1:2
 	%% E. Plot linear
 
 	h(ind(iinstru)+5) = subplot(2, 6, ind(iinstru)+5);
-	scatter(10.^(T.response), 10.^(pred_F0), scattersize, 'filled', 'MarkerFaceAlpha',0.3)
+	scatter(10.^(T.response), 10.^(pred_F0), scattersize, 'filled', ...
+		'MarkerFaceAlpha',0.3, 'MarkerFaceColor','k')
 	set(gca, 'xscale', 'log', 'yscale', 'log')
 	hold on
 	plot(10.^T_test.response, 10.^T_test.response, 'k')
@@ -183,28 +186,28 @@ for iinstru = 1:2
 	text(0.05, 0.95, msg, 'Units', 'normalized', ...
 			'VerticalAlignment', 'top', 'FontSize',legsize)
 
-	%% F. 
-
-	closest_cat = [];
-	for ii = 1:length(pred_F0)
-		differences = abs(F0s - pred_F0(ii));
-		[~, closest_column_index] = min(differences);
-		closest_cat(ii) = F0s(closest_column_index);
-	end
-
-	% Plot confusion matrix
-	h(ind(iinstru)+6) = subplot(2, 6, ind(iinstru)+6);
-	imagesc(C)
-	%title(sprintf('Accuracy = %0.2f%%', accuracy*100))
-	set(gca, 'FontSize', fontsize)
-	if iinstru == 2
-		xlabel('Predicted F0 (Hz)')
-	end
-	ylabel('Actual F0 (Hz)')	
-	xticks([50 100 200 500 1000 1600])
-	xticklabels([50 100 200 500 1000 1600]/1000)
-	yticks([50 100 200 500 1000 1600])
-	yticklabels([50 100 200 500 1000 1600]/1000)
+	% %% F. 
+	% 
+	% closest_cat = [];
+	% for ii = 1:length(pred_F0)
+	% 	differences = abs(F0s - pred_F0(ii));
+	% 	[~, closest_column_index] = min(differences);
+	% 	closest_cat(ii) = F0s(closest_column_index);
+	% end
+	% 
+	% % Plot confusion matrix
+	% h(ind(iinstru)+6) = subplot(2, 6, ind(iinstru)+6);
+	% imagesc(C)
+	% %title(sprintf('Accuracy = %0.2f%%', accuracy*100))
+	% set(gca, 'FontSize', fontsize)
+	% if iinstru == 2
+	% 	xlabel('Predicted F0 (Hz)')
+	% end
+	% ylabel('Actual F0 (Hz)')	
+	% xticks([50 100 200 500 1000 1600])
+	% xticklabels([50 100 200 500 1000 1600]/1000)
+	% yticks([50 100 200 500 1000 1600])
+	% yticklabels([50 100 200 500 1000 1600]/1000)
 
 	%% Save data
 
@@ -214,25 +217,25 @@ end
 
 %% Arrange plots
 
-left = [0.07 0.305 0.415 0.565 0.74 0.88];
+left = [0.08 0.37 0.48 0.64 0.86];
 bottom = [0.59 0.14];
-width = 0.105;
+width = 0.12;
 height = 0.34;
 
 for ii = 1:2
-	set(h(ind(ii)+1), 'position', [left(1) bottom(ii) width height]);
+	set(h(ind(ii)+1), 'position', [left(1) bottom(ii) 0.14 height]);
 	set(h(ind(ii)+2), 'position', [left(2) bottom(ii) 0.1 height]);
 	set(h(ind(ii)+3), 'position', [left(3) bottom(ii) 0.1 height]);
 	set(h(ind(ii)+4), 'position', [left(4) bottom(ii) width height]);
 	set(h(ind(ii)+5), 'position', [left(5) bottom(ii) width height]);
-	set(h(ind(ii)+6), 'position', [left(6) bottom(ii) width height]);
+	%set(h(ind(ii)+6), 'position', [left(6) bottom(ii) width height]);
 end
 
 %% Annotate
 
-annotation("textbox", [0.035 0.62 0.1386 0.1088], "String", "Bassoon",...
+annotation("textbox", [0.04 0.62 0.1386 0.1088], "String", "Bassoon",...
 	"FontSize", titlesize+2, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
-annotation("textbox", [0.015 0.22 0.09778 0.05666], "String", "Oboe",...
+annotation("textbox", [0.02 0.22 0.09778 0.05666], "String", "Oboe",...
 	"FontSize", titlesize+2, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 
 labelleft= left-0.055;
@@ -248,9 +251,6 @@ annotation('textbox',[labelleft(4) labelbottom 0.071 0.058],...
 	'EdgeColor','none');
 annotation('textbox',[labelleft(5) labelbottom 0.071 0.058],...
 	'String','D','FontWeight','bold','FontSize',labelsize,...
-	'EdgeColor','none');
-annotation('textbox',[labelleft(6)+0.02 labelbottom 0.071 0.058],...
-	'String','E','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
 
 %% Save figure
