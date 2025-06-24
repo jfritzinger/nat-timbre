@@ -36,7 +36,7 @@ for ind = 1:num_data
 
 	%% Calculate simple rate prediction
 
-	[trainedClassifier, accuracy_SVM(ind)] = trainClassifierNeuronTimbre(T);
+	%[trainedClassifier, accuracy_SVM(ind)] = trainClassifierNeuronTimbre(T);
 
 	% Initialize variables to store results
 	closest = zeros(size(data, 1), size(data, 2));
