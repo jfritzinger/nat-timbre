@@ -6,7 +6,7 @@ save_fig = 0;
 %% Set up figure
 
 [base, ~, ~, ppi] = getPathsNT();
-figure('Position',[50, 50, 6*ppi, 3*ppi])
+figure('Position',[50, 50, 4*ppi, 3*ppi])
 linewidth = 1;
 fontsize = 8;
 legsize = 7;
@@ -15,7 +15,7 @@ scattersize = 10;
 
 %% Load in data
 
-hind = [1 4];
+hind = [1 3];
 targets = {'Bassoon', 'Oboe'}; 
 for iinstru = 1:2
 
@@ -112,35 +112,35 @@ for iinstru = 1:2
 	x = num_neurons(1:nmodels/2);
 
 	h(hind(iinstru)+1) = subplot(2, 3, hind(iinstru)+1);
-	pcolor(x, y, C_diag_all(1:nmodels/2,:)', 'EdgeColor','none')
-	set(gca, 'yscale', 'log')
-	clim([0 20])
-	xlabel('# Neurons in Model')
-	%shading interp
-	ylabel('F0 (Hz)')
-	title('Best Units')
-	a=colorbar;
-	a.Label.String = '# Accurate Predictions';
-	yticks([50 100 250 500 1000 1500])
-	yticklabels([50 100 250 500 1000 1500]/1000)
-	set(gca, 'FontSize', fontsize)
-	box off
-
-	%%
-
-	h(hind(iinstru)+2) = subplot(2, 3, hind(iinstru)+2);
-	pcolor(y, x, C_diag_all(nmodels/2+1:end,:), 'EdgeColor','none')
+	pcolor(y, x, C_diag_all(1:nmodels/2,:), 'EdgeColor','none')
 	set(gca, 'xscale', 'log')
 	clim([0 20])
 	ylabel('# Neurons in Model')
+	%shading interp
 	xlabel('F0 (Hz)')
-	title('Worst Units')
+	title('Best Units')
 	a=colorbar;
 	a.Label.String = '# Accurate Predictions';
 	xticks([50 100 250 500 1000 1500])
 	xticklabels([50 100 250 500 1000 1500]/1000)
 	set(gca, 'FontSize', fontsize)
 	box off
+
+	%%
+	% 
+	% h(hind(iinstru)+2) = subplot(2, 3, hind(iinstru)+2);
+	% pcolor(y, x, C_diag_all(nmodels/2+1:end,:), 'EdgeColor','none')
+	% set(gca, 'xscale', 'log')
+	% clim([0 20])
+	% ylabel('# Neurons in Model')
+	% xlabel('F0 (Hz)')
+	% title('Worst Units')
+	% a=colorbar;
+	% a.Label.String = '# Accurate Predictions';
+	% xticks([50 100 250 500 1000 1500])
+	% xticklabels([50 100 250 500 1000 1500]/1000)
+	% set(gca, 'FontSize', fontsize)
+	% box off
 
 	%% Extra
 	% figure
@@ -179,36 +179,36 @@ end
 
 %% Arrange positions
 
-left = [0.12 0.43 0.74]; 
+left = [0.15 0.58]; 
 bottom = linspace(0.13, 0.6, 2);
 height = 0.3;
-width = 0.15;
+width = 0.25;
 
-set(h(1), 'position', [left(1) bottom(2) 0.21 height])
+set(h(1), 'position', [left(1) bottom(2) width height])
 set(h(2), 'position', [left(2) bottom(2) width height])
-set(h(3), 'position', [left(3) bottom(2) width height])
-set(h(4), 'position', [left(1) bottom(1) 0.21 height])
-set(h(5), 'position', [left(2) bottom(1) width height])
-set(h(6), 'position', [left(3) bottom(1) width height])
+set(h(3), 'position', [left(1) bottom(1) width height])
+set(h(4), 'position', [left(2) bottom(1) width height])
+% set(h(5), 'position', [left(2) bottom(1) width height])
+% set(h(6), 'position', [left(3) bottom(1) width height])
 
 
 %% Annotate
 
-annotation("textbox", [0.05517 0.6 0.1386 0.1088], "String", "Bassoon",...
+annotation("textbox", [0.08 0.6 0.1386 0.1088], "String", "Bassoon",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 annotation("textbox", [0.0348 0.18 0.09778 0.05666], "String", "Oboe",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 
-labelleft = left-0.06;
+labelleft = left-0.09;
 annotation('textbox',[labelleft(1) 0.96 0.071 0.058],...
 	'String','A','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
 annotation('textbox',[labelleft(2) 0.96 0.071 0.058],...
 	'String','B','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
-annotation('textbox',[labelleft(3) 0.96 0.071 0.058],...
-	'String','C','FontWeight','bold','FontSize',labelsize,...
-	'EdgeColor','none');
+% annotation('textbox',[labelleft(3) 0.96 0.071 0.058],...
+% 	'String','C','FontWeight','bold','FontSize',labelsize,...
+% 	'EdgeColor','none');
 
 
 %% Save figure
