@@ -24,9 +24,13 @@ RVF = cellfun(@(s) contains(s, 'R'), sessions.RVF);
 %% Set up figure
 
 figure('Position',[194,1045,1175,226])
-tiledlayout(1, 5, 'Padding','compact')
-fontsize = 12;
-titlesize = 14;
+figure('Position',[68,278,6*ppi,1.6*ppi]);
+tiledlayout(1, 4, 'Padding','compact')
+titlesize = 9;
+fontsize = 8;
+labelsize = 12;
+legsize = 7;
+linewidth = 1;
 
 %% Only get sessions with synthetic timbre 
 
@@ -57,6 +61,7 @@ xlabel('CF (kHz)')
 set(gca, 'FontSize', fontsize)
 title('CF Distribution', 'fontsize', titlesize)
 ylim([0 115])
+box off
 
 %% Get MTFs for each putative neuron
 % WBTIN Diotic
@@ -97,6 +102,7 @@ title('MTF Type', 'FontSize',titlesize)
 grid on
 ylabel('# Neurons')
 %ylim([0 110])
+box off
 
 
 %% BMFs
@@ -123,6 +129,7 @@ title('BE BMFs', 'fontsize', titlesize)
 set(gca, 'XScale', 'log');
 xlabel('BMF (Hz)')
 ylabel('# Neurons')
+box off
 
 %% WMFs
 
@@ -140,32 +147,45 @@ xticks([2 4 8 16 32 64 128 254 512])
 set(gca, 'XScale', 'log');
 xlabel('WMF (Hz)')
 title('BS WMFs', 'fontsize', titlesize)
+box off
 
 %% Hybrids
+% 
+% H_MTFs = contains(table.MTF, 'H');
+% WMFs = table.WMF(H_MTFs);
+% WMFs(isnan(WMFs)) = [];
+% BMFs = table.BMF(H_MTFs);
+% BMFs(isnan(BMFs)) = [];
+% 
+% % Plot 
+% nexttile
+% histogram(BMFs, edges2)
+% hold on
+% histogram(WMFs, edges2)
+% xlabel('BMF or WMF (Hz)')
+% hLegend = legend('BMF', 'WMF', 'Location','west');
+% hLegend.ItemTokenSize = [6,6];
+% set(gca, 'FontSize', fontsize)
+% xticks([2 4 8 16 32 64 128 254 512])
+% set(gca, 'XScale', 'log');
+% ylabel('# Neurons')
+% title('Hybrids', 'fontsize', titlesize)
 
-H_MTFs = contains(table.MTF, 'H');
-WMFs = table.WMF(H_MTFs);
-WMFs(isnan(WMFs)) = [];
-BMFs = table.BMF(H_MTFs);
-BMFs(isnan(BMFs)) = [];
+%% Annotate 
 
-% Plot 
-nexttile
-histogram(BMFs, edges2)
-hold on
-histogram(WMFs, edges2)
-xlabel('BMF or WMF (Hz)')
-hLegend = legend('BMF', 'WMF', 'Location','west');
-hLegend.ItemTokenSize = [6,6];
-set(gca, 'FontSize', fontsize)
-xticks([2 4 8 16 32 64 128 254 512])
-set(gca, 'XScale', 'log');
-ylabel('# Neurons')
-title('Hybrids', 'fontsize', titlesize)
+left = linspace(0.01, 0.73, 4);
+annotation('textbox',[left(1) 0.98 0.0826 0.0385],'String','A',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left(2) 0.98 0.0826 0.0385],'String','B',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left(3) 0.98 0.0826 0.0385],'String','C',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left(4) 0.98 0.0826 0.0385],'String','D',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 
 %% Save figure 
 
 if save_fig == 1
-	filename = 'figS1_data_distribution_NT';
+	filename = 'fig2_data_distribution_NT';
 	save_figure(filename)
 end
