@@ -47,31 +47,21 @@ target = 'Oboe';
 	files_ordered = files(order);
 %end
 
-%% Calculate modulation depth and ERR 
+%% Calculate modulation depth 
 
 figure
+tiledlayout(6, 6, "TileSpacing","tight", "Padding","tight")
 for ii = 1:nfiles
 
 	[stim, fs] = audioread(fullfile(fpath, 'waveforms', files_ordered{ii}));
 	F0 = pitches(ii);
 	t = linspace(0, length(stim)/fs, length(stim));
 
-	% Calculate ERR
-
-	% Compute envelope spectrum
-	[es, f] = envspectrum(stim, fs); % MATLAB's envspectrum function [4]
-
-	% Find dominant ERR
-	[~, idx] = max(es(2:end)); % Skip DC (0 Hz)
-	ERR(ii) = f(idx + 1); % e.g., 10 Hz
-
-
-
-	% Calculate modulation depth
-
 	% Extract envelope using Hilbert transform
-	env = abs(hilbert(stim)); % [1][2]
-	%[env, ~] = envelope(stim, 'analytic'); % [2]
+	env2 = abs(hilbert(stim)); 
+	
+	% Compute envelope 
+	[env, ~] = envelope(stim); %
 
 	% Modulation depth
 	Emax = max(env);
@@ -80,10 +70,12 @@ for ii = 1:nfiles
 
 	% Plot envelope
 	nexttile
-	plot(t, stim); hold on;
+	plot(t, stim, 'k'); hold on;
 	plot(t, env, 'r', 'LineWidth', 0.5);
+	plot(t, env2, 'b', 'LineWidth', 0.5);
 	hold off;
-	title(sprintf('ERR = %0.0f, ModDepth = %0.2f', ERR(ii), modDepth(ii)))
+	title(sprintf('Mod Depth = %0.02f', modDepth(ii)))
+	xlim([0.1 0.125])
 
 end
 
