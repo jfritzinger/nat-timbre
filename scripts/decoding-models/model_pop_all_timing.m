@@ -64,22 +64,22 @@ num_data = length(sesh_all);
 
 %% Get data
 
-num_neurons = [1:4 5:5:40 1:4 5:5:40];
+num_neurons = [50 75 100]; % [1:4 5:5:20 30 40];
 nmodels = length(num_neurons);
 timerVal = tic;
-for imodel = 1 %:nmodels
+for imodel = 1:nmodels
 	timerVal = tic;
 
 	for inrep = 1
 
-		if imodel < nmodels/2+1 % 6 good models
+% 		if imodel < nmodels/2+1 % 6 good models
 			index = best_ind;
-		else % 6 bad models
-			index = worst_ind;
-		end
+% 		else % 6 bad models
+% 			index = worst_ind;
+% 		end
 		num_index = 1:num_neurons(imodel);
 		num_data = num_neurons(imodel);
-		sesh_all = sesh_all(index(num_index));
+		sesh = sesh_all(index(num_index));
 		putative = {nat_data(sesh_all).putative};
 
 		h_all2 = [];
@@ -89,8 +89,8 @@ for imodel = 1 %:nmodels
 			for itarget = 1:length(F0s_b)
 
 				% Arrange bassoon data for SVM
-				spikes = nat_data(sesh_all(ineuron)).bass_spikerate{itarget}/1000; % ms
-				spikereps = nat_data(sesh_all(ineuron)).bass_spikerep{itarget};
+				spikes = nat_data(sesh(ineuron)).bass_spikerate{itarget}/1000; % ms
+				spikereps = nat_data(sesh(ineuron)).bass_spikerep{itarget};
 				min_dis = 0.25;
 				edges = 0:min_dis:300;
 				t = 0+min_dis/2:min_dis:300-min_dis/2;
@@ -104,8 +104,8 @@ for imodel = 1 %:nmodels
 			for itarget = 1:length(F0s_o)
 
 
-				spikes = nat_data(sesh_all(ineuron)).oboe_spikerate{itarget}/1000; % ms
-				spikereps = nat_data(sesh_all(ineuron)).oboe_spikerep{itarget};
+				spikes = nat_data(sesh(ineuron)).oboe_spikerate{itarget}/1000; % ms
+				spikereps = nat_data(sesh(ineuron)).oboe_spikerep{itarget};
 				for irep = 1:20
 					h_oboe(irep, :) = histcounts(spikes(spikereps==irep), edges);
 				end
@@ -136,13 +136,13 @@ for imodel = 1 %:nmodels
 
 	end
 
-	pop_rate_timbre.trainedClassifier = trainedClassifier;
-	pop_rate_timbre.accuracy = accuracy;
-	pop_rate_timbre.T = T;
-	pop_rate_timbre.CFs = nat_data(sesh_all).CF;
-	pop_rate_timbre.putative = putative;
-	pop_rate_timbre.sesh = sesh_all;
-	pop_rate_timbre.MTF = {nat_data(sesh_all).MTF};
+% 	pop_rate_timbre.trainedClassifier = trainedClassifier;
+% 	pop_rate_timbre.accuracy = accuracy;
+% 	pop_rate_timbre.T = T;
+% 	pop_rate_timbre.CFs = nat_data(sesh).CF;
+% 	pop_rate_timbre.putative = putative;
+% 	pop_rate_timbre.sesh = sesh;
+% 	pop_rate_timbre.MTF = {nat_data(sesh).MTF};
 
 	timer = toc(timerVal);
 	fprintf('Models took %0.2g minutes\n', timer/60)
@@ -155,14 +155,13 @@ mean_acc = mean(accur_all,2);
 std_acc = std(accur_all, [], 2);
 
 figure
-errorbar(num_neurons(1:nmodels/2), mean_acc(1:nmodels/2), std_acc(1:nmodels/2)/sqrt(10));
+errorbar(num_neurons, mean_acc, std_acc/sqrt(2));
 hold on
-errorbar(num_neurons(nmodels/2+1:end), mean_acc(nmodels/2+1:end), std_acc(nmodels/2+1:end)/sqrt(10))
 xlabel('Number of Neurons in Model')
 ylabel('Accuracy')
 legend('Best', 'Worst')
 
 %% Save data
 
-save(fullfile(base, 'model_comparisons', 'Pop_Time.mat'), ...
-	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc", "pop_time")
+save(fullfile(base, 'model_comparisons', 'Pop_Time_2.mat'), ...
+	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
