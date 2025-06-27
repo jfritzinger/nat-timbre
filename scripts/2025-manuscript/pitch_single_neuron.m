@@ -307,32 +307,3 @@ c.Label.String = '# Accurate Predictions';
 
 
 %% Save figure 
-
-%% FUNCTIONS 
-
-function pitch = getF0s(target)
-
-[base, ~, ~, ~] = getPathsNT();
-tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
-listing = dir(fullfile(base, 'waveforms', '*.wav'));
-target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
-wav_nums =  find(cell2mat(target_WAV));
-d = dir(fullfile(base,'waveforms', '*.wav'));
-all_files = sort({d.name});
-nfiles = length(wav_nums);
-
-for i = 1:nfiles
-	files{1,i} = all_files{wav_nums(i)};
-end
-
-% Sort by frequency of pitch
-index = [];
-note_names = extractBetween(files, 'ff.','.');
-for ii = 1:nfiles % Find index of each note in tuning spreadsheet
-	index(ii) = find(strcmp(note_names(ii), tuning.Note));
-end
-pitch_order = tuning.Frequency(index); % Get freqs of each note
-[~, order] = sort(pitch_order); % Sort freqs
-pitch = pitch_order(order);
-
-end

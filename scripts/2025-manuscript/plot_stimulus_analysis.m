@@ -29,18 +29,12 @@ for iinstr = 1:2
 		target = 'Bassoon';
 	end
 
-	if ismac
-		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-	else
-		fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-	end
-	tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
-	listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
+	tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
+	listing = dir(fullfile(base, 'waveforms', '*.wav'));
 	target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
 	wav_nums =  find(cell2mat(target_WAV));
 
-	d = dir(fullfile(fpath,'waveforms', '*.wav'));
+	d = dir(fullfile(base,'waveforms', '*.wav'));
 	all_files = sort({d.name});
 	nfiles = length(wav_nums);
 	wav_npts = zeros(1,nfiles);
@@ -94,8 +88,8 @@ iplot = 1;
 for j1 = [2, 4, 9, 11]
 
 		% Load in data 
-		[oboe, ~] = audioread(fullfile(fpath, 'waveforms', oboe_files{j1}));
-		[bassoon, Fs] = audioread(fullfile(fpath, 'waveforms', bassoon_files{j1}));
+		[oboe, ~] = audioread(fullfile(base, 'waveforms', oboe_files{j1}));
+		[bassoon, Fs] = audioread(fullfile(base, 'waveforms', bassoon_files{j1}));
 		name =  extractBetween(oboe_files{j1}, 'ff.','.');
 
 		% Analyze spectrograms & plot
@@ -175,16 +169,11 @@ targets = {'Oboe', 'Bassoon'};
 for iinstr = 1:2
 	target = targets{iinstr};
 
-	if ismac
-		fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-	else
-		fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-	end
-	listing = dir(fullfile(fpath, 'waveforms', '*.wav'));
+	listing = dir(fullfile(base, 'waveforms', '*.wav'));
 	target_WAV = arrayfun(@(n) contains(listing(n).name, target), 1:numel(listing), 'UniformOutput', false);
 	wav_nums =  find(cell2mat(target_WAV));
-	tuning = readtable(fullfile(fpath, 'Tuning.xlsx'));
-	d = dir(fullfile(fpath,'waveforms', '*.wav'));
+	tuning = readtable(fullfile(base, 'Tuning.xlsx'));
+	d = dir(fullfile(base,'waveforms', '*.wav'));
 	all_files = sort({d.name});
 	nfiles = length(wav_nums);
 	wav_npts = zeros(1,nfiles);
@@ -205,7 +194,7 @@ for iinstr = 1:2
 
 	files = files(order);
 	for ii = 1:nfiles
-		[y(ii,:), Fs] = audioread(fullfile(fpath, 'waveforms', files{ii}));
+		[y(ii,:), Fs] = audioread(fullfile(base, 'waveforms', files{ii}));
 	end
 	t = linspace(0, length(y)/Fs, length(y));
 	F0s = pitch_order(order);
