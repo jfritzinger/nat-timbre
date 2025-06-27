@@ -57,10 +57,19 @@ if length(spike_rates)== length(Timbrei)
 		end
 		index(ii) = find(strcmp(note_names(ii), tuning.Note));
 	end
-	pitch_order = round(tuning.Frequency(index)); % Get freqs of each note
+	pitch_order = tuning.Frequency(index); % Get freqs of each note
 	[~, order] = sort(pitch_order); % Sort freqs
-	pitch = categorical(pitch_order(order)); % Order pitches
+	pitch = categorical(round(pitch_order(order))); % Order pitches
 	rate = rate(order);
+	if isfield(param, 'target')
+		F0s = calcManualF0s(param.target);
+	else
+		if num_Timbres==40
+			F0s = calcManualF0s('Bassoon');
+		elseif num_Timbres==35
+			F0s = calcManualF0s('Oboe');
+		end
+	end
 
 	% Calculate PSTH
 	stim_set = find(param.stims.dsid == ds);
@@ -118,6 +127,7 @@ if length(spike_rates)== length(Timbrei)
 	data.spike_times = spike_times;
 	data.spike_reps = spike_reps;
 	data.raw_rates = raw_rates;
+	data.F0s_actual = F0s;
 else
 	data.rate = [];
 	data.rate_std = [];
@@ -130,6 +140,7 @@ else
 	data.spike_times = [];
 	data.spike_reps = [];
 	data.raw_rates = [];
+	data.F0s_actual = [];
 end
 
 end
