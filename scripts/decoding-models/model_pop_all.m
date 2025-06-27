@@ -68,14 +68,14 @@ num_data = numel(sesh);
 data_mat1 = NaN(length(F0s_b)*20, num_data);
 for ii = 1:num_data
 	X1 = nat_data(sesh(ii)).bass_raterep';
-	X2 = reshape(X1, [], 1);
+	X2 = reshape(X1', [], 1);
 	data_mat1(:,ii) = X2;
 end
 
 data_mat2 = NaN(length(F0s_o)*20, num_data);
 for ii = 1:num_data
 	X1 = nat_data(sesh(ii)).oboe_raterep';
-	X2 = reshape(X1, [], 1);
+	X2 = reshape(X1', [], 1);
 	data_mat2(:,ii) = X2;
 end
 
@@ -86,7 +86,7 @@ data_mat = [data_mat1; data_mat2];
 T = array2table(data_mat);
 T.Response = response;
 
-nrep = 15;
+nrep = 1;
 best_accuracy = -inf;
 for irep = 1:nrep
 
@@ -109,8 +109,8 @@ for irep = 1:nrep
 	fprintf('%d/%d, %0.2f%% done!\n', irep, nrep, irep/nrep*100)
 end
 
-% Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
-% imp = permutationImportance(Mdl);
+Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
+imp = permutationImportance(Mdl);
 
 
 %% Plot confusion matrix and accuracy 
@@ -138,7 +138,7 @@ pop_rate.putative = {nat_data(sesh).putative};
 pop_rate.CF = [nat_data(sesh).CF];
 pop_rate.MTF = {nat_data(sesh).MTF};
 
-save(fullfile(base, 'model_comparisons', 'Pop_Rate.mat'), "pop_rate")
+save(fullfile(base, 'model_comparisons', 'Pop_Rate2.mat'), "pop_rate")
 
 
 
