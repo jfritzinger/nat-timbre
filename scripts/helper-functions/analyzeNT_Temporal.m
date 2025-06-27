@@ -4,87 +4,103 @@ num_stim = length(data_ST.pitch_num);
 for i_stim = 1:num_stim
 
 	% Calculate rasters
+	dur = 300; % duration in ms
+	nrep = 20; % number of stimulus repetitions 
 	x = data_ST.spike_times{i_stim};
 	y = data_ST.spike_reps{i_stim};
 	valid = x<0.3e6;
-	x = x(valid);
+	x = x(valid)/1000;
 	y = y(valid);
 
-	% PSTH and smoothed PSTH
-	edges = linspace(0, 300000,501);
-	[PSTH, t] = histcounts(x, edges);
-	PSTH_smooth = smooth(PSTH);
+	% PSTH (0.25 ms bins)
+	num_bins = 1200;
+	edges_psth = linspace(0, dur,num_bins+1);
+	[PSTH, t] = histcounts(x, edges_psth);
+
+	% Get spike times without onset
+	onset = 25; % 25 ms onset 
+	ind_onset = x<onset;
+	spike_times = x(~ind_onset);
+	reps = y(~ind_onset);
+
+	% Truncate spikes that don't occur in a full cycle of the stimulus
+	period = 1000 / data_ST.F0s_actual(i_stim);	% Period in ms
+	num_periods = floor((dur-onset)/period);	% Number of full periods in the stimulus
+	ind_full_period = spike_times<(num_periods*period); 
+	subset_spike_times = spike_times(ind_full_period);
+	subset_reps = reps(ind_full_period);
 
 	% Calculate period histogram
-	% Cut off onset
-	freq = data_ST.pitch_num(i_stim);
-	period = 1000 / freq; % Period in ms
-	num_bins = 40; % Number of bins for histogram
-	wrapped_times = mod(x/1000, period); % Wrap spike times to one period
+	% Try 0.25 ms bins 
+	wrapped_times = mod(subset_spike_times, period); 
+	num_bins = round(period/0.25); % 30; % Number of bins for histogram
 	edges = linspace(0, period, num_bins+1); % Bin edges
 	counts = histcounts(wrapped_times, edges); % Create histogram
-	%phases = 2 * pi * mod(x/1000, period) / period;
 
-	% Normalize counts to get firing rate (spikes/sec)
+	% % Normalize counts to get firing rate (spikes/sec)
 	% bin_width = period / num_bins; % Bin width in ms
-	% firing_rate = counts / (30 * bin_width / 1000); % Normalize by trials and bin width
+	% firing_rate = counts / (nrep * bin_width); % Normalize by trials and bin width
 
-	% Example spike times (300 ms window, 200 Hz stimulus)
-	spike_times = x/1000;
-	freq = data_ST.pitch_num(i_stim);
+	% % Plotssss
+	% figure
+	% scatter(x, y)
+	% hold on
+	% periods = 25:period:300;
+	% xline(periods)
 
-	% Exclude 50ms onset
-	spike_times(spike_times<50) = [];
 
 	% Calculate vector strength
-	phases = 2 * pi * mod(spike_times, period) / period;
+	phases = 2 * pi * (mod(subset_spike_times, period) / period);
 	VS = abs(mean(exp(1i * phases)));
-	%vectors = exp(-1i*2*pi*200*spike_times/1000); % same equation
-	%sync(j) = abs(mean(vectors)); % same equation
-
-	period = 1000 / CF;
-	phases = 2 * pi * mod(spike_times, period) / period;
-	VS_CF = abs(mean(exp(1i * phases)));
-
-	% Calculate vector strength for each repetition of the stimulus
-	period = 1000 / freq;
-	nreps = 20;
-	for ind = 1:nreps
-		rep_ind = y==ind;
-		raw_spikes = x(rep_ind)/1000;
-		phases = 2 * pi * mod(raw_spikes, period) / period;
-		VS2(ind) = abs(mean(exp(1i * phases)));
-		% figure
-		% nexttile
-		% plot(phases)
-		% title(num2str(VS2(ind)))
-		% nexttile
-		% histogram(raw_spikes, 301)
+	if ~isempty(phases)
+		p_value = circ_rtest(phases); % Rayleigh statistic (P < 0.01)
+	else
+		p_value = NaN;
 	end
 
-	% Calculate reliability metric 
-	edges2 = linspace(0, 300,601);
+	% Calculate vector strength for each repetition of the stimulus
+	VS_perrep = NaN(nrep,1);
+	p_value_perrep = NaN(nrep,1);
+	for ind = 1:nrep
+		raw_spikes = subset_spike_times(subset_reps==ind);
+		phases = 2 * pi * (mod(raw_spikes, period) / period);
+		VS_perrep(ind) = abs(mean(exp(1i * phases)));
+		if ~isempty(phases)
+			p_value_perrep(ind) = circ_rtest(phases); % Rayleigh statistic (P < 0.01)
+		end
+	end
+
+	% Calculate ISI 
+	% isi_all = [];
+	% for ind = 1:nrep
+	% 	isi = diff(spike_times(reps==ind));
+	% 	isi_all = [isi_all; isi]; % will have 20 less indices than spike_times
+	% end
+	ISI = arrayfun(@(ii) diff(spike_times(reps==ii)), 1:nrep, 'UniformOutput', false);
+	ISI_all = vertcat(ISI{:});
+
+	% Calculate ISI histogram 
+	nbins = 80; % for 0.25 ms resolution
+	edges_isi = linspace(0, 20, nbins+1);
+	ISI_counts_all = histcounts(ISI_all, edges_isi);
+
+	% Calculate VS to CF
+	period_CF = 1000 / CF;
+	phases = 2 * pi * (mod(spike_times, period_CF) / period_CF);
+	VS_CF = abs(mean(exp(1i * phases)));
+
+	% Calculate reliability metric (with onset)
+	num_bins = 1200;
+	edges2 = linspace(0, dur, num_bins+1);
 	rep_ind_even = mod(y,2) == 0;
-	raw_spikes_even = x(rep_ind_even)/1000;
+	raw_spikes_even = x(rep_ind_even);
 	[PSTH_even, ~] = histcounts(raw_spikes_even, edges2);
 
 	rep_ind_odd = mod(y,2) == 1;
-	raw_spikes_odd = x(rep_ind_odd)/1000;
-	[PSTH_odd, t] = histcounts(raw_spikes_odd, edges2);
+	raw_spikes_odd = x(rep_ind_odd);
+	[PSTH_odd, ~] = histcounts(raw_spikes_odd, edges2);
 	r = corrcoef(PSTH_even, PSTH_odd);
-	r_splithalf(i_stim) = r(1,2);
-
-	% 	PSTHs were convolved with a Gaussian smoothing function before
-	% the correlation was computed. The SD of the Gaussian smoothing
-	% function was referred to as the temporal analysis window, which was
-	% varied over a large range (0.2, 0.6, 1.6, 4.5, and 12.8 ms) to examine
-	% both slowly and rapidly changing temporal information. The Gaussian
-	% function was truncated to 3 SD in length (as in Martin et al. 2004). For
-	% each temporal analysis window, the PSTH was convolved with the
-	% Gaussian smoothing function, and the bin width of the resulting PSTH
-	% was chosen to match the temporal analysis window.
-
-	% Correlate even and odd to get reliability 
+	r_splithalf = r(1,2);
 
 
 	% Save outputs
@@ -92,13 +108,17 @@ for i_stim = 1:num_stim
 	temporal.y{i_stim} = y;
 	temporal.t = t/1000;
 	temporal.PSTH(i_stim,:) = PSTH;
-	temporal.PSTH_smooth(i_stim,:) = PSTH_smooth;
-	temporal.p_hist(i_stim,:) = counts;
-	temporal.t_hist(i_stim,:) = edges;
+	temporal.p_hist{i_stim,:} = counts;
+	temporal.t_hist{i_stim,:} = edges;
 	temporal.VS(i_stim) = VS;
+	temporal.VS_p(i_stim) = p_value;
 	temporal.VS_CF(i_stim) = VS_CF;
-	temporal.VS_rep(i_stim, :) = VS2;
-	temporal.r_splithalf(i_stim) = r_splithalf(i_stim);
+	temporal.VS_perrep(i_stim, :) = VS_perrep;
+	temporal.VS_p_perrep(i_stim, :) = p_value_perrep;
+	temporal.r_splithalf(i_stim) = r_splithalf;
+	temporal.ISI_all{i_stim} = ISI_all;
+	temporal.ISI_counts_all(i_stim,:) = ISI_counts_all;
+	temporal.ISI_edges = edges_isi;
 end
 
 if num_stim == 0
