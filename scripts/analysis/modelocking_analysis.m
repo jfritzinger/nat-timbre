@@ -19,15 +19,15 @@ accuracy = [neuron_time_F0.accuracy];
 figure
 tiledlayout(1, 10, 'Padding','tight', 'TileSpacing','none')
 hind = [0, 5];
-for igood = 1
+for igood = 1:2
 	if igood == 1
 		[~, ind_high] = sort(accuracy, 'descend');
 	else
 		[~, ind_high] = sort(accuracy, 'ascend');
 	end
 	r_splithalf = NaN(40, 5);
-	for ii = 1:10
-		putative = neuron_time_F0(ind_high(87+ii)).putative;
+	for ii = 1:5
+		putative = neuron_time_F0(ind_high(ii)).putative;
 
 		% Load in spreadsheet & data
 		load(fullfile(datapath, [putative '.mat']), 'data');
@@ -41,17 +41,17 @@ for igood = 1
 		data_NT = analyzeNT(params_NT{1});
 		temporal = analyzeNT_Temporal(data_NT, CF);
 		%max_rate = max(zscore(temporal.p_hist), [], 'all');
-		max_rate = max(temporal.p_hist, [], 'all');
+		max_rate = max([temporal.p_hist{:}]);
 		note_values = round(data_NT.pitch_num);
 		num_stim = length(note_values);
 		for j = 1:num_stim
 
 			% Plot PSTHs
-			counts = temporal.p_hist(j,:);
+			counts = temporal.p_hist{j,:};
 			%counts = smooth_rates(counts,zeros(length(counts), 1),counts+10, 500);
 			%counts = zscore(counts);
 
-			edges = temporal.t_hist(j,:);
+			edges = temporal.t_hist{j,:};
 			t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
 			x_patch = repelem(edges, 2);
 			y_patch = repelem([0; counts(:); 0]', 2);
@@ -65,7 +65,7 @@ for igood = 1
 			r_splithalf(j, ii) = temporal.r_splithalf(j);
 
 			if r_splithalf(j, ii) >= 0.2
-				[pks, locs] = findpeaks(counts/max(temporal.p_hist, [], 'all'), 'MinPeakProminence',0.1);
+				[pks, locs] = findpeaks(counts/max([temporal.p_hist{:}]), 'MinPeakProminence',0.1);
 				scatter(edges(locs), offset+counts(locs), 5, 'filled', 'MarkerFaceColor','r')
 				pks_all{j, ii} = pks;
 				locs_all{j, ii} = edges(locs);
@@ -105,18 +105,18 @@ for ii = 1:length(accuracy)
 	params_NT = data(7, 2);
 	data_NT = analyzeNT(params_NT{1});
 	temporal = analyzeNT_Temporal(data_NT, CF);
-	max_rate = max(temporal.p_hist, [], 'all');
+	max_rate = max([temporal.p_hist{:}]);
 	note_values = round(data_NT.pitch_num);
 	num_stim = length(note_values);
 	for j = 1:num_stim
-		counts = temporal.p_hist(j,:);
-		edges = temporal.t_hist(j,:);
+		counts = temporal.p_hist{j,:};
+		edges = temporal.t_hist{j,:};
 		period = 1/data_NT.pitch_num(j)*1000;
 
 		% Caclulate reliability metric
 		r_splithalf(j, ii) = temporal.r_splithalf(j);
 		if r_splithalf(j, ii) >= 0.2
-			[pks, locs] = findpeaks(counts/max(temporal.p_hist, [], 'all'), 'MinPeakProminence',0.1);
+			[pks, locs] = findpeaks(counts/max([temporal.p_hist{:}]), 'MinPeakProminence',0.1);
 			pks_all{j, ii} = pks;
 			locs_all{j, ii} = edges(locs);
 			num_peaks(j, ii) = length(pks);
@@ -186,18 +186,18 @@ xlabel('F0s (Hz)')
 ylabel('Neurons, low -> high accuracy')
 title('Vector Strength')
 
-nexttile
-mean_VS = mean(VS_all2, 1);
-scatter(1:length(accuracy), mean_VS, 'filled')
-ylabel('Vector Strength')
-xlabel('Neurons, low -> high accuracy')
-
-nexttile
-mean_VS = mean(VS_all2, 1);
-scatter(ac, mean_VS, 15, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
-ylabel('Average Vector Strength')
-xlabel('Accuracy')
-title('Avg VS vs F0 accuracy (bassoon)')
+% nexttile
+% mean_VS = mean(VS_all2, 1);
+% scatter(1:length(accuracy), mean_VS, 'filled')
+% ylabel('Vector Strength')
+% xlabel('Neurons, low -> high accuracy')
+% 
+% nexttile
+% mean_VS = mean(VS_all2, 1);
+% scatter(ac, mean_VS, 15, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
+% ylabel('Average Vector Strength')
+% xlabel('Accuracy')
+% title('Avg VS vs F0 accuracy (bassoon)')
 
 %% Plot correlations as histograms 
 
