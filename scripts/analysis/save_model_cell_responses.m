@@ -11,14 +11,14 @@ clear
 
 %%
 
-%model_type = 'SFIE';
+model_type = 'SFIE';
 %model_type = 'Energy';
-model_type = 'Lat_Inh';
+%model_type = 'Lat_Inh';
 
 % Load in spreadsheet
-[base, datapath, savepath, ppi] = getPaths();
-spreadsheet_name = 'PutativeTable.xlsx';
-sessions = readtable(fullfile(base, 'scripts', 'data-cleaning', spreadsheet_name), 'PreserveVariableNames',true);
+[base, datapath, savepath, ppi] = getPathsNT();
+spreadsheet_name = 'Data_Table.xlsx';
+sessions = readtable(fullfile(base, spreadsheet_name), 'PreserveVariableNames',true);
 num_data = size(sessions, 1);
 
 % Find sessions for target synthetic timbre response
@@ -30,14 +30,15 @@ timbre(:,2) = cellfun(@(s) contains(s, 'R'), sessions.Oboe);
 has_data = timbre(:,1) | timbre(:,2);
 indices = find(has_data);
 num_index = length(indices);
-for isesh = 1:num_index
+for isesh = 46:num_index
+	timerVal = tic;
 
 	% Load in session
 	putative = sessions.Putative_Units{indices(isesh)};
 	CF = sessions.CF(indices(isesh));
 	load(fullfile(datapath, [putative '.mat']))
 	MTF_shape = sessions.MTF{indices(isesh)};
-	params_NT = data(13:14, 2); %%%%%%%%%%%%%%%
+	params_NT = data(6:7, 2);
 
 	if strcmp(MTF_shape, 'BS')
 		BMF = sessions.WMF(indices(isesh));
@@ -61,8 +62,7 @@ for isesh = 1:num_index
 	end
 
 	for iNT = 1:2
-		timerVal = tic;
-
+	
 		% Analysis
 		if isempty(params_NT{iNT})
 			% Did not record natural timbre response for this instrument
@@ -75,7 +75,7 @@ for isesh = 1:num_index
 
 			% Set up stimuli 
 			params_NT{iNT}.Fs = 100000;
-			params_NT{iNT}.mnrep = 5;
+			params_NT{iNT}.mnrep = 20;
 			params_NT{iNT}.dur = 0.2;
 			if ~isfield(params_NT{iNT}, 'target')
 				params_NT{iNT}.target = extractBefore(params_NT{iNT}.list(1).wav_file, '.');
@@ -93,7 +93,7 @@ for isesh = 1:num_index
 				model_params.CF_range = CF;
 				model_params.num_CFs = 1;
 				model_params.CFs = CF;
-				model_params.nAN_fibers_per_CF = 10;
+				model_params.nAN_fibers_per_CF = 5;
 				model_params.cohc = 1; % (0-1 where 1 is normal)
 				model_params.cihc = 1; % (0-1 where 1 is normal)
 				model_params.nrep = 1; % how many times to run the AN model
@@ -118,6 +118,7 @@ for isesh = 1:num_index
 					SFIE{iNT}.R = R(1, 2);
 					SFIE{iNT}.R2 = R(1, 2).^2;
 					SFIE{iNT}.PSTH = plotNT_PSTH(params_NT{iNT}, SFIE_temp.ic_BS, 0);
+					SFIE{iNT}.SFIE_temp = SFIE_temp;
 
 				elseif strcmp(MTF_shape, 'BE')
 					[rate, rate_std, pitch] = plotNT(params_NT{iNT}, SFIE_temp.average_ic_sout_BE, 0);
@@ -129,12 +130,14 @@ for isesh = 1:num_index
 					SFIE{iNT}.R = R(1, 2);
 					SFIE{iNT}.R2 = R(1, 2).^2;
 					SFIE{iNT}.PSTH = plotNT_PSTH(params_NT{iNT}, SFIE_temp.ic_BE, 0);
+					SFIE{iNT}.SFIE_temp = SFIE_temp;
 				else
 					SFIE{iNT}.rate = [];
 					SFIE{iNT}.rate_std = [];
 					SFIE{iNT}.R = [];
 					SFIE{iNT}.R2 = [];
 					SFIE{iNT}.PSTH = [];
+					SFIE{iNT}.SFIE_temp = [];
 				end
 				SFIE{iNT}.MTF_shape = MTF_shape;
 				SFIE{iNT}.BMF = BMF;
@@ -148,6 +151,7 @@ for isesh = 1:num_index
 				AN{iNT}.R = R(1, 2);
 				AN{iNT}.R2 = R(1, 2).^2;
 				AN{iNT}.PSTH = plotNT_PSTH(params_NT{iNT}, AN_temp.an_sout, 0);
+				AN{iNT}.AN_temp = AN_temp;
 
 			elseif strcmp(model_type, 'Energy') % Energy model
 
@@ -242,24 +246,26 @@ for isesh = 1:num_index
 				AN_lat_inh{iNT}.R = R(1, 2);
 				AN_lat_inh{iNT}.R2 = R(1, 2).^2;
 				AN_lat_inh{iNT}.PSTH = plotNT_PSTH(params_NT{iNT}, AN_temp.an_sout, 0);
-
-
+			end	
 			end
-
-			elapsedTime = toc(timerVal)/60;
-			disp([putative ' Model took ' num2str(elapsedTime) ' minutes'])
+			if isfield(params_NT{iNT}, 'stim')
+				params_NT{iNT} = rmfield(params_NT{iNT}, 'stim');
 			end
 		end
 	end
 
 	% Save model
-	filename = [putative '_' model_type '.mat'];
+	filename = [putative '_' model_type '20reps.mat'];
 	if strcmp(model_type, 'Energy')
-		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript', 'energy_model', filename), 'params_NT', 'energy')
+		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript',...
+			'energy_model', filename), 'params_NT', 'energy')
 	elseif strcmp(model_type, 'SFIE')
-		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript\', 'SFIE_model', filename), 'params_NT', 'AN', 'SFIE', 'model_params')
+		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript\',...
+			'SFIE_model', filename), 'params_NT', 'SFIE', 'model_params')
 	elseif strcmp(model_type, 'Lat_Inh')
-		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript\', 'lat_inh_model', filename), 'params_NT', 'AN_lat_inh', 'lat_inh', 'model_params')
+		save(fullfile('C:\DataFiles_JBF\Nat-Timbre\data\manuscript\',...
+			'lat_inh_model', filename), 'params_NT', 'lat_inh', 'model_params')
 	end
-
+	elapsedTime = toc(timerVal)/60;
+	disp([putative ' Model took ' num2str(elapsedTime) ' minutes'])
 end
