@@ -3,54 +3,37 @@ clear
 
 %% Load in data
 %target = 'Bassoon';
-target = 'Oboe';
+%target = 'Oboe';
+target = 'Invariant';
 
 [base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_F0_Oboe3.mat'), ...
+load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']), ...
 	"pop_rate_F0")
 
 %% Get correct output of model
 
-if ismac
-	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-else
-	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-end
-tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
-% Get bassoon stimulus
-listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s1 = tuning.Frequency(index);
-[F0s, order] = sort(F0s1);
+% Get stimulus
+F0s = getF0s(target);
 
 % Find all rows with bassoon and oboe
-if strcmp(target, 'Bassoon')
-	sesh_all = find(~cellfun(@isempty, {nat_data.bass_rate}));
-else
-	sesh_all = find(~cellfun(@isempty, {nat_data.oboe_rate}));
-end
-num_data_all = numel(sesh_all);
+[sesh_all, num_data_all] = getF0Sessions(nat_data, target);
 CFs_all = [nat_data(sesh_all).CF];
 putative = {nat_data(sesh_all).putative};
 MTFs = {nat_data(sesh_all).MTF};
 
-
 % Get indices of interest
 beta_weights = pop_rate_F0.imp.ImportanceMean;
 [~,originalpos] = sort(abs(beta_weights), 'descend' );
-best_ind = originalpos(1:100);
+best_ind = originalpos(1:200);
 [~,originalpos] = sort(abs(beta_weights), 'ascend' );
-worst_ind = originalpos(1:100);
+worst_ind = originalpos(1:200);
 
-num_neurons = [1:4 5:5:50 60:10:100 1:4 5:5:50 60:10:100];
+num_neurons = [1:4 5:5:50 60:10:100 150 200 1:4 5:5:50 60:10:100 150 200];
 nmodels = length(num_neurons);
-timerVal = tic;
-poolobj = parpool();
-parfor imodel = 1:nmodels
+%poolobj = parpool();
+for imodel = 1:nmodels
+	timerVal = tic;
 
 	for irep = 1:10
 		if imodel < nmodels/2+1 % 6 good models
@@ -62,46 +45,20 @@ parfor imodel = 1:nmodels
 		num_data = num_neurons(imodel);
 		sesh = sesh_all(index(num_index));
 
-		% Model including all F0s
-		% Find all rows with bassoon in them
-		if strcmp(target, 'Bassoon') % Bassoon
-			data_mat = NaN(length(F0s)*20, num_data);
-			for ii = 1:num_data
-				X1 = nat_data(sesh(ii)).bass_raterep';
-				X2 = reshape(X1, [], 1);
-				data_mat(:,ii) = X2;
-			end
-		else % Oboe
-			data_mat = NaN(length(F0s)*20, num_data);
-			for ii = 1:num_data
-				X1 = nat_data(sesh(ii)).oboe_raterep';
-				X2 = reshape(X1, [], 1);
-				data_mat(:,ii) = X2;
-			end
-		end
-		num_data = numel(sesh);
-
 		% Create table for model
-		response = reshape(repmat(F0s, 1, 20)', 1, []);
-		T = array2table(data_mat);
-		T.Response = response';
+		T = getF0PopTable(nat_data, target, sesh, F0s, num_data);
 
-		if strcmp(target, 'Bassoon')
-			[trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
-				trainClassifierPopRateF0Bass(T);
-		else
-			[trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
-				trainClassifierPopRateF0Oboe(T);
-		end
-		C = confusionmat(response, validationPredictions1);
+		% Train model
+		[trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
+			trainClassifierPopRateF0(T, target);
+		C = confusionmat(T.Response, validationPredictions1);
 		accuracies(imodel, irep) = sum(diag(C))/sum(C, 'all');
-
 	end
+	fprintf('Models took %0.2g minutes\n', toc(timerVal)/60)
+	fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
+
 end
-timer = toc(timerVal);
-fprintf('Models took %0.2g minutes\n', timer/60)
-%fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
-delete(poolobj);
+%delete(poolobj);
 
 %% Plot results
 
@@ -118,6 +75,6 @@ legend('Best', 'Worst')
 
 %% Plot outputs
 
-save(fullfile(base, 'model_comparisons', 'Pop_Rate_F0_Best_Oboe.mat'), ...
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_Best_' target '.mat']), ...
 	"accuracies", "num_neurons")
 
