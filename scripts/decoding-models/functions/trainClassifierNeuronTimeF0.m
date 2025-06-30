@@ -1,8 +1,9 @@
-function [validationPredictions] = trainClassifierNeuronTimeF0(T)
+function [validationPredictions] = trainClassifierNeuronTimeF0(T, F0s)
 
 
-response = T.response;
-predictors = T(1:end-1,:);
+response = T.Response;
+%predictors = T(1:end-1,:);
+predictors = T(:,1:end-1);
 
 % Train a classifier
 % This code specifies all the classifier options and trains the classifier.
