@@ -68,34 +68,7 @@ for imodel = 1:nmodels
 		num_data = num_neurons(imodel);
 		sesh = sesh_all(index(num_index));
 
-		h_all2 = [];
-		for ineuron = 1:num_data
-			h_all = [];
-			for itarget = 1:length(ind_b)
-
-				spikes_bass = nat_data(sesh(ineuron)).bass_spikerate{ind_b(itarget)}/1000; % ms
-				spikereps_bass = nat_data(sesh(ineuron)).bass_spikerep{ind_b(itarget)};
-				spikes_oboe = nat_data(sesh(ineuron)).oboe_spikerate{ind_o(itarget)}/1000; % ms
-				spikereps_oboe = nat_data(sesh(ineuron)).oboe_spikerep{ind_o(itarget)};
-
-				% Arrange data for SVM
-				min_dis = 1;
-				edges = 0:min_dis:300;
-				t = 0+min_dis/2:min_dis:300-min_dis/2;
-				for irep = 1:20
-					h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
-					h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
-				end
-				h_all = [h_all; h_bass; h_oboe];
-			end
-			h_all2 = [h_all2, h_all];
-		end
-
-		% Put data into table
-		response = reshape(repmat(F0s, 1, 40)', 1, [])';
-		T = array2table(h_all2);
-		T.response = response;
-		predictors = h_all2;
+		T = getF0PopTable(nat_data, target, sesh, F0s, num_data, [], 'Timing');
 
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] ...
