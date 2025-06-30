@@ -7,42 +7,11 @@ timerVal = tic;
 [base, datapath, savepath, ppi] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
-%% Find all rows with bassoon and oboe in them
-
-sesh = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	rate2 = nat_data(ii).oboe_rate;
-	if ~isempty(rate) && ~isempty(rate2)
-		sesh = [sesh ii];
-	end
-end
-num_data = length(sesh);
-ind_b = 25:40;
-ind_o = [1 3:17];
-
-
 %% Set responses 
-% 75 * 20 = 1500 responses
-tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
 
-% Get bassoon stimulus
-target = 'Bassoon';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_b = round(tuning.Frequency(index));
-[F0s_b, ~] = sort(F0s_b);
-
-% Get bassoon stimulus
-target = 'Oboe';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_o = round(tuning.Frequency(index));
-[F0s_o, ~] = sort(F0s_o);
+% Get stimulus
+F0s_b = getF0s('Bassoon');
+F0s_o = getF0s('Oboe');
 
 % Get into 'Response' 
 response_b = cell(75,1);
@@ -52,19 +21,12 @@ end
 for ii = 1:length(F0s_o)
 	response_b{ii+length(F0s_b)} = ['O_' num2str(F0s_o(ii))];
 end
-
 response = reshape(repmat(response_b, 1, 20)', 1, []);
 response = response';
 
 %% Get data 
+[sesh, num_data] = getTimbreSessions(nat_data);
 
-% Find all rows with bassoon and oboe
-has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
-has_oboe = ~cellfun(@isempty, {nat_data.oboe_rate});
-sesh = find(has_bass & has_oboe);
-num_data = numel(sesh);
-
-% Get data 
 data_mat1 = NaN(length(F0s_b)*20, num_data);
 for ii = 1:num_data
 	X1 = nat_data(sesh(ii)).bass_raterep';
@@ -80,11 +42,10 @@ for ii = 1:num_data
 end
 
 data_mat = [data_mat1; data_mat2];
-
-%% Model! 
-
 T = array2table(data_mat);
 T.Response = response;
+
+%% Model! 
 
 nrep = 1;
 best_accuracy = -inf;

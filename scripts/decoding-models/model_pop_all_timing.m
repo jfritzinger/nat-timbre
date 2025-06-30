@@ -9,26 +9,9 @@ load(fullfile(base, 'model_comparisons', 'Neuron_Time_All.mat'),...
 
 %% Set responses 
 
-% 75 * 20 = 1500 responses
-tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
-
 % Get bassoon stimulus
-target = 'Bassoon';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_b = round(tuning.Frequency(index));
-[F0s_b, ~] = sort(F0s_b);
-
-% Get bassoon stimulus
-target = 'Oboe';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_o = round(tuning.Frequency(index));
-[F0s_o, ~] = sort(F0s_o);
+F0s_b = getF0s('Bassoon');
+F0s_o = getF0s('Oboe');
 
 % Get into 'Response' 
 response_b = cell(75,1);
@@ -40,27 +23,17 @@ for ii = 1:length(F0s_o)
 end
 response = reshape(repmat(response_b, 1, 20)', 1, []);
 response = response';
-F0s = [F0s_b; F0s_o];
 
 %% Find all rows with bassoon and oboe
 
+[sesh_all, ~] = getTimbreSessions(nat_data);
+
 % Get indices of interest
 accuracy = [neuron_time_all.accuracy];
-[~,originalpos] = sort(abs(accuracy), 'descend' );
-best_ind = originalpos(1:100);
-[~,originalpos] = sort(abs(accuracy), 'ascend' );
-worst_ind = originalpos(1:100);
+[~,best_ind] = sort(abs(accuracy), 'descend' );
+[~,worst_ind] = sort(abs(accuracy), 'ascend' );
 
-% Find all rows with bassoon and oboe
-sesh_all = [];
-for ii = 1:length(nat_data)
-	rate = nat_data(ii).bass_rate;
-	rate2 = nat_data(ii).oboe_rate;
-	if ~isempty(rate) && ~isempty(rate2)
-		sesh_all = [sesh_all ii];
-	end
-end
-num_data = length(sesh_all);
+
 
 %% Get data
 
@@ -72,11 +45,7 @@ for imodel = 1:nmodels
 
 	for inrep = 1
 
-% 		if imodel < nmodels/2+1 % 6 good models
-			index = best_ind;
-% 		else % 6 bad models
-% 			index = worst_ind;
-% 		end
+		index = best_ind;
 		num_index = 1:num_neurons(imodel);
 		num_data = num_neurons(imodel);
 		sesh = sesh_all(index(num_index));

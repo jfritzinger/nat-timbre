@@ -2,8 +2,8 @@ clear
 
 %% Load in data
 %target = 'Bassoon';
-target = 'Oboe';
-%target = 'Invariant';
+%target = 'Oboe';
+target = 'Invariant';
 
 base = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
@@ -22,17 +22,13 @@ putative = {nat_data(sesh).putative};
 
 %% Fit using fitrlinear
 
-% hyperopts = struct('AcquisitionFunctionName','expected-improvement-plus', 'KFold',5);
-% [Mdl,FitInfo,HyperparameterOptimizationResults] = fitrlinear(T_train, 'response', ...
-%     'OptimizeHyperparameters','auto', ...
-%     'HyperparameterOptimizationOptions',hyperopts);
-%pred_F0 = predict(Mdl, T_test);
-
-
 Mdl = fitrlinear(T, 'Response','BetaTolerance',0.0001, ...
 	'Learner','leastsquares', 'Lambda','auto', 'Solver','lbfgs', ...
 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
 pred_F0 = kfoldPredict(Mdl);
+
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_Linear_' target '.mat']),...
+	"pred_F0", "T", "r2", "C", "accuracy", "F0s", "Mdl")
 
 %% Plot results
 scattersize = 20;
@@ -194,75 +190,72 @@ grid on
 
 %% Plot rate responses for 'best' neurons 
 
-[~,best_ind] = sort(abs(avgBeta), 'descend');
-best_put = putative(best_ind(1:16));
-F0s_oboe = getF0s('Oboe');
-F0s_bass = getF0s('Bassoon');
-F0s_both = getF0s('Invariant');
-
-figure
-tiledlayout(4, 4)
-colorsData = {"#0072BD", "#D95319"};
-linewidth = 1;
-
-for ii = 1:16
-
-	nexttile
-	% Get rates
-	index = find(strcmp(best_put{ii}, {nat_data.putative}));
-	% oboe_rate = nat_data(index).oboe_rate(ind_o);
-	% oboe_std = nat_data(index).oboe_rate_std(ind_o);
-	% bass_rate = nat_data(index).bass_rate(ind_b);
-	% bass_std = nat_data(index).bass_rate_std(ind_b);
-	oboe_rate = nat_data(index).oboe_rate;
-	oboe_std = nat_data(index).oboe_rate_std;
-	bass_rate = nat_data(index).bass_rate;
-	bass_std = nat_data(index).bass_rate_std;
-	CF = nat_data(index).CF;
-	MTF = nat_data(index).MTF;
-
-	% errorbar(pitches, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
-	% 	'LineWidth', linewidth, 'CapSize',3);
-	% fill([F0s_both(1) F0s_both(end) F0s_both(end) ...
-	% 	F0s_both(1)], [0 0 max([oboe_rate; bass_rate]*1.3) ...
-	% 	max([oboe_rate; bass_rate]*1.3)], 'k', 'FaceAlpha',0.1, ...
-	% 	'EdgeColor','none')
-	hold on
-	if strcmp(target, 'Oboe')
-		errorbar(F0s_oboe, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
-			'LineWidth', linewidth, 'CapSize',3);
-	elseif strcmp(target, 'Bassoon')
-		errorbar(F0s_bass, bass_rate, bass_std/sqrt(20), 'color',colorsData{2}, ...
-			'LineWidth', linewidth, 'CapSize',3);
-	else
-		errorbar(F0s_oboe, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
-			'LineWidth', linewidth, 'CapSize',3);
-		errorbar(F0s_bass, bass_rate, bass_std/sqrt(20), 'color',colorsData{2}, ...
-			'LineWidth', linewidth, 'CapSize',3);
-	end
-	box off
-	grid on
-	xticks([50 100 250 500 1000])
-	ylim([0 max([oboe_rate; bass_rate]*1.3)])
-	yticks([0 25 50 75 100])
-
-	if ismember(ii, [1 5 9 13]) 
-		ylabel('Avg Rate (sp/s)')
-	end
-
-	if ismember(ii, 13:16)
-		xlabel('F0 (kHz)')
-		xticklabels([50 100 250 500 1000]/1000)
-	else
-		xticklabels([])
-	end
-
-	set(gca, 'XScale', 'log')
-
-end
-
-
-
+% [~,best_ind] = sort(abs(avgBeta), 'descend');
+% best_put = putative(best_ind(1:16));
+% F0s_oboe = getF0s('Oboe');
+% F0s_bass = getF0s('Bassoon');
+% F0s_both = getF0s('Invariant');
+% 
+% figure
+% tiledlayout(4, 4)
+% colorsData = {"#0072BD", "#D95319"};
+% linewidth = 1;
+% 
+% for ii = 1:16
+% 
+% 	nexttile
+% 	% Get rates
+% 	index = find(strcmp(best_put{ii}, {nat_data.putative}));
+% 	% oboe_rate = nat_data(index).oboe_rate(ind_o);
+% 	% oboe_std = nat_data(index).oboe_rate_std(ind_o);
+% 	% bass_rate = nat_data(index).bass_rate(ind_b);
+% 	% bass_std = nat_data(index).bass_rate_std(ind_b);
+% 	oboe_rate = nat_data(index).oboe_rate;
+% 	oboe_std = nat_data(index).oboe_rate_std;
+% 	bass_rate = nat_data(index).bass_rate;
+% 	bass_std = nat_data(index).bass_rate_std;
+% 	CF = nat_data(index).CF;
+% 	MTF = nat_data(index).MTF;
+% 
+% 	% errorbar(pitches, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
+% 	% 	'LineWidth', linewidth, 'CapSize',3);
+% 	% fill([F0s_both(1) F0s_both(end) F0s_both(end) ...
+% 	% 	F0s_both(1)], [0 0 max([oboe_rate; bass_rate]*1.3) ...
+% 	% 	max([oboe_rate; bass_rate]*1.3)], 'k', 'FaceAlpha',0.1, ...
+% 	% 	'EdgeColor','none')
+% 	hold on
+% 	if strcmp(target, 'Oboe')
+% 		errorbar(F0s_oboe, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
+% 			'LineWidth', linewidth, 'CapSize',3);
+% 	elseif strcmp(target, 'Bassoon')
+% 		errorbar(F0s_bass, bass_rate, bass_std/sqrt(20), 'color',colorsData{2}, ...
+% 			'LineWidth', linewidth, 'CapSize',3);
+% 	else
+% 		errorbar(F0s_oboe, oboe_rate, oboe_std/sqrt(20), 'color',colorsData{1}, ...
+% 			'LineWidth', linewidth, 'CapSize',3);
+% 		errorbar(F0s_bass, bass_rate, bass_std/sqrt(20), 'color',colorsData{2}, ...
+% 			'LineWidth', linewidth, 'CapSize',3);
+% 	end
+% 	box off
+% 	grid on
+% 	xticks([50 100 250 500 1000])
+% 	ylim([0 max([oboe_rate; bass_rate]*1.3)])
+% 	yticks([0 25 50 75 100])
+% 
+% 	if ismember(ii, [1 5 9 13]) 
+% 		ylabel('Avg Rate (sp/s)')
+% 	end
+% 
+% 	if ismember(ii, 13:16)
+% 		xlabel('F0 (kHz)')
+% 		xticklabels([50 100 250 500 1000]/1000)
+% 	else
+% 		xticklabels([])
+% 	end
+% 
+% 	set(gca, 'XScale', 'log')
+% 
+% end
 
 %% Run subsets 
 
@@ -286,8 +279,6 @@ ind_all(5,:) = strcmp('F', MTFs);
 ind_all = logical(ind_all);
 
 % Get a subset of the data based on CF grouping
-% CF_groups = [0, 14000; 0, 1000; 1000 2000; 2000 3000;3000 4000; ...
-% 	4000, 6000;6000 9000;9000 14000];
 CF_groups = [0, 14000; 0, 2000; 2000 4000; 4000 8000];
 num_subset = [1 5:5:90 100:10:200];
 
@@ -345,8 +336,8 @@ grid on
 box off
 
 % Save accuracies
-% save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_CF.mat']), ...
-% 	"accuracy", "std_acc", "CF_groups")
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_CF.mat']), ...
+	"accuracy", "CF_groups", "num_subset")
 
 %% Model MTF Groups
 
@@ -410,37 +401,5 @@ grid on
 box off
 
 % Save accuracies
-% save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_MTF.mat']), ...
-% 	"accuracy", "std_acc", "CF_groups")
-
-%% Save data
-
-
-% save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_Linear_' target '.mat']),...
-% 	"pred_F0", "T", "r2", "C", "accuracy", "F0s", "Mdl")
-
-
-%% Split into training and testing data
-%
-% for group = 0:34 %0:39
-%
-%     % Calculate group range (1-20, 21-40, etc.)
-%     startIdx = group*20 + 1;
-%     endIdx = (group+1)*20;
-%
-%     % Random permutation within current group
-%     shuffled = randperm(20) + startIdx - 1;
-%
-%     % Store indices
-%     trainStart = group*16 + 1;
-%     trainEnd = (group+1)*16;
-%     testStart = group*4 + 1;
-%     testEnd = (group+1)*4;
-%
-%     trainIndices(trainStart:trainEnd) = shuffled(1:16);
-%     testIndices(testStart:testEnd) = shuffled(17:20);
-% end
-%
-% % Create training and testing sets
-% T_train = T(trainIndices, :);
-% T_test = T(testIndices, :);
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_MTF.mat']), ...
+	"accuracy", "MTF_names", "num_subset")

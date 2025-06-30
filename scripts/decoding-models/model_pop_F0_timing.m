@@ -1,48 +1,30 @@
 clear
 
 %% Load in data
-target = 'Bassoon';
+%target = 'Bassoon';
+%target = 'Oboe';
+target = 'Invariant';
 
 base = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']),...
-	"neuron_time_F0")
+if strcmp(target, 'Invariant')
+	load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'),...
+		"neuron_time_F0")
+else
+	load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']),...
+		"neuron_time_F0")
+end
 
 %% Get correct output of model
 
-if ismac
-	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
-else
-	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
-end
-tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
-
-% Get bassoon stimulus
-listing = dir(fullfile(fpath, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s1 = tuning.Frequency(index);
-[F0s, order] = sort(F0s1);
-
-% Find all rows with bassoon and oboe
-if strcmp(target, 'Bassoon')
-	sesh_all = find(~cellfun(@isempty, {nat_data.bass_rate}));
-else
-	sesh_all = find(~cellfun(@isempty, {nat_data.oboe_rate}));
-end
-num_data_all = numel(sesh_all);
-CFs_all = [nat_data(sesh_all).CF];
-putative = {nat_data(sesh_all).putative};
-MTFs = {nat_data(sesh_all).MTF};
-
+% Get stimulus
+F0s = getF0s(target);
+[sesh_all, num_data_all] = getF0Sessions(nat_data, target);
 
 % Get indices of interest
 accuracy = [neuron_time_F0.accuracy];
-[~,originalpos] = sort(abs(accuracy), 'descend' );
-best_ind = originalpos(1:100);
-[~,originalpos] = sort(abs(accuracy), 'ascend' );
-worst_ind = originalpos(1:100);
+[~,best_ind] = sort(abs(accuracy), 'descend');
+[~,worst_ind] = sort(abs(accuracy), 'ascend');
 
 %poolobj = parpool();
 % figure
@@ -50,14 +32,13 @@ worst_ind = originalpos(1:100);
 
 %% Get data
 
-h_all2 = [];
 num_neurons = [1:4 5:5:40 1:4 5:5:40];
 nmodels = length(num_neurons);
 timerVal = tic;
 for imodel = 1:nmodels
 	timerVal = tic;
 
-	for inrep = 1:10
+	for inrep = 1
 
 		if imodel < nmodels/2+1 % 6 good models
 			index = best_ind;
@@ -68,35 +49,7 @@ for imodel = 1:nmodels
 		num_data = num_neurons(imodel);
 		sesh = sesh_all(index(num_index));
 
-		h_all2 = [];
-		for ineuron = 1:num_data
-			h_all = [];
-			for itarget = 1:length(F0s)
-				if strcmp(target, 'Bassoon')
-					spikes_bass = nat_data(sesh(ineuron)).bass_spikerate{itarget}/1000; % ms
-					spikereps_bass = nat_data(sesh(ineuron)).bass_spikerep{itarget};
-				else
-					spikes_bass = nat_data(sesh(ineuron)).oboe_spikerate{itarget}/1000; % ms
-					spikereps_bass = nat_data(sesh(ineuron)).oboe_spikerep{itarget};
-				end
-
-				% Arrange data for SVM
-				min_dis = 1;
-				edges = 0:min_dis:300;
-				t = 0+min_dis/2:min_dis:300-min_dis/2;
-				for irep = 1:20
-					h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
-				end
-				h_all = [h_all; h_bass];
-			end
-			h_all2 = [h_all2, h_all];
-		end
-
-		% Put data into table
-		response = reshape(repmat(F0s, 1, 20)', 1, []);
-		T = array2table(h_all2);
-		T.response = response';
-		predictors = h_all2;
+		T = getF0PopTable(nat_data, target, sesh, F0s, num_data, [], 'Timing');
 
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] ...
@@ -110,7 +63,6 @@ for imodel = 1:nmodels
 
 		% Calculate accuracy
 		accuracy = sum(diag(C)) / sum(C(:)); % Calculate accuracy
-		title(sprintf('%d neurons, Accuracy = %0.2f%%', num_data, accuracy*100))
 		accur_all(imodel, inrep) = accuracy;
 		C_all{imodel, inrep} = C;
 	end
@@ -119,15 +71,7 @@ for imodel = 1:nmodels
 	fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
 end
 
-%%
-
-% figure
-% plot(num_neurons(1:nmodels/2), mean_acc(1:nmodels/2));
-% hold on
-% plot(num_neurons(nmodels/2+1:end), mean_acc(nmodels/2+1:end))
-% xlabel('Number of Neurons in Model')
-% ylabel('Accuracy')
-% legend('Best', 'Worst')
+%% Plot
 
 mean_acc = mean(accur_all,2);
 std_acc = std(accur_all, [], 2);
@@ -142,6 +86,6 @@ legend('Best', 'Worst')
 
 %% Save data
 
-save(fullfile(base, 'model_comparisons', 'pop_timing_F0_bassoon_subset.mat'), ...
+save(fullfile(base, 'model_comparisons', ['Pop_Timing_F0_' target '.mat']), ...
 	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
 
