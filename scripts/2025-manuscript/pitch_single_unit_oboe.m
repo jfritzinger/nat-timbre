@@ -122,6 +122,7 @@ grid on
 has_bass = ~cellfun(@isempty, {nat_data.bass_rate});
 has_oboe = ~cellfun(@isempty, {nat_data.oboe_rate});
 sesh = find(has_bass & has_oboe);
+[sesh, num_data] = getF0Sessions(nat_data, type)
 putative = {nat_data(sesh).putative};
 nneurons = length(sesh);
 

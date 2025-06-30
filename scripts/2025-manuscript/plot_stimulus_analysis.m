@@ -197,7 +197,8 @@ for iinstr = 1:2
 		[y(ii,:), Fs] = audioread(fullfile(base, 'waveforms', files{ii}));
 	end
 	t = linspace(0, length(y)/Fs, length(y));
-	F0s = pitch_order(order);
+	%F0s = pitch_order(order);
+	F0s = calcManualF0s(target);
 
 	% Analysis 
 	for ii = 1:nfiles
