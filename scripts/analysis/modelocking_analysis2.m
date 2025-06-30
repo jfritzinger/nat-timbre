@@ -14,6 +14,8 @@ sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
 	'PreserveVariableNames',true);
 F0s = getF0s(target);
 accuracy = [neuron_time_F0.accuracy];
+rastercolors = {[31,88,239]/256, [218,14,114]/256, [255,176,0]/256};
+
 
 %% Plot 10 examples, 5 good and 5 bad
 
@@ -42,11 +44,15 @@ for ii = 1:3
 	data_NT = analyzeNT(params_NT{1});
 	temporal = analyzeNT_Temporal(data_NT, CF);
 
-	% Plot dot rasters 
+	% Plot dot rasters
 	num_stim = 40;
 	for j = 1:num_stim
 		offset = (j-1)*20; % Adjust offset amount
-		scatter(temporal.x{j}/1000,temporal.y{j}+offset,3, 'filled')
+		if temporal.VS_p(j)<0.01
+			scatter(temporal.x{j}/1000,temporal.y{j}+offset,3, 'filled', 'MarkerFaceColor',rastercolors{mod(j, 3)+1})
+		else
+			scatter(temporal.x{j}/1000,temporal.y{j}+offset,3, 'filled', 'MarkerFaceColor','k', 'MarkerFaceAlpha',0.9)
+		end
 		yline(offset, 'k')
 	end
 	ylim([0 20*num_stim])
@@ -75,9 +81,9 @@ for ii = 1:3
 		y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
 		offset = (j-1)*max_rate; % Adjust offset amount
 		if temporal.VS_p(j)<0.01
-			patch(x_patch, y_patch + offset, 'b', 'FaceAlpha',0.5, 'EdgeColor','k');
+			patch(x_patch, y_patch + offset, rastercolors{mod(j, 3)+1}, 'FaceAlpha',0.9, 'EdgeColor','k');
 		else
-			patch(x_patch, y_patch + offset, 'k', 'FaceAlpha',0.3, 'EdgeColor','k');
+			patch(x_patch, y_patch + offset, 'k', 'FaceAlpha',0.9, 'EdgeColor','k');
 		end
 		period = 1/data_NT.pitch_num(j)*1000;
 		yline(offset, 'k')
@@ -107,7 +113,11 @@ for ii = 1:3
 		y_patch = repelem([0; counts(:); 0]', 2);
 		y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
 		offset = (j-1)*max_rate; % Adjust offset amount
-		patch(x_patch, y_patch + offset, 'b', 'FaceAlpha',0.5, 'EdgeColor','k');		
+		if temporal.VS_p(j)<0.01
+			patch(x_patch, y_patch + offset, rastercolors{mod(j, 3)+1}, 'FaceAlpha',0.9, 'EdgeColor','k');
+		else
+			patch(x_patch, y_patch + offset, 'k', 'FaceAlpha',0.9, 'EdgeColor','k');
+		end
 		T = 1/F0s(j)*1000;
 		plot([T T], [offset (j)*max_rate], 'k');
 	end
