@@ -10,26 +10,10 @@ load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 [sesh, num_data] = getTimbreSessions(nat_data);
 
 %% Set responses 
-% 75 * 20 = 1500 responses
-tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
 
-% Get bassoon stimulus
-target = 'Bassoon';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_b = round(tuning.Frequency(index));
-[F0s_b, ~] = sort(F0s_b);
-
-% Get bassoon stimulus
-target = 'Oboe';
-listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-files = {listing.name};
-note_names = extractBetween(files, 'ff.', '.');
-[~, index] = ismember(note_names, tuning.Note);
-F0s_o = round(tuning.Frequency(index));
-[F0s_o, ~] = sort(F0s_o);
+% Get stimulus
+F0s_b = getF0s('Bassoon');
+F0s_o = getF0s('Oboe');
 
 % Get into 'Response' 
 response_b = cell(75,1);
@@ -39,7 +23,6 @@ end
 for ii = 1:length(F0s_o)
 	response_b{ii+length(F0s_b)} = ['O_' num2str(F0s_o(ii))];
 end
-
 response = reshape(repmat(response_b, 1, 20)', 1, []);
 response = response';
 

@@ -1,19 +1,17 @@
 %% model_neuron_rate_F0
 clear 
+
 %% Load in data
 
-filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
+base = getPathsNT();
+load(fullfile(base, 'Data_NT_3.mat'), 'nat_data')
 
 %% Shape data into model input
 target = 'Oboe';
+%target = 'Bassoon';
 
-if strcmp(target, 'Oboe')
-	sesh = find(~cellfun(@isempty, {nat_data.oboe_rate}));
-else
-	sesh = find(~cellfun(@isempty, {nat_data.bass_rate}));
-end
-num_data = numel(sesh);
+[sesh, num_data] = getF0Sessions(nat_data, target);
+
 
 % Get all rates for each repetition for bassoon (one example neuron)
 neuron_rate_F0 = struct;
