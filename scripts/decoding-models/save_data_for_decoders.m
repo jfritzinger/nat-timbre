@@ -119,9 +119,9 @@ for ii = 1:num_sesh
 
 	if ~isempty(data_oboe.rate)
 		temporal_oboe = analyzeNT_Temporal(data_oboe, CF);
-		temporal_oboe.VS_rep(temporal_oboe.VS_rep>=0.99) = NaN;
-		temporal_oboe.VS_rep(isnan(temporal_oboe.VS_rep)) = 0.0001;
-		sync_rep = temporal_oboe.VS_rep' .* data_oboe.raw_rates;
+		temporal_oboe.VS_perrep(temporal_oboe.VS_perrep>=0.99) = NaN;
+		temporal_oboe.VS_perrep(isnan(temporal_oboe.VS_perrep)) = 0.0001;
+		sync_rep = temporal_oboe.VS_perrep' .* data_oboe.raw_rates;
 
 		% Oboe data
 		nat_data(ii).oboe_rate = data_oboe.rate;
@@ -131,7 +131,8 @@ for ii = 1:num_sesh
 		nat_data(ii).oboe_norm_rate = norm_rate_oboe; 
 		nat_data(ii).oboe_norm_rep = norm_rates_oboe;
 		nat_data(ii).oboe_VS = temporal_oboe.VS;
-		nat_data(ii).oboe_VSrep = temporal_oboe.VS_rep;
+		nat_data(ii).oboe_VS_p = temporal_oboe.VS_p;
+		nat_data(ii).oboe_VSrep = temporal_oboe.VS_perrep;
 		nat_data(ii).oboe_VS_CF = temporal_oboe.VS_CF;
 		nat_data(ii).oboe_spikerate = temporal_oboe.x;
 		nat_data(ii).oboe_spikerep = temporal_oboe.y;
@@ -139,9 +140,9 @@ for ii = 1:num_sesh
 
 	if ~isempty(data_bass.rate)
 		temporal_bass = analyzeNT_Temporal(data_bass, CF);
-		temporal_bass.VS_rep(temporal_bass.VS_rep>=0.99) = NaN;
-		temporal_bass.VS_rep(isnan(temporal_bass.VS_rep)) = 0.0001;
-		sync_rep = temporal_bass.VS_rep' .* data_bass.raw_rates;
+		temporal_bass.VS_perrep(temporal_bass.VS_perrep>=0.99) = NaN;
+		temporal_bass.VS_perrep(isnan(temporal_bass.VS_perrep)) = 0.0001;
+		sync_rep = temporal_bass.VS_perrep' .* data_bass.raw_rates;
 
 		% Bassoon data
 		nat_data(ii).bass_rate = data_bass.rate;
@@ -151,7 +152,8 @@ for ii = 1:num_sesh
 		nat_data(ii).bass_norm_rate = norm_rate_bass;
 		nat_data(ii).bass_norm_rep = norm_rates_bass;
 		nat_data(ii).bass_VS = temporal_bass.VS;
-		nat_data(ii).bass_VSrep = temporal_bass.VS_rep;
+		nat_data(ii).bass_VS_p = temporal_bass.VS_p;
+		nat_data(ii).bass_VSrep = temporal_bass.VS_perrep;
 		nat_data(ii).bass_VS_CF = temporal_bass.VS_CF;
 		nat_data(ii).bass_spikerate = temporal_bass.x;
 		nat_data(ii).bass_spikerep = temporal_bass.y;
@@ -161,4 +163,4 @@ end
 
 %% Save dataset
 
-save('Data_NT_3.mat', "nat_data");
+save(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), "nat_data");
