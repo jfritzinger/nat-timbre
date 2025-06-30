@@ -14,7 +14,7 @@ ind_b = 25:40;
 ind_o = [1 3:17];
 target = 1;
 
-%% Get all rates for each repetition for bassoon (one example neuron)
+% Get all rates for each repetition for bassoon (one example neuron)
 for ind = 1:num_data
 
 	index = sesh(ind);

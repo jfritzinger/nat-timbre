@@ -14,15 +14,13 @@ target = 'Bassoon';
 % Get stimulus
 F0s = getF0s(target);
 [sesh, num_data] = getF0Sessions(nat_data, target);
-T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'classification');
+T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'classification', 'Rate');
 
 %% Run model 
 
 nrep = 1;
 best_accuracy = -inf;
 for irep = 1:nrep
-	% [trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
-	% 	trainClassifierPopRateF0(T, F0s);
 
 	[trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
 		trainClassifierPopRateF0(T, target);
@@ -81,7 +79,6 @@ nreps = 100;
 data_mat = table2array(T(:,1:end-1));
 for imodel = 1:nreps
 
-
 	% Shuffle data (rows)
 	data_mat3 = zeros(length(F0s)*20, num_data);
 	for ind = 1:length(F0s)*20
@@ -108,4 +105,4 @@ pop_rate_F0.shuffled_accuracy = shuffled_accuracy;
 %% Plot outputs 
 
 save(fullfile(base, 'model_comparisons', ...
-	['Pop_Rate_F0_' target '2.mat']), "pop_rate_F0")
+	['Pop_Rate_F0_' target '.mat']), "pop_rate_F0")

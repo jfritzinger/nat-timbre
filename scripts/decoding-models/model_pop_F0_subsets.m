@@ -97,7 +97,7 @@ box off
 
 % Save accuracies
 save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_CF.mat']), ...
-	"accuracy", "std_acc", "CF_groups")
+	"accuracy", "std_acc", "CF_groups", "num_subset")
 
 %% Model MTF Groups
 
@@ -157,5 +157,5 @@ grid on
 box off
 
 % Save accuracies
-% save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_MTF.mat']), ...
-% 	"accuracy", "std_acc", "CF_groups")
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '_MTF.mat']), ...
+	"accuracy", "std_acc", "MTF_names", "num_subset")
