@@ -1,10 +1,7 @@
 function T = getF0NeuronTable(nat_data, target, index, F0s, type)
 
-switch type % rate or timing
-	case 'Rate'
-
-
-	case 'Timing'
+switch type
+	case 'Data'
 
 		switch target
 			case 'Bassoon'
@@ -72,5 +69,50 @@ switch type % rate or timing
 				T = array2table(h_all);
 				T.Response = response;
 		end
+
+	case 'Model'
+		switch target
+			case 'Bassoon'
+				h_all = [];
+				for itarget = 1:length(F0s)
+					spikes = nat_data(index).bass_PSTH_all{itarget}; % ms
+					h_all = [h_all; spikes];
+				end
+				T = array2table(h_all);
+				response = reshape(repmat(F0s, 1, 20)', 1, []);
+				T.Response = response';
+
+			case 'Oboe'
+				h_all = [];
+				for itarget = 1:length(F0s)
+					spikes = nat_data(index).oboe_PSTH_all{itarget}; % ms
+					h_all = [h_all; spikes];
+				end
+				T = array2table(h_all);
+				response = reshape(repmat(F0s, 1, 20)', 1, []);
+				T.Response = response';
+
+			case 'Invariant'
+				response = reshape(repmat(F0s, 1, 40)', 1, []);
+				ind_b = 25:40;
+				ind_o = [1 3:17];
+
+				h = [];
+				for target = 1:16
+
+					% Get data
+					spikes_bass = nat_data(index).bass_PSTH_all{ind_b(target)}; % ms
+					spikes_oboe = nat_data(index).oboe_PSTH_all{ind_o(target)};
+
+					% Arrange data for SVM
+					h_all = [spikes_bass; spikes_oboe];
+					h = [h; h_all];
+				end
+
+				% Put data into table
+				T = array2table(h);
+				T.Response = response';
+		end
+end
 
 end
