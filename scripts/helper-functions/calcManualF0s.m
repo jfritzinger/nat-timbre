@@ -31,7 +31,7 @@ pitch_order = tuning.Frequency(index); % Get freqs of each note
 files = files(order);
 
 
-%% For one stimulus (F0 = 73 Hz), calculate actual F0 
+%% Calculate actual F0 
 
 for iii = 1:nfiles
 

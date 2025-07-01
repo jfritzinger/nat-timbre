@@ -27,12 +27,8 @@ this_ds = param.stims.dsid == ds;
 cluster = param.cluster;
 
 % Load in tuning sheet
-if ismac
-	tuning_dir = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/waveforms';
-else
-	tuning_dir = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\waveforms';
-end
-tuning = readtable(fullfile(tuning_dir, 'Tuning.xlsx'));
+base = getPathsNT();
+tuning = readtable(fullfile(base, 'Tuning.xlsx'));
 
 % Rate analysis
 [Timbres,~,Timbrei] = unique([param.list.iwav_file].');
