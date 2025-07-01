@@ -4,14 +4,15 @@ clear
 %% Load in data
 
 base = getPathsNT();
-load(fullfile(base, 'Data_NT_3.mat'), 'nat_data')
+%load(fullfile(base, 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Shape data into model input
-target = 'Oboe';
-%target = 'Bassoon';
+%target = 'Oboe';
+target = 'Bassoon';
 
 [sesh, num_data] = getF0Sessions(nat_data, target);
-
 
 % Get all rates for each repetition for bassoon (one example neuron)
 neuron_rate_F0 = struct;
@@ -21,11 +22,9 @@ for ind = 1:num_data
 	if strcmp(target, 'Oboe')
 		data = nat_data(index).oboe_raterep;
 		avg_rate = nat_data(index).oboe_rate;
-		rate_std = nat_data(index).oboe_rate_std;
 	else
 		data = nat_data(index).bass_raterep;
 		avg_rate = nat_data(index).bass_rate;
-		rate_std = nat_data(index).bass_rate_std;
 	end
 
 	%% Calculate simple rate prediction
@@ -81,10 +80,8 @@ for ind = 1:num_data
 	%confusionchart(C)
 
 	% Calculate accuracy
-	chart = confusionchart(actual2,closest2); % Generate confusion chart
-	confusionMatrix = chart.NormalizedValues; % Get the normalized confusion matrix
-	accuracy(ind) = sum(diag(confusionMatrix)) / sum(confusionMatrix(:)); % Calculate accuracy
-	title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
+	accuracy(ind) = sum(diag(C)) / sum(C(:)); % Calculate accuracy
+	%title(sprintf('Accuracy = %0.2f%%', accuracy(ind)*100))
 
 	% Set up struct to save data
 	neuron_rate_F0(ind).putative = nat_data(index).putative;
@@ -103,6 +100,16 @@ end
 
 %% Save data 
 
-[base, datapath, savepath, ppi] = getPathsNT();
-save(fullfile(base, 'model_comparisons', ['Neuron_Rate_F0_' target '.mat']), ...
+% save(fullfile(base, 'model_comparisons', ['Neuron_Rate_F0_' target '.mat']), ...
+% 	"neuron_rate_F0")
+save(fullfile(base, 'model_comparisons', ['Model_N_Rate_F0_' target '.mat']), ...
 	"neuron_rate_F0")
+
+%% Plot analysis
+
+edges = linspace(0, 1, 51);
+figure
+histogram(accuracy, edges)
+ylabel('Number of neurons')
+title('F0 task using SFIE BE/BS rate')
+xlabel('Accuracy')

@@ -5,43 +5,17 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+%load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Shape data into model input
-
-ind_b = 25:40;
-ind_o = [1 3:17];
 
 [sesh, num_data] = getTimbreSessions(nat_data);
 for ind = 1:num_data
 	index = sesh(ind);
 
-	h = [];
-	for target = 1:16
-
-		% Get data
-		spikes_bass = nat_data(index).bass_spikerate{ind_b(target)}; % ms
-		spikereps_bass = nat_data(index).bass_spikerep{ind_b(target)};
-		spikes_oboe = nat_data(index).oboe_spikerate{ind_o(target)};
-		spikereps_oboe = nat_data(index).oboe_spikerep{ind_o(target)};
-
-		% Arrange data for SVM
-		min_dis = 300; %0.25;
-		edges = 0:min_dis:300;
-		t = 0+min_dis/2:min_dis:300-min_dis/2;
-		for irep = 1:20
-			h_bass1 = histcounts(spikes_bass(spikereps_bass==irep), edges);
-			h_bass(irep, :) = h_bass1(randperm(length(h_bass1)));
-			h_oboe1 = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
-			h_oboe(irep, :) = h_oboe1(randperm(length(h_bass1)));
-		end
-		h_all = [h_bass; h_oboe];
-		h = [h; h_all];
-	end
-
-	% Put data into table
-	T = array2table(h);
-	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+	T = getTimbreNeuronTable(nat_data, index, 'Model');
 
 	% Call SVM
 	[trainedClassifier, validationAccuracy, validationPredictions] = ...
@@ -63,13 +37,15 @@ for ind = 1:num_data
 		num_data, ind/num_data*100, accuracy_all(ind)*100)
 end
 
-save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse300.mat'), ...
+% save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse300.mat'), ...
+% 	"neuron_time_timbre", '-v7.3')
+save(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'), ...
 	"neuron_time_timbre", '-v7.3')
 
 %% Plot accuracy of each neuron
 
 figure
-histogram(accuracy_all*100,21)
+histogram(accuracy_all*100,51)
 mean_F0 = mean(accuracy_all);
 hold on
 xline(50, 'k')
@@ -79,7 +55,7 @@ xlabel('Prediction Accuracy (%)')
 xlim([0 100])
 mean_all = mean(accuracy_all, 'all');
 fprintf('Mean for all = %0.4f\n', mean_all)
-
+title('Instrument identification task using SFIE BE/BS timing')
 %save('Neuron_Time_Timbre_All.mat', "accuracy", "mean_F0")
 
 %% Plot scatter plot 

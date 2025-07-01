@@ -3,9 +3,10 @@ clear
 
 %% Load in data
 
-filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
-load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
-
+[base, datapath, savepath, ppi] = getPathsNT();
+%load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Shape data into model input
 
@@ -18,9 +19,6 @@ target = 1;
 for ind = 1:num_data
 
 	index = sesh(ind);
-	% figure('Position',[136,782,1085,481])
-	% tiledlayout(6, 6);
-
 	for target = 1:16
 		data_1 = [nat_data(index).bass_raterep(:, ind_b(target)) ...
 			nat_data(index).oboe_raterep(:, ind_o(target))];
@@ -94,51 +92,59 @@ for ind = 1:num_data
 	%confusionchart(C)
 
 	% Set up struct to save data
-	% neuron_rate_timbre(ind).putative = nat_data(index).putative;
-	% neuron_rate_timbre(ind).ind_b = ind_b(target);
-	% neuron_rate_timbre(ind).ind_o = ind_o(target);
-	% neuron_rate_timbre(ind).CF = nat_data(index).CF;
-	% neuron_rate_timbre(ind).MTF = nat_data(index).MTF;
-	% neuron_rate_timbre(ind).rate_rep = data;
-	% neuron_rate_timbre(ind).actual = actual2;
-	% neuron_rate_timbre(ind).closest = closest2;
-	% neuron_rate_timbre(ind).accuracy = accuracy(ind);
-	% neuron_rate_timbre(ind).C = C;
+	neuron_rate_timbre(ind).putative = nat_data(index).putative;
+	neuron_rate_timbre(ind).ind_b = ind_b(target);
+	neuron_rate_timbre(ind).ind_o = ind_o(target);
+	neuron_rate_timbre(ind).CF = nat_data(index).CF;
+	neuron_rate_timbre(ind).MTF = nat_data(index).MTF;
+	neuron_rate_timbre(ind).rate_rep = data;
+	neuron_rate_timbre(ind).actual = actual2;
+	neuron_rate_timbre(ind).closest = closest2;
+	neuron_rate_timbre(ind).accuracy = accuracy(ind);
+	neuron_rate_timbre(ind).C = C;
 
 	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
 end
 
 %% Plot outputs 
 
+edges = linspace(0, 1, 51);
 figure
-nexttile
-scatter(accuracy, accuracy_SVM, 'filled', 'MarkerFaceAlpha',0.5)
-hold on
-plot([0.4 1], [0.4 1])
-ylabel('SVM Accuracy')
-xlabel('Rate Discrimination Accuracy')
-title('Comparing SVM to manual discrimination')
+histogram(accuracy, edges)
+ylabel('Number of neurons')
+title('Instrument identification task using SFIE BE/BS rate')
+xlabel('Accuracy')
 
-% Load in timing models
-filepath_timing = fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat');
-load(filepath_timing, "neuron_time_timbre")
-accuracy_time = [neuron_time_timbre.accuracy];
-nexttile
-scatter(accuracy, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
-hold on
-plot([0.4 1], [0.4 1])
-ylabel('Time')
-xlabel('Rate Discrimination Accuracy')
-
-nexttile
-scatter(accuracy_SVM, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
-hold on
-plot([0.4 1], [0.4 1])
-ylabel('Time')
-xlabel('SVM Rate Accuracy')
+% figure
+% nexttile
+% scatter(accuracy, accuracy_SVM, 'filled', 'MarkerFaceAlpha',0.5)
+% hold on
+% plot([0.4 1], [0.4 1])
+% ylabel('SVM Accuracy')
+% xlabel('Rate Discrimination Accuracy')
+% title('Comparing SVM to manual discrimination')
+% 
+% % Load in timing models
+% filepath_timing = fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat');
+% load(filepath_timing, "neuron_time_timbre")
+% accuracy_time = [neuron_time_timbre.accuracy];
+% nexttile
+% scatter(accuracy, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
+% hold on
+% plot([0.4 1], [0.4 1])
+% ylabel('Time')
+% xlabel('Rate Discrimination Accuracy')
+% 
+% nexttile
+% scatter(accuracy_SVM, accuracy_time, 'filled', 'MarkerFaceAlpha',0.5)
+% hold on
+% plot([0.4 1], [0.4 1])
+% ylabel('Time')
+% xlabel('SVM Rate Accuracy')
 
 %% Save data
-% 
-% [base, datapath, savepath, ppi] = getPathsNT();
+
 % save(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
 % 	"neuron_rate_timbre")
+save(fullfile(base, 'model_comparisons', 'Model_N_Rate_Timbre_All.mat'), ...
+	"neuron_rate_timbre")
