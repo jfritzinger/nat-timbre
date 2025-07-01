@@ -38,28 +38,32 @@ scattersize = 12;
 for iplot = 1:2
 	if iplot == 1
 		h(1) = subplot(2, 3, 1);
-		accuracy = accuracy_rate;
+		accuracy = accuracy_time;
 	else
 		h(2) = subplot(2, 3, 2);
-		accuracy = accuracy_time;
+		accuracy = accuracy_rate;
 	end
 	edges = linspace(0, 1, 51);
 	if iplot == 1
 		histogram(accuracy,edges, 'Orientation','horizontal', 'FaceColor', colorsTimbre)
-		ylim([0.40 0.85])
+		ylim([0.40 0.90])
 		ylabel('Timing Prediction Accuracy')
 		yline(0.50, 'color', [0.4 0.4 0.4], 'LineWidth',linewidth)
 		yticks(0:0.05:1)
 		xticks([0 30])
+		fprintf('Timing Timbre Accuracy: \nMean = %0.02f, %0.02f - %0.02f\n', ...
+			mean(accuracy), min(accuracy), max(accuracy))
 		%yline(mean(accuracy), 'r', 'LineWidth',linewidth)
 		%yline(median(accuracy), 'r--', 'LineWidth',linewidth)
 	else
 		histogram(accuracy,edges, 'FaceColor', colorsTimbre)
-		xlim([0.40 0.85])
+		xlim([0.40 0.90])
 		xlabel('Rate Prediction Accuracy')
 		xline(0.50, 'color', [0.4 0.4 0.4], 'LineWidth',linewidth)
 		xticks(0:0.05:1)
 		yticks([0 30])
+		fprintf('Rate Timbre Accuracy: \nMean = %0.02f, %0.02f - %0.02f\n', ...
+			mean(accuracy), min(accuracy), max(accuracy))
 		%xline(mean(accuracy), 'r', 'LineWidth',linewidth)
 		%xline(median(accuracy), 'r--', 'LineWidth',linewidth)
 	end
@@ -82,8 +86,8 @@ scatter(accuracy_rate, accuracy_time, scattersize, 'filled', 'MarkerEdgeColor','
 plot([0, 1], [0, 1], 'k')
 plot([0 0.50], [0.50, 0.50], 'color', [0.4 0.4 0.4])
 plot([0.50 0.50], [0, 0.50], 'color', [0.4 0.4 0.4])
-xlim([0.40 0.85])
-ylim([0.40 0.85])
+xlim([0.40 0.90])
+ylim([0.40 0.90])
 
 mdl = fitlm(accuracy_rate, accuracy_time);
 x = linspace(0, 1, 20);
