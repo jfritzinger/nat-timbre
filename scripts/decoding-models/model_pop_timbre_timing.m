@@ -3,9 +3,13 @@ clear
 %% Load in data
 
 base = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
+% load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+% load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
+% 	"neuron_time_timbre")
+load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'),...
 	"neuron_time_timbre")
+load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Run model 
 
@@ -23,7 +27,7 @@ timerVal = tic;
 for imodel = 1:nmodels
 	timerVal = tic;
 
-	for inrep = 1:5
+	for inrep = 1:2
 
 		if imodel < nmodels/2+1 % 6 good models
 			index = best_ind;
@@ -35,7 +39,7 @@ for imodel = 1:nmodels
 		sesh = sesh_all(index(num_index));
 
 		% Get table of PSTH data
-		T = getTimbrePopTable(nat_data, 'Timing', sesh, num_data);
+		T = getTimbrePopTable(nat_data, 'Timing', sesh, num_data, 'Model');
 
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] = ...
