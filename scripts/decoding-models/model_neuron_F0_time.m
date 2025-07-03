@@ -4,7 +4,7 @@
 %% Load in data
 
 [base, datapath, savepath, ppi] = getPathsNT();
-%load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 % load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
 % nat_data = nat_model;
 
@@ -22,7 +22,7 @@ F0s = log10(F0s);
 [sesh, num_data] = getF0Sessions(nat_data, target);
 for ind = 1:num_data
 	index = sesh(ind);
-	T = getF0NeuronTable(nat_data, target, index, F0s, 'Model');
+	T = getF0NeuronTable(nat_data, target, index, F0s, 'Data');
 
 	for imodelrep = 1 %:5
 
