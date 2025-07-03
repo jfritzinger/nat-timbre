@@ -4,9 +4,13 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
+% load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+% load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
+% 	"pop_rate_timbre")
+load(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
 	"pop_rate_timbre")
+load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Get data into proper matrix
 
@@ -87,7 +91,9 @@ grid on
 box off
 
 % Save accuracies
-save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+% 	"accuracy", "std_acc", "CF_groups")
+save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_CF.mat'), ...
 	"accuracy", "std_acc", "CF_groups")
 
 %% MTF Subset
@@ -157,5 +163,7 @@ grid on
 box off
 
 % Save accuracies
-save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
+% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
+% 	"accuracy", "std_acc", "CF_groups")
+save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_MTF.mat'), ...
 	"accuracy", "std_acc", "CF_groups")
