@@ -5,7 +5,7 @@ for i_stim = 1:num_stim
 
 	% Calculate rasters
 	dur = 300; % duration in ms
-	nrep = 20; % number of stimulus repetitions 
+	nrep = 20; % number of stimulus repetitions
 	x = data_ST.spike_times{i_stim};
 	y = data_ST.spike_reps{i_stim};
 	valid = x<0.3e6;
@@ -18,22 +18,22 @@ for i_stim = 1:num_stim
 	[PSTH, t] = histcounts(x, edges_psth);
 
 	% Get spike times without onset
-	onset = 25; % 25 ms onset 
+	onset = 25; % 25 ms onset
 	ind_onset = x<onset;
 	spike_times = x(~ind_onset);
 	reps = y(~ind_onset);
 
 	% Truncate spikes that don't occur in a full cycle of the stimulus
-	period = 1000 / data_ST.F0s_actual(i_stim);	% Period in ms
+	period = 1000 / (data_ST.F0s_actual(i_stim));	% Period in ms
 	num_periods = floor((dur-onset)/period);	% Number of full periods in the stimulus
-	ind_full_period = spike_times<(num_periods*period); 
+	ind_full_period = spike_times<(num_periods*period);
 	subset_spike_times = spike_times(ind_full_period);
 	subset_reps = reps(ind_full_period);
 
 	% Calculate period histogram
-	% Try 0.25 ms bins 
-	wrapped_times = mod(subset_spike_times, period); 
-	num_bins = round(period/0.25); % 30; % Number of bins for histogram
+	% Try 0.25 ms bins
+	wrapped_times = mod(subset_spike_times, period);
+	num_bins = 30; %round(period/0.25); % 30; % Number of bins for histogram
 	edges = linspace(0, period, num_bins+1); % Bin edges
 	counts = histcounts(wrapped_times, edges); % Create histogram
 
@@ -41,13 +41,12 @@ for i_stim = 1:num_stim
 	% bin_width = period / num_bins; % Bin width in ms
 	% firing_rate = counts / (nrep * bin_width); % Normalize by trials and bin width
 
-	% % Plotssss
+	% % Plots
 	% figure
 	% scatter(x, y)
 	% hold on
 	% periods = 25:period:300;
 	% xline(periods)
-
 
 	% Calculate vector strength
 	phases = 2 * pi * (mod(subset_spike_times, period) / period);
@@ -70,7 +69,21 @@ for i_stim = 1:num_stim
 		end
 	end
 
-	% Calculate ISI 
+	% Calculate vector strength for 1-6 harmonics
+	for iharm = 1:30
+		harm = (data_ST.F0s_actual(i_stim)+(data_ST.F0s_actual(i_stim)*(iharm-1)));
+		period = 1000 / harm; % Get period of each harmonic
+		phases = 2 * pi * (mod(subset_spike_times, period) / period);
+		VS_harms(iharm) = abs(mean(exp(1i * phases)));
+		if ~isempty(phases)
+			p_value_harms(iharm) = circ_rtest(phases); % Rayleigh statistic (P < 0.01)
+		else
+			p_value_harms(iharm) = NaN;
+		end
+		harms(iharm) = harm;
+	end
+
+	% Calculate ISI
 	% isi_all = [];
 	% for ind = 1:nrep
 	% 	isi = diff(spike_times(reps==ind));
@@ -79,7 +92,7 @@ for i_stim = 1:num_stim
 	ISI = arrayfun(@(ii) diff(spike_times(reps==ii)), 1:nrep, 'UniformOutput', false);
 	ISI_all = vertcat(ISI{:});
 
-	% Calculate ISI histogram 
+	% Calculate ISI histogram
 	nbins = 80; % for 0.25 ms resolution
 	edges_isi = linspace(0, 20, nbins+1);
 	ISI_counts_all = histcounts(ISI_all, edges_isi);
@@ -119,6 +132,10 @@ for i_stim = 1:num_stim
 	temporal.ISI_all{i_stim} = ISI_all;
 	temporal.ISI_counts_all(i_stim,:) = ISI_counts_all;
 	temporal.ISI_edges = edges_isi;
+	temporal.VS_harms(i_stim,:) = VS_harms;
+	temporal.VS_p_harmns(i_stim,:) = p_value_harms;
+	temporal.harms(i_stim,:) = harms;
+
 end
 
 if num_stim == 0
