@@ -1,34 +1,35 @@
 %% pitch_single_unit_example
-% clear
-% save_fig = 0;
-% 
-% %% Load in data
-% 
-% target = 'Bassoon';
-% [base, datapath, ~, ppi] = getPathsNT();
-% load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
-% 	"neuron_time_F0")
-% 
-% % Get best unit
-% accuracy = [neuron_time_F0.accuracy];
-% [max_accur, index] = max(accuracy);
-% %putative = neuron_time_F0(index).putative;
-% putative = 'R29_TT2_P3_N03';
-% index = 149;
-% 
-% % Load in spreadsheet & data
-% spreadsheet_name = 'Data_Table.xlsx';
-% sessions = readtable(fullfile(base, spreadsheet_name), ...
-% 	'PreserveVariableNames',true);
-% load(fullfile(datapath, [putative '.mat']), 'data');
-% 
-% % Find example in spreadsheet
-% s_ind = strcmp(sessions.Putative_Units, putative);
-% CF = sessions.CF(s_ind);
-% F0s = getF0s(target);
+clear
+save_fig = 0;
+
+%% Load in data
+
+target = 'Bassoon';
+[base, datapath, ~, ppi] = getPathsNT();
+load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
+	"neuron_time_F0")
+
+% Get best unit
+accuracy = [neuron_time_F0.accuracy];
+[max_accur, index] = max(accuracy);
+%putative = neuron_time_F0(index).putative;
+putative = 'R29_TT2_P3_N03';
+index = 149;
+
+% Load in spreadsheet & data
+spreadsheet_name = 'Data_Table.xlsx';
+sessions = readtable(fullfile(base, spreadsheet_name), ...
+	'PreserveVariableNames',true);
+load(fullfile(datapath, [putative '.mat']), 'data');
+
+% Find example in spreadsheet
+s_ind = strcmp(sessions.Putative_Units, putative);
+CF = sessions.CF(s_ind);
+F0s = getF0s(target);
 
 %% Set up figure
 
+[base, ~, ~, ppi] = getPathsNT();
 figure('Position',[50 50 6*ppi, 4.7*ppi])
 %tiledlayout(3, 4, 'TileIndexing','columnmajor')
 scattersize = 5;
@@ -190,6 +191,7 @@ yticklabels(round(F0s))
 title('Rasters')
 set(gca,'fontsize',fontsize)
 ylabel('F0 (Hz)')
+xlim([0 0.15])
 
 
 %% H. Period PSTH
