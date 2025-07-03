@@ -1,4 +1,4 @@
-function F0s = calcManualF0s(target)
+function [F0s, peak_harm] = calcManualF0s(target)
 
 
 %% Load in data 
@@ -33,6 +33,8 @@ files = files(order);
 
 %% Calculate actual F0 
 
+F0s = NaN(nfiles, 1);
+peak_harm = NaN(nfiles, 1);
 for iii = 1:nfiles
 
 	% Load in file 
@@ -42,6 +44,8 @@ for iii = 1:nfiles
 	% Welch's power spectral density estimate
 	[pxx, f] = pwelch(stim,[],[],[],fs);
 	[pks,locs] = findpeaks(pxx); % Find peaks 
+	[~, ind] = max(pks);
+	peak_harm(iii) = f(locs(ind));
 
 	% Get the first harmonic as the initial F0 guess 
 	pks_dB = 10*log10(pks);
@@ -69,6 +73,28 @@ for iii = 1:nfiles
 		i = i+1;
 	end
 	F0s(iii) = current_F0_guess;
+
+	% figure
+	% tiledlayout(5, 8)
+	% for j = 1:nfiles
+	% 	y2 = fft(stim);
+	% 	m = abs(y2);
+	% 	mdB = 20*log10(m);
+	% 	f = (0:length(y2)-1)*Fs/length(y2);
+	% 	mdB(mdB<0) = 0;
+	% 	f(f>Fs/2) = [];
+	% 	mdB = mdB(1:length(f))';
+	% 
+	% 
+	% 	nexttile
+	% 	% Plot
+	% 	plot(f/1000, mdB, 'LineWidth',linewidth, 'Color',...
+	% 		colors{ii});
+	% 	stem(f, pxx);
+	% 	hold on
+	% 	title(['F0=' num2str(round(current_F0_guess))])
+	% 	xlim([50 10000])
+	% end
 
 end
 
