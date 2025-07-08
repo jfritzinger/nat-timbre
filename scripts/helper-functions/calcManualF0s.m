@@ -1,4 +1,4 @@
-function [F0s, peak_harm] = calcManualF0s(target)
+function [F0s, peak_harm, peak_harm_num] = calcManualF0s(target)
 
 
 %% Load in data 
@@ -47,6 +47,7 @@ for iii = 1:nfiles
 	[~, ind] = max(pks);
 	peak_harm(iii) = f(locs(ind));
 
+
 	% Get the first harmonic as the initial F0 guess 
 	pks_dB = 10*log10(pks);
 	dB_thresh = -70;
@@ -73,6 +74,8 @@ for iii = 1:nfiles
 		i = i+1;
 	end
 	F0s(iii) = current_F0_guess;
+	peak_harm_num(iii) = round(peak_harm(iii)/current_F0_guess);
+
 
 	% figure
 	% tiledlayout(5, 8)
