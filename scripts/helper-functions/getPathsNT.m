@@ -9,6 +9,7 @@ if ismac
 		'Nat-Timbre/data/'];
 	savepath = ['/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code' ...
 		'/Nat-Timbre/figures/'];
+	%base = '/Volumes/DataFiles_JBF/Nat-Timbre/data';
 else
 	base = ['C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\' ...
 		'data'];
