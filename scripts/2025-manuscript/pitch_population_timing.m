@@ -6,7 +6,7 @@ save_fig = 0;
 %% Set up figure
 
 [base, ~, ~, ppi] = getPathsNT();
-figure('Position',[50, 50, 4*ppi, 4.5*ppi])
+figure('Position',[50, 50, 4*ppi, 3.7*ppi])
 linewidth = 1;
 fontsize = 8;
 legsize = 7;
@@ -23,7 +23,7 @@ for iinstru = 1:3
 	if iinstru == 1
 		load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
 			"accur_all","C_all", "num_neurons")
-		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '3.mat']),...
+		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
 			"pop_rate_F0")
 	elseif iinstru == 2
 		load(fullfile(base, 'model_comparisons', 'pop_timing_F0_Oboe_subset2.mat'), ...
@@ -35,7 +35,7 @@ for iinstru = 1:3
 		std_acc2 = std_acc;
 		load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
 			"accur_all","C_all", "num_neurons")
-		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '3.mat']),...
+		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
 			"pop_rate_F0")
 	elseif iinstru == 3
 		load(fullfile(base, 'model_comparisons', 'pop_timing_F0_invariant.mat'), ...
@@ -206,8 +206,8 @@ end
 %% Arrange positions
 
 left = [0.15 0.58]; 
-bottom = linspace(0.08, 0.72, 3);
-height = 0.22;
+bottom = linspace(0.08, 0.73, 3);
+height = 0.2;
 width = 0.25;
 
 set(h(1), 'position', [left(1) bottom(3) width height])
@@ -220,14 +220,14 @@ set(h(6), 'position', [left(2) bottom(1) width height])
 
 %% Annotate
 
-annotation("textbox", [0.12 0.73 0.1386 0.1088], "String", "Bassoon",...
+annotation("textbox", [0.11 0.7 0.1386 0.1088], "String", "Bassoon",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
-annotation("textbox", [0.06 0.44 0.09778 0.05666], "String", "Oboe",...
+annotation("textbox", [0.055 0.43 0.09778 0.05666], "String", "Oboe",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
-annotation("textbox", [0.12 0.1 0.1386 0.1088], "String", "Invariant",...
+annotation("textbox", [0.11 0.11 0.1386 0.1088], "String", "Both",...
 	"FontSize", 12, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 
-labelleft = left-0.1;
+labelleft = left-0.13;
 annotation('textbox',[labelleft(1) 0.95 0.071 0.058],...
 	'String','A','FontWeight','bold','FontSize',labelsize,...
 	'EdgeColor','none');
@@ -242,6 +242,6 @@ annotation('textbox',[labelleft(2) 0.95 0.071 0.058],...
 %% Save figure
 
 if save_fig == 1
-	filename = 'fig8_pitch_population_timing';
+	filename = 'fig9_pitch_population_timing';
 	save_figure(filename)
 end

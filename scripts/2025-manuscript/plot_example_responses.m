@@ -124,15 +124,15 @@ MTF_types = unique(MTFs);
 
 h(13) = subplot(4, 4, 13); 
 scatter(CFs, accuracy_rate, scattersize, 'filled', 'MarkerEdgeColor','k', ...
-	'MarkerFaceColor',colorsTimbre);
+	'MarkerFaceColor',colorsTimbre, 'MarkerFaceAlpha',0.5);
 hold on
 set(gca, 'xscale', 'log')
 
 mdl = fitlm(CFs, accuracy_rate);
 x = linspace(300, 14000, 50);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, ':k')
-hleg = legend('Neuron', ...
+plot(x, y, ':k', 'LineWidth',2)
+hleg = legend('', ...
 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
 	'location', 'northwest', 'box', 'off');
 hleg.ItemTokenSize = [8, 8];
@@ -162,7 +162,7 @@ for iMTF = 1:4
 	mean_vals(iMTF) = mean(weights_ordered);
 	std_vals(iMTF) = std(weights_ordered)/sqrt(length(weights_ordered));
 end
-errorbar(1:4, mean_vals, std_vals, 'k')
+%errorbar(1:4, mean_vals, std_vals, 'k')
 xticks(1:4)
 xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
@@ -182,7 +182,7 @@ hold on
 plot(freq, avg_env_diff, 'k', 'linewidth', 2)
 yline(0)
 set(gca, 'xscale', 'log', 'fontsize', fontsize)
-ylabel('Stim Env Diff (dB SPL)')
+ylabel({'Oboe - Bassoon'; 'Envelope (dB SPL)'})
 xlabel('Frequency (Hz)')
 xticks([100 200 500 1000 2000 5000 10000])
 xticklabels([0.1 0.2 0.5 1 2 5 10])
@@ -229,7 +229,8 @@ grid on
 ylim([60 100])
 xline(freq(cross(1)), 'b')
 xline(freq(cross(2)), 'b')
-legend('Oboe Rate > Bassoon Rate', 'Bassoon Rate > Oboe Rate')
+legend('Oboe Rate > Bassoon Rate', 'Bassoon Rate > Oboe Rate', 'box', 'off', ...
+	'Location',"northwest")
 
 %% Arrange 
 

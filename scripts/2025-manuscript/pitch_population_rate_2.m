@@ -1,6 +1,6 @@
 %% plot_pitch_population_rate
 clear
-save_fig = 0;
+save_fig = 1;
 
 %% Set up figure
 [base, ~, ~, ppi] = getPathsNT();
@@ -75,12 +75,17 @@ for iinstru = 1:3
 	set(gca, 'FontSize', fontsize)
 	clim([0 10])
 	colormap(brewermap([],"Blues"))
+	if iinstru == 1 || iinstru == 2
+		fprintf('%s SVM accuracy = %0.02f\n', target, pop_rate_F0.validationAccuracy)
+	else
+		fprintf('%s SVM accuracy = %0.02f\n', target, pop_rate_F0.accuracy)
+	end
 
 	%% B. Plot linear
 
 	h(ind(iinstru)+2) = subplot(3, 5, ind(iinstru)+2);
 	scatter(10.^(T.response), 10.^(pred_F0), scattersize, 'filled', ...
-		'MarkerFaceAlpha',0.3, 'MarkerFaceColor','k')
+		'MarkerFaceAlpha',0.2, 'MarkerFaceColor','k')
 	set(gca, 'xscale', 'log', 'yscale', 'log')
 	hold on
 	plot(10.^T.response, 10.^T.response, 'k')
@@ -93,6 +98,13 @@ for iinstru = 1:3
 	y = 10^p(2) .* x.^p(1);
 	%y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 	plot(x, y, 'r')
+	%plot([10 600], [10 600], 'g', 'LineWidth',1)
+
+	% One semitone above 
+	F0s1 = F0s(5:end);
+	plot(F0s(1:end-4), F0s1, 'g')
+	plot(F0s1, F0s(1:end-4), 'g')
+
 
 	if iinstru == 3
 		xlabel('Actual F0 (Hz)')
@@ -112,12 +124,14 @@ for iinstru = 1:3
 	msg = ['R^2 = ' num2str(round(r2, 2))];
 	text(0.05, 0.95, msg, 'Units', 'normalized', ...
 		'VerticalAlignment', 'top', 'FontSize',legsize)
+	fprintf('%s LR R^2 = %0.02f\n', target, r2)
+
 
 	%% C. Plot CFs
 	F0s = getF0s(target);
 	F0s = log10(F0s);
 	[sesh, num_data] = getF0Sessions(nat_data, target);
-	T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'linear');
+	T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'linear', 'Rate');
 	CFs = [nat_data(sesh).CF];
 	MTFs = {nat_data(sesh).MTF};
 	putative = {nat_data(sesh).putative};
@@ -214,11 +228,11 @@ end
 
 %% Annotate
 
-annotation("textbox", [0.06 0.72 0.1386 0.1088], "String", "Bassoon",...
+annotation("textbox", [0.06 0.71 0.1386 0.1088], "String", "Bassoon",...
 	"FontSize", titlesize+2, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
-annotation("textbox", [0.03 0.44 0.09778 0.05666], "String", "Oboe",...
+annotation("textbox", [0.03 0.43 0.09778 0.05666], "String", "Oboe",...
 	"FontSize", titlesize+2, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
-annotation("textbox", [0.06 0.09 0.1386 0.1088], "String", "Invariant",...
+annotation("textbox", [0.06 0.13 0.1386 0.1088], "String", "Both",...
 	"FontSize", titlesize+2, "FontWeight", "bold", "EdgeColor", "none", "Rotation",90)
 
 labelleft= left-0.05;
@@ -242,6 +256,6 @@ annotation('textbox',[labelleft(5) labelbottom 0.071 0.058],...
 %% Save figure
 
 if save_fig == 1
-	filename = 'fig7_pitch_pop_rate';
+	filename = 'fig8_pitch_pop_rate';
 	save_figure(filename)
 end

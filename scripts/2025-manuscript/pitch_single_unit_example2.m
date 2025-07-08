@@ -11,10 +11,11 @@ load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 
 % Get best unit
 accuracy = [neuron_time_F0.accuracy];
-[max_accur, index] = max(accuracy);
-%putative = neuron_time_F0(index).putative;
-putative = 'R29_TT2_P3_N03';
-index = 149;
+[acc_sorted, index] = sort(accuracy, 'descend');
+
+putative = neuron_time_F0(index(8)).putative;
+% putative = 'R29_TT2_P3_N03';
+% index = 149;
 
 % Load in spreadsheet & data
 spreadsheet_name = 'Data_Table.xlsx';
@@ -29,7 +30,6 @@ F0s = getF0s(target);
 
 %% Set up figure
 
-[base, ~, ~, ppi] = getPathsNT();
 figure('Position',[50 50 6*ppi, 4.7*ppi])
 %tiledlayout(3, 4, 'TileIndexing','columnmajor')
 scattersize = 5;
@@ -198,7 +198,7 @@ xlim([0 0.15])
 h(7) = subplot(4, 4, 7);
 
 hold on
-max_rate = max([temporal.p_hist{:}])-75; %max(temporal.p_hist, [], 'all');
+max_rate = max([temporal.p_hist{:}])-25; %max(temporal.p_hist, [], 'all');
 for j = 1:num_stim
 
 	% Plot PSTHs
@@ -238,47 +238,65 @@ set(gca,'fontsize',fontsize)
 
 %% ISI histograms
 h(8) = subplot(4, 4, 8);
-% Plot ISI histogram
-hold on
-nreps = params_NT{1}.nrep;
-max_rate = max(temporal.ISI_counts_all, [], 'all')-20;
-for j = 1:40
-	counts = temporal.ISI_counts_all(j,:);
-	edges = temporal.ISI_edges;
+[F0s, peak_harm, peak_harm_num] = calcManualF0s(target);
 
-	t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
-	x_patch = repelem(edges, 2);
-	y_patch = repelem([0; counts(:); 0]', 2);
-	y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
-	offset = (j-1)*max_rate; % Adjust offset amount
-	if temporal.VS_p(j)<0.01
-		patch(x_patch, y_patch + offset,rastercolors{mod(j, 3)+1},  'FaceAlpha',0.8, 'EdgeColor','k');
-	else
-		patch(x_patch, y_patch + offset, 'k','FaceAlpha',0.5, 'EdgeColor','k');
-	end
-	T = 1/F0s(j)*1000;
-	plot([T T], [offset (j)*max_rate], 'k');
+VS_harms2 =flipud(temporal.VS_harms);
+peak_harm2 = fliplr(peak_harm_num);
+imagesc(1:30, 1:40, VS_harms2)
+hold on
+for j = 1:num_stim
+	rectangle('position', [peak_harm2(j)-0.5 j-0.5, 1, 1], ...
+		'EdgeColor','k', 'LineWidth',1)
 end
-ylim([0 max_rate*40])
-xlabel('Time (ms)')
-xticks(0:30)
-xticklabels({'0', '', '', '', '', '5', '','','','','10','','','','','15', '',''})
-xtickangle(0)
-xlim([0 18])
-box on
-yticks([])
-%yticks(linspace(max_rate/2, max_rate*40-max_rate/2, 40))
+xlim([0.51 12.5])
+xlabel('Harmonic Number')
 yticklabels([])
-grid on
-title('ISI Histogram')
+c = colorbar;
+c.Label.String = 'Vector Strength';
+title('        VS to Harmonics')
 set(gca,'fontsize',fontsize)
-box off
+
+% % Plot ISI histogram
+% hold on
+% nreps = params_NT{1}.nrep;
+% max_rate = max(temporal.ISI_counts_all, [], 'all')-20;
+% for j = 1:40
+% 	counts = temporal.ISI_counts_all(j,:);
+% 	edges = temporal.ISI_edges;
+% 
+% 	t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
+% 	x_patch = repelem(edges, 2);
+% 	y_patch = repelem([0; counts(:); 0]', 2);
+% 	y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
+% 	offset = (j-1)*max_rate; % Adjust offset amount
+% 	if temporal.VS_p(j)<0.01
+% 		patch(x_patch, y_patch + offset,rastercolors{mod(j, 3)+1},  'FaceAlpha',0.8, 'EdgeColor','k');
+% 	else
+% 		patch(x_patch, y_patch + offset, 'k','FaceAlpha',0.5, 'EdgeColor','k');
+% 	end
+% 	T = 1/F0s(j)*1000;
+% 	plot([T T], [offset (j)*max_rate], 'k');
+% end
+% ylim([0 max_rate*40])
+% xlabel('Time (ms)')
+% xticks(0:30)
+% xticklabels({'0', '', '', '', '', '5', '','','','','10','','','','','15', '',''})
+% xtickangle(0)
+% xlim([0 18])
+% box on
+% yticks([])
+% %yticks(linspace(max_rate/2, max_rate*40-max_rate/2, 40))
+% yticklabels([])
+% grid on
+% title('ISI Histogram')
+% set(gca,'fontsize',fontsize)
+% box off
 
 %% Arrange plots
 
-left = [0.08 0.35 0.57 0.79];
+left = [0.08 0.33 0.53 0.73];
 bottom = linspace(0.08, 0.75, 3);
-width = 0.18;
+width = 0.16;
 height = 0.19;
 
 set(h(1), 'position', [left(1) bottom(3) width height/3])
@@ -294,8 +312,8 @@ set(h(8), 'position', [left(4) bottom(1) width+0.02 0.87])
 
 %% Label plots
 
-labelleft= [0 0.27 0.54 0.77];
-labelbottom = linspace(0.28, 0.94, 3);
+labelleft= [0 0.27 0.5 0.71];
+labelbottom = linspace(0.28, 0.95, 3);
 
 annotation('textbox',[labelleft(1) labelbottom(3) 0.071 0.058],...
 	'String','A','FontWeight','bold','FontSize',labelsize,...
@@ -320,7 +338,7 @@ annotation('textbox',[labelleft(4) labelbottom(3) 0.071 0.058],...
 %% Save figure
 
 if save_fig == 1
-	filename = 'fig4_2_pitch_single_unit_example';
+	filename = 'supp6_pitch_single_unit_example';
 	save_figure(filename)
 end
 

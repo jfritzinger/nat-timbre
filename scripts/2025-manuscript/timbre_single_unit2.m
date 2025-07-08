@@ -1,7 +1,7 @@
 % timbre_single_unit2
 
 clear
-save_fig = 0;
+save_fig = 1;
 
 %% Load in data
 
@@ -95,7 +95,7 @@ y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, ':k')
 yticks(0:0.05:1)
 xticks(0:0.05:1)
-hleg = legend('Neuron', 'Unity','Chance','', ...
+hleg = legend('', 'Unity','Chance','', ...
 	sprintf('y = %0.2f*x+%0.2f, p=%0.04f', mdl.Coefficients{2, 1}, ...
 	mdl.Coefficients{1, 1},mdl.Coefficients{2,4}), 'fontsize', legsize, ...
 	'position', [0.26,0.28,0.1877,0.1487], 'box', 'off');
@@ -121,8 +121,8 @@ set(gca, 'xscale', 'log')
 mdl = fitlm(CFs, accuracy_time);
 x = linspace(300, 14000, 50);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-plot(x, y, ':k')
-hleg = legend('Neuron', ...
+plot(x, y, ':k', 'linewidth', 2)
+hleg = legend('', ...
 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', legsize, ...
 	'location', 'northwest', 'box', 'off');
 hleg.ItemTokenSize = [8, 8];
@@ -132,7 +132,7 @@ xticks([200 500 1000 2000 5000 10000])
 xticklabels([0.2 0.5 1 2 5 10])
 set(gca, 'fontsize', fontsize)
 grid on
-ylim([0.38 1])
+ylim([0.4 0.9])
 
 %% C. MTF Distributions
 
@@ -149,38 +149,48 @@ for iMTF = 1:4
 	num_units = length(weights_ordered);
 
 	RGB = hex2rgb(colorsMTF{iMTF});
-	swarmchart(ones(num_units, 1)*iMTF, weights_ordered, scattersize, RGB, 'filled', 'MarkerFaceAlpha',0.5)
+	swarmchart(ones(num_units, 1)*iMTF, weights_ordered, scattersize, ...
+		RGB, 'filled', 'MarkerFaceAlpha',0.5, 'MarkerEdgeColor','k')
 
 	mean_vals(iMTF) = mean(weights_ordered);
 	std_vals(iMTF) = std(weights_ordered)/sqrt(length(weights_ordered));
 end
-errorbar(1:4, mean_vals, std_vals, 'k')
+%errorbar(1:4, mean_vals, std_vals, 'k')
 xticks(1:4)
 xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
 ylabel('Accuracy')
 set(gca, 'fontsize', fontsize)
 grid on
-ylim([0.38 1])
+ylim([0.4 0.9])
 
 %% D. Bin size comparisons 
 
 load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Shuffled.mat'), ...
-	"neuron_time_timbre")
-acc_shuffled = [neuron_time_timbre.accuracy];
+	"acc_shuffled")
+acc_shuffled_o = acc_shuffled(~isoutlier(acc_shuffled));
 load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse150.mat'), ...
 	"neuron_time_timbre")
 acc_150ms = [neuron_time_timbre.accuracy];
+acc_150ms_o = acc_150ms(~isoutlier(acc_150ms));
+
 acc_025ms = accuracy_time;
+acc_025ms_o = acc_025ms(~isoutlier(acc_025ms));
+
+accuracy_rate_o = accuracy_rate(~isoutlier(accuracy_rate));
 
 h(6) = subplot(2, 3, 6);
 accur_all = [acc_shuffled; acc_025ms; acc_150ms; accuracy_rate];
 boxplot(accur_all')
 hold on
-swarmchart(ones(length(acc_shuffled), 1), acc_shuffled, scattersize, 'filled', 'MarkerFaceAlpha',0.4)
-swarmchart(ones(length(acc_025ms), 1)*2, acc_025ms, scattersize, 'filled', 'MarkerFaceAlpha',0.4)
-swarmchart(ones(length(acc_150ms), 1)*3, acc_150ms, scattersize, 'filled', 'MarkerFaceAlpha',0.4)
-swarmchart(ones(length(accuracy_rate), 1)*4, accuracy_rate, scattersize, 'filled', 'MarkerFaceAlpha',0.4)
+swarmchart(ones(length(acc_shuffled_o), 1), acc_shuffled_o, scattersize, ...
+	'filled', 'MarkerFaceAlpha',0.4, 'MarkerEdgeColor','k')
+swarmchart(ones(length(acc_025ms_o), 1)*2, acc_025ms_o, scattersize, ...
+	'filled', 'MarkerFaceAlpha',0.4, 'MarkerEdgeColor','k')
+swarmchart(ones(length(acc_150ms_o), 1)*3, acc_150ms_o, scattersize, ...
+	'filled', 'MarkerFaceAlpha',0.4, 'MarkerEdgeColor','k')
+swarmchart(ones(length(accuracy_rate_o), 1)*4, accuracy_rate_o, scattersize,...
+	'filled', 'MarkerFaceAlpha',0.4, 'MarkerEdgeColor','k')
 
 xlabel('Groups')
 ylabel('Accuracy')
@@ -188,14 +198,15 @@ xticks(1:4)
 xticklabels({'Shuffle', '0.25 ms', '150 ms', 'Rate'})
 box off 
 set(gca, 'fontsize', fontsize)
+ylim([0.4 0.9])
 
-% [p12, ~] = ranksum(acc_shuffled, acc_025ms);  
-% [p13, ~] = ranksum(acc_shuffled, acc_150ms);  
-% [p23, ~] = ranksum(acc_025ms, acc_100ms);  
-% adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
-% 
-% [p, tbl, stats] = anova1(accur_all');
-% [c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
+[p12, ~] = ranksum(acc_shuffled, acc_025ms);  
+[p13, ~] = ranksum(acc_shuffled, acc_150ms);  
+[p23, ~] = ranksum(acc_025ms, accuracy_rate);  
+adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
+
+[p, tbl, stats] = anova1(accur_all');
+[c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
 
 
 %% Arrange 
@@ -203,7 +214,7 @@ set(gca, 'fontsize', fontsize)
 left = [0.07 0.52 0.78];
 bottom = [0.14 0.6];
 width = 0.17;
-height = 0.3;
+height = 0.33;
 
 fig_position = [0.16,0.28,0.29,0.63];
 nb_position = [fig_position(1),fig_position(2)-0.14,fig_position(3),0.11];
@@ -214,9 +225,24 @@ set(h(1), 'Position', wb_position)
 
 set(h(4), 'Position', [left(2) bottom(2) width height])
 set(h(5), "Position", [left(2), bottom(1), width height])
-set(h(6), "Position", [left(3), bottom(1)+0.05, width 0.7])
+set(h(6), "Position", [left(3), bottom(1)+0.02, width+0.03 0.76])
 
 %% Annotate 
 
+left2 = left-0.05;
+annotation('textbox',[left2(1) 0.96 0.0826 0.0385],'String','A',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left2(2) 0.96 0.0826 0.0385],'String','B',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left2(2) 0.48 0.0826 0.0385],'String','C',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
+annotation('textbox',[left2(3) 0.96 0.0826 0.0385],'String','D',...
+	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 
-%% Save 
+
+%% Save figure
+
+if save_fig == 1
+	filename = 'fig4_pitch_single_unit_example';
+	save_figure(filename)
+end

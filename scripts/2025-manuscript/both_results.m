@@ -117,7 +117,7 @@ for itype = 1:2
 	end
 end
 
-% Rate Population
+%% Rate Population
 
 % Calculate accuracy
 accuracy(1) = sum(diag(pop_rate.C)) / sum(pop_rate.C(:)); % Calculate accuracy
@@ -152,6 +152,8 @@ yticklabels([])
 h(6) = subplot(2, 7, [5, 6, 12, 13]);
 x = 1:75;
 pcolor(x, x, C_all{end}, 'EdgeColor','none')
+accuracy(2) = sum(diag(C_all{end})) / sum(C_all{end}, "all"); % Calculate accuracy
+
 clim([0 3])
 a=colorbar;
 a.Label.String = '# Accurate Predictions';

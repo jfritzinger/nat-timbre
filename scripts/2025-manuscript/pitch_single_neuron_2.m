@@ -1,6 +1,6 @@
 %%pitch_single_unit 
 % clear
-% save_fig = 0;
+% save_fig = 1;
 % 
 % %% Load in data 
 % 
@@ -48,7 +48,7 @@
 
 %% Create figure
 
-figure('Position',[560,563,8*ppi,4.75*ppi])
+figure('Position',[50,600,8*ppi,4.75*ppi])
 linewidth = 1;
 fontsize = 8;
 legsize = 7;
@@ -60,23 +60,24 @@ scattersize = 10;
 
 %% A. Bassoon rate vs timing 
 
+edges = linspace(0, 100, 101);
 h(1) = subplot(4, 4, 1);
 set(gca, 'fontsize', fontsize)
-edges = linspace(0, 20, 21);
 histogram(accuracy_rate,edges, 'FaceColor', colorsPitch)
-xlabel('Rate Accuracy')
+xlabel('Rate Accuracy (%)')
 grid on
 box off 
 set(gca, 'fontsize', fontsize)
+xlim([0 25])
 
 h(2) = subplot(4, 4, 2);
 set(gca, 'fontsize', fontsize)
-edges = linspace(0, 60, 21);
 histogram(accuracy_time, edges, 'Orientation','horizontal', 'FaceColor', colorsPitch)
-ylabel('Timing Accuracy')
+ylabel('Timing Accuracy (%)')
 grid on
 box off
 set(gca, 'fontsize', fontsize)
+ylim([0 60])
 
 h(3) = subplot(4, 4, 3);
 hold on
@@ -84,50 +85,56 @@ scatter(accuracy_rate, accuracy_time, scattersize, 'filled',...
 	'MarkerEdgeColor','k', 'MarkerFaceColor', colorsPitch, 'MarkerFaceAlpha',0.5)
 plot([0 100], [0 100], 'k')
 grid on
-xlim([0 20])
+xlim([0 25])
 ylim([0 60])
 set(gca, 'fontsize', fontsize)
 xticklabels([])
 yticklabels([])
 title('Bassoon')
 
-
+fprintf('Bassoon, Rate: Mean = %0.02f, Max = %0.02f\n', ...
+	mean(accuracy_rate), max(accuracy_rate))
+fprintf('Bassoon, Timing: Mean = %0.02f, Max = %0.02f\n', ...
+	mean(accuracy_time), max(accuracy_time))
 
 %% B. Oboe rate vs timing 
 
-for itype = 1:2
+h(4) = subplot(4, 4, 4);
+edges = linspace(0, 100, 101);
+chance = 1/length(neuron_rate_F0_oboe(1).rate)*100;
+hold on
+accuracy = accuracy_rate_oboe;
+histogram(accuracy,edges)
+xline(chance, 'k', 'LineWidth',linewidth)
+xline(mean(accuracy), 'r', 'LineWidth',linewidth)
+xlim([0 25])
+xlabel('Rate Accuracy (%)')
+grid on
+set(gca, 'fontsize', fontsize)
+fprintf('Oboe, Rate: Mean = %0.02f, Max = %0.02f\n', ...
+	mean(accuracy), max(accuracy))
 
-	h(3+itype) = subplot(4, 4, 3+itype);
-	edges = linspace(0, 100, 101);
-	chance = 1/length(neuron_rate_F0_oboe(1).rate)*100;
-	hold on
-	if itype == 2
-		accuracy = accuracy_time_oboe;
-		histogram(accuracy,edges, 'Orientation','horizontal')
-		yline(chance, 'k', 'LineWidth',linewidth)
-		yline(mean(accuracy), 'r', 'LineWidth',linewidth)
-		ylim([0 25])
-		ylabel('Timing Prediction Accuracy (%)')
-	else
-		accuracy = accuracy_rate_oboe;
-		histogram(accuracy,edges)
-		xline(chance, 'k', 'LineWidth',linewidth)
-		xline(mean(accuracy), 'r', 'LineWidth',linewidth)
-		xlim([0 25])
-		xlabel('Rate Prediction Accuracy (%)')
-	end
-	grid on
-	set(gca, 'fontsize', fontsize)
-end
+h(5) = subplot(4, 4, 5);
+edges = linspace(0, 100, 101);
+chance = 1/length(neuron_rate_F0_oboe(1).rate)*100;
+hold on
+accuracy = accuracy_time_oboe;
+histogram(accuracy,edges, 'Orientation','horizontal')
+yline(chance, 'k', 'LineWidth',linewidth)
+yline(mean(accuracy), 'r', 'LineWidth',linewidth)
+ylim([0 60])
+ylabel('Timing Accuracy (%)')
+grid on
+set(gca, 'fontsize', fontsize)
 
 
 h(6) = subplot(4, 4, 6);
-scatter(accuracy_rate, accuracy_time, 10, 'filled', 'MarkerEdgeColor','k', ...
+scatter(accuracy_rate_oboe, accuracy_time_oboe, scattersize, 'filled', 'MarkerEdgeColor','k', ...
 	'MarkerFaceAlpha',0.5)
 hold on
 plot([0, 100], [0, 100], 'k')
 xlim([0 25])
-ylim([0 25])
+ylim([0 60])
 
 yticks(0:5:100)
 xticks(0:5:100)
@@ -137,6 +144,9 @@ xticklabels([])
 yticklabels([])
 grid on
 
+
+fprintf('Oboe, Timing: Mean = %0.02f, Max = %0.02f\n', ...
+	mean(accuracy), max(accuracy))
 
 %% C. CFs
 
@@ -150,7 +160,7 @@ set(gca, 'fontsize', fontsize)
 xticks([200 500 1000 2000 5000 10000])
 xticklabels([0.2 0.5 1 2 5 10])
 xlabel('CF (kHz)')
-ylabel('Bassoon Accuracy')
+ylabel('Bassoon Accuracy (%)')
 grid on
 
 %% D. MTFs
@@ -174,11 +184,10 @@ for iMTF = 1:4
 	mean_vals(iMTF) = mean(accur);
 	std_vals(iMTF) = std(accur)/sqrt(length(accur));
 end
-errorbar(1:4, mean_vals, std_vals, 'k')
 xticks(1:4)
 xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
-ylabel('Bassoon Accuracy')
+ylabel('Bassoon Accuracy (%)')
 
 % tableMTF = table(MTFs', accuracy(1,:)');
 % anova(tableMTF, 'Var2')
@@ -205,7 +214,7 @@ PC2_score(PC2_score==0) = [];
 scatter(PC2_score, accuracy_time, scattersize, 'filled',...
 	'MarkerEdgeColor','k', 'MarkerFaceColor', colorsPitch)
 xlabel('PC2 RVF score')
-ylabel('Accuracy')
+ylabel('Bassoon Accuracy (%)')
 hold on
 
 mdl = fitlm(PC2_score, accuracy_time);
@@ -245,6 +254,10 @@ title('Bassoon Accuracy',...
 set(gca, 'fontsize', fontsize)
 %c.Label.String = '# Accurate Predictions';
 
+% Analysis
+best = mean(C_acc(end-15:end,:));
+
+
 %% Comparison of oboe and bassoon
 
 h(11) = subplot(4, 4, 11);
@@ -262,7 +275,7 @@ for i = 1:nneurons
 	accuracy_bass1(i) = neuron_time_F0(ind_bass).accuracy*100;
 end
 
-scatter(accuracy_bass1, accuracy_oboe, 10, 'filled', 'MarkerEdgeColor','k', ...
+scatter(accuracy_bass1, accuracy_oboe, scattersize, 'filled', 'MarkerEdgeColor','k', ...
 	'MarkerFaceAlpha',0.5)
 hold on
 plot([0, 100], [0, 100], 'k')
@@ -270,8 +283,8 @@ xlim([0 65])
 ylim([0 65])
 set(gca, 'fontsize', fontsize)
 grid on
-ylabel('Oboe Accuracy')
-xlabel('Bassoon Accuracy')
+ylabel('Oboe Accuracy (%)')
+xlabel('Bassoon Accuracy (%)')
 
 %% Imagesc reliability 
 
@@ -288,12 +301,12 @@ set(gca, 'fontsize', fontsize)
 
 h(13) = subplot(4, 4, 13);
 mean_splithalf = mean(r_splithalf, 1);
-scatter(ac, mean_splithalf, 15, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
+scatter(ac, mean_splithalf, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 ylabel('Average Reliability')
 xlabel('Accuracy')
 set(gca, 'fontsize', fontsize)
 grid on
-ylim([0 0.5])
+ylim([0 0.6])
 
 %% Imagesc vector strength 
 
@@ -309,13 +322,13 @@ set(gca, 'fontsize', fontsize)
 grid on
 yticklabels([])
 
+
 %% Vector strength
 
 h(15) = subplot(4, 4, 15);
 mean_VS = mean(VS_all2, 1);
-scatter(ac, mean_VS, 15, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
+scatter(ac, mean_VS, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 hold on
-ylim([0 0.6])
 % mdl = fitlm(mean_VS, accuracy_time);
 % x = linspace(0, 0.6, 10);
 % y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
@@ -325,22 +338,23 @@ ylabel('Average VS')
 xlabel('Accuracy')
 set(gca, 'fontsize', fontsize)
 grid on
+ylim([0 0.6])
 
 %% Arrange 
 
-left = [0.095 0.33 0.52 0.66 0.8];
+left = [0.095 0.325 0.52 0.66 0.8];
 bottom = linspace(0.08, 0.73, 3);
 height = 0.22;
 width = 0.12;
 
-fig_position = [left(1),0.65,0.18,0.3];
+fig_position = [left(1),0.65,0.16,0.3];
 nb_position = [fig_position(1),fig_position(2)-0.08,fig_position(3),0.06];
 wb_position = [fig_position(1)-0.055,fig_position(2),0.045,fig_position(4)];
 set(h(3), 'Position', fig_position)
 set(h(1), 'Position', nb_position)
 set(h(2), 'Position', wb_position)
 
-fig_position = [left(1),bottom(1)+0.08,0.18,0.3];
+fig_position = [left(1),bottom(1)+0.08,0.16,0.3];
 nb_position = [fig_position(1),fig_position(2)-0.08,fig_position(3),0.06];
 wb_position = [fig_position(1)-0.055,fig_position(2),0.045,fig_position(4)];
 set(h(6), 'Position', fig_position)
@@ -360,7 +374,7 @@ set(h(15), 'position', [left(5)+0.04 bottom(1) width-0.02 height])
 
 %% Set labels 
 
-labelleft= [0 0.28 0.48 0.64 0.8];
+labelleft= [0 0.26 0.48 0.64 0.8];
 labelbottom = linspace(0.29, 0.94, 3);
 annotation('textbox',[labelleft(1) labelbottom(3) 0.071 0.058],...
 	'String','A','FontWeight','bold','FontSize',labelsize,...
@@ -393,3 +407,8 @@ annotation('textbox',[labelleft(5) labelbottom(1) 0.071 0.058],...
 
 
 %% Save figure 
+
+if save_fig == 1
+	filename = 'fig6_single_neuron_F0';
+	save_figure(filename)
+end
