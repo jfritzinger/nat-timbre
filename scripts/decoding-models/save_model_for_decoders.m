@@ -65,6 +65,28 @@ for ii = 1:num_sesh
 			nat_model(ii).oboe_PSTH = data_oboe.PSTH;
 			nat_model(ii).oboe_PSTH_all =  data_oboe.PSTH_all_reps;
 			nat_model(ii).oboe_reliability = data_oboe.r_splithalf;
+
+			% Get spike train from Poisson spike generator
+			x = cell(40, 1);
+			y = cell(40, 1);
+			for istim = 1:40
+				bass_psth_one = data_oboe.PSTH_all_reps{istim};
+				spike_rate = [];
+				spike_rep = [];
+				for irep = 1:20
+					rate_fh = bass_psth_one(irep,:);
+					T = 0.3;
+					EventTimes = genNHPP(rate_fh,T, 1);
+					spike_rate = [spike_rate EventTimes];
+					num_spikes = length(EventTimes);
+					spike_rep = [spike_rep; irep*ones(num_spikes, 1)];
+
+				end
+				x{istim} = spike_rate;
+				y{istim} = spike_rep;
+			end
+			nat_model(ii).obe_spikerate = 1;
+			nat_model(ii).oboe_spikerep = 1;
 		end
 
 		if ~isempty(data_bass.rate) % Bassoon data
