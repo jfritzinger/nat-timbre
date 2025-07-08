@@ -69,3 +69,55 @@ while this_f <= max_freq
 	current_F0_guess = (current_F0_guess*(i-1) + (harmonics(i)-harmonics(i-1)))/i;
 	i = i+1;
 end
+% disp('Harmonic frequencies (Hz):');
+% disp(harmonics);
+disp(['Estimated F0: ', num2str(current_F0_guess), ' Hz']);
+
+%% 
+
+[pxx, f] = pwelch(stim,[],[],[],fs);
+[pks,locs] = findpeaks(pxx);
+pks_dB = 10*log10(pks);
+dB_thresh = -70;
+i_start = find(pks_dB > dB_thresh, 1);
+F0_actual = f(locs(i_start));
+max_freq = 10000;
+
+% Generate all possible harmonic numbers
+harmonic_nums = 1:floor(max_freq/F0_actual);
+harmonic_freqs = F0_actual * harmonic_nums; % [1 x N_harmonics]
+
+% For each candidate harmonic, find the closest detected peak
+% f(locs) is [N_peaks x 1], harmonic_freqs is [1 x N_harmonics]
+% We'll compare each harmonic_freq to all detected peaks
+peak_freqs = f(locs); % [N_peaks x 1]
+N_harmonics = length(harmonic_freqs);
+N_peaks = length(peak_freqs);
+
+% Compute distance matrix [N_harmonics x N_peaks]
+dist_matrix = abs(harmonic_freqs(:) - peak_freqs(:)'); % [N_harmonics x N_peaks]
+
+% For each harmonic, find the index of the closest peak
+[~, idx_closest_peak] = min(dist_matrix, [], 2); % [N_harmonics x 1]
+
+% Get the frequency of the closest peak for each harmonic
+harmonics2 = peak_freqs(idx_closest_peak); % [N_harmonics x 1]
+
+% Use the original guess if the closest peak doesn't change (as in your logic)
+idx_diff = [1; diff(idx_closest_peak)]; % First is always new
+harmonics2(idx_diff == 0) = harmonic_freqs(idx_diff == 0);
+
+% Only keep harmonics within the max frequency
+harmonics2 = harmonics2(harmonics2 <= max_freq);
+
+% --- Adaptive step replaced by average F0 ---
+if numel(harmonics2) > 1
+    F0_estimated = mean(diff(harmonics2));
+else
+    F0_estimated = F0_actual;
+end
+
+% (Optional) Display results
+% disp('Harmonic frequencies (Hz):');
+% disp(harmonics2);
+disp(['Estimated F0: ', num2str(F0_estimated), ' Hz']);
