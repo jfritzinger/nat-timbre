@@ -1,23 +1,22 @@
 %% modelocking_analysis_2
 
-clear
+%clear
 
 %% Load in data
 
 target = 'Bassoon';
 [base, datapath, ~, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
-	"neuron_time_F0")
+% load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
+% 	"neuron_time_F0")
 
 % Load in spreadsheet & data
 sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
 	'PreserveVariableNames',true);
-F0s = getF0s(target);
 accuracy = [neuron_time_F0.accuracy];
 rastercolors = {[31,88,239]/256, [218,14,114]/256, [255,176,0]/256};
 
 % Get peak harmonic of each stimulus 
-[F0s, peak_harm] = calcManualF0s(target);
+[F0s, peak_harm, peak_harm_num] = calcManualF0s(target);
 
 %% Plot 10 examples, 5 good and 5 bad
 
@@ -129,74 +128,84 @@ for ii = 1 %:3
 	% title('VS to each harmonic')
 
 	% Get vector strength for each harmonic closest to CF 
-	figure
-	tiledlayout(5, 8)
+	% figure
+	% tiledlayout(5, 8)
+	% for j = 1:num_stim
+	% 	nexttile
+	% 	harms = temporal.harms(j,:);
+	% 	VS_harms = temporal.VS_harms(j,:);
+	% 	[~, near_ind] = min(abs(CF-harms));
+	% 	nearest_harm = harms(near_ind);
+	% 	stem(harms, VS_harms);
+	% 	hold on
+	% 	xline(CF)
+	% 	xline(peak_harm(j), 'r')
+	% 	title(['F0=' num2str(round(harms(1)))])
+	% 	ylim([0 0.8])		
+	% end
+
+
+	nexttile
+	VS_harms2 =flipud(temporal.VS_harms);
+	peak_harm2 = fliplr(peak_harm_num);
+	imagesc(1:30, 1:40, VS_harms2)
+	hold on
 	for j = 1:num_stim
-		nexttile
-		harms = temporal.harms(j,:);
-		VS_harms = temporal.VS_harms(j,:);
-		[~, near_ind] = min(abs(CF-harms));
-		nearest_harm = harms(near_ind);
-		stem(harms, VS_harms);
-		hold on
-		xline(CF)
-		xline(peak_harm(j), 'r')
-		title(['F0=' num2str(round(harms(1)))])
-		ylim([0 0.8])		
+		rectangle('position', [peak_harm2(j)-0.5 j-0.5, 1, 1], ...
+			'EdgeColor','k', 'LineWidth',1.5)
 	end
+	xlim([0.51 14.51])
+	xlabel('Harmonic Number')
+	yticklabels([])
+	
 
 	% Create image plot of phase locking at different harmonics 
-	figure
-	tiledlayout(40, 1, "TileSpacing","none")
-	harms2 = flipud(temporal.harms);
-	VS_harms2 =flipud(temporal.VS_harms);
-	for j = 1:num_stim
-		nexttile
-		imagesc(harms2(j,:), 1, VS_harms2(j,:))
-		xline(peak_harm(j), 'r', 'LineWidth',2)
-		xlim([0 2500])
-		clim([0 0.8])
-	end
+	% figure
+	% tiledlayout(40, 1, "TileSpacing","none")
+	% harms2 = flipud(temporal.harms);
+	% VS_harms2 =flipud(temporal.VS_harms);
+	% for j = 1:num_stim
+	% 	nexttile
+	% 	imagesc(harms2(j,:), 1, VS_harms2(j,:))
+	% 	xline(peak_harm(j), 'r', 'LineWidth',2)
+	% 	xlim([0 2500])
+	% 	clim([0 0.8])
+	% end
 
-	% Plot ISI histogram 
-	nexttile
-	hold on
-	nreps = params_NT{1}.nrep;
-	max_rate = max(temporal.ISI_counts_all, [], 'all'); %-50;
-	for j = 1:40
-		counts = temporal.ISI_counts_all(j,:);
-		edges = temporal.ISI_edges;
 
-		t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
-		x_patch = repelem(edges, 2);
-		y_patch = repelem([0; counts(:); 0]', 2);
-		y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
-		offset = (j-1)*max_rate; % Adjust offset amount
-		if temporal.VS_p(j)<0.01
-			patch(x_patch, y_patch + offset, rastercolors{mod(j, 3)+1}, 'FaceAlpha',0.9, 'EdgeColor','k');
-		else
-			patch(x_patch, y_patch + offset, 'k', 'FaceAlpha',0.9, 'EdgeColor','k');
-		end
-		T = 1/F0s(j)*1000;
-		plot([T T], [offset (j)*max_rate], 'k');
-	end
-	ylim([0 max_rate*40])
-	xlabel('Time (ms)')
-	xticks(0:30)
-	xlim([0 18])
-	box on
-	yticks(linspace(max_rate/2, max_rate*40-max_rate/2, 40))
-	yticklabels(round(r_splithalf(:,ii), 2))
-	grid on
-	title('ISI Histogram')
-	set(gca, 'fontsize', 12)
 
-	% Plot spectra with CF marked 
-
-	for j = 1:40
-		
-
-	end
+	% % Plot ISI histogram 
+	% nexttile
+	% hold on
+	% nreps = params_NT{1}.nrep;
+	% max_rate = max(temporal.ISI_counts_all, [], 'all'); %-50;
+	% for j = 1:40
+	% 	counts = temporal.ISI_counts_all(j,:);
+	% 	edges = temporal.ISI_edges;
+	% 
+	% 	t_bin = edges(1:end-1) + diff(edges)/2; % Bin centers
+	% 	x_patch = repelem(edges, 2);
+	% 	y_patch = repelem([0; counts(:); 0]', 2);
+	% 	y_patch = y_patch(2:end-1); % Creates [0 y1 y1 0 0 y2 y2 0...]
+	% 	offset = (j-1)*max_rate; % Adjust offset amount
+	% 	if temporal.VS_p(j)<0.01
+	% 		patch(x_patch, y_patch + offset, rastercolors{mod(j, 3)+1}, 'FaceAlpha',0.9, 'EdgeColor','k');
+	% 	else
+	% 		patch(x_patch, y_patch + offset, 'k', 'FaceAlpha',0.9, 'EdgeColor','k');
+	% 	end
+	% 	T = 1/F0s(j)*1000;
+	% 	plot([T T], [offset (j)*max_rate], 'k');
+	% end
+	% ylim([0 max_rate*40])
+	% xlabel('Time (ms)')
+	% xticks(0:30)
+	% xlim([0 18])
+	% box on
+	% yticks(linspace(max_rate/2, max_rate*40-max_rate/2, 40))
+	% yticklabels(round(r_splithalf(:,ii), 2))
+	% grid on
+	% title('ISI Histogram')
+	% set(gca, 'fontsize', 12)
 
 end
 
