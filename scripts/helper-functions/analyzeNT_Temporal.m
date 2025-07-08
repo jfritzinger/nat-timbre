@@ -1,5 +1,6 @@
 function temporal = analyzeNT_Temporal(data_ST, CF)
-
+% figure
+% tiledlayout(40, 1, "TileSpacing","none")
 num_stim = length(data_ST.pitch_num);
 for i_stim = 1:num_stim
 
@@ -74,7 +75,7 @@ for i_stim = 1:num_stim
 		harm = (data_ST.F0s_actual(i_stim)+(data_ST.F0s_actual(i_stim)*(iharm-1)));
 		period = 1000 / harm; % Get period of each harmonic
 		phases = 2 * pi * (mod(subset_spike_times, period) / period);
-		VS_harms(iharm) = abs(mean(exp(1i * phases)));
+		%VS_harms(iharm) = abs(mean(exp(1i * phases)));
 		if ~isempty(phases)
 			p_value_harms(iharm) = circ_rtest(phases); % Rayleigh statistic (P < 0.01)
 		else
@@ -82,6 +83,39 @@ for i_stim = 1:num_stim
 		end
 		harms(iharm) = harm;
 	end
+
+	% Find max phase locking frequency
+	VS_freq_max = 0;
+	all_freqs = linspace(1, 11760, 11760*2);
+	for i = 1:11760*2
+		freq = all_freqs(i);
+		period = 1000 / freq; % Get period of each harmonic
+		phases = 2 * pi * (mod(subset_spike_times, period) / period);
+		VS = abs(mean(exp(1i * phases)));
+		VS_freq_max(i) = VS;
+	end
+	% nexttile
+	% hold on
+	% % for iharm = 1:10
+	% % 	harm = (data_ST.F0s_actual(i_stim)+(data_ST.F0s_actual(i_stim)*(iharm-1)));
+	% % 	xline(harm, 'r')
+	% % end
+	% plot(all_freqs, VS_freq_max)
+	% xlim([1 800])
+
+	% Calculate vector strength for 1-6 harmonics
+	for iharm = 1:30
+		harm = round((data_ST.F0s_actual(i_stim)+(data_ST.F0s_actual(i_stim)*(iharm-1))));
+		
+		% Get range 
+		harm_range = [harm-10 harm+10];
+		[~, lo_ind] = min(abs(all_freqs-harm_range(1)));
+		[~, hi_ind] = min(abs(all_freqs-harm_range(2)));
+		VS_range = VS_freq_max(lo_ind:hi_ind);
+		max_VS = max(VS_range);
+		VS_harms(iharm) = max_VS;
+	end
+
 
 	% Calculate ISI
 	% isi_all = [];
