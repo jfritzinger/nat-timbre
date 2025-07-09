@@ -42,7 +42,7 @@ grid on
 plot([0 1], [0 1], 'k')
 
 
-% Neuron Timbre: Timing
+%% Neuron Timbre: Timing
 load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'), ...
 	"neuron_time_timbre")
 model_time_timbre = neuron_time_timbre;
@@ -118,7 +118,7 @@ end
 figure
 tiledlayout(1, 2)
 targets = {'Bassoon', 'Oboe'};
-for itarget = 1:2
+for itarget = 1 
 	target = targets{itarget};
 
 	load(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']), ...
@@ -151,6 +151,13 @@ for itarget = 1:2
 	scatter(accuracy_time_F0(~isBE), accurate_time_F0_model(~isBE), 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 	hold on
 	scatter(accuracy_time_F0(isBE), accurate_time_F0_model(isBE), 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
+
+	% Look for specific putative neurons 
+	array_both = [accuracy_time_F0; accurate_time_F0_model];
+	mg_nb = find(array_both(1, :)<0.2 & array_both(2,:)>0.55);
+	mg_ng = find(array_both(1, :)>0.5 & array_both(2,:)>0.5);
+	mb_ng = find(array_both(1, :)>0.55 & array_both(2,:)<0.2);
+
 
 	hold on
 	xlim([0 1])
