@@ -205,7 +205,7 @@ ylim([0.4 0.9])
 [p23, ~] = ranksum(acc_025ms, accuracy_rate);  
 adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
 
-[p, tbl, stats] = anova1(accur_all');
+[p, tbl, stats] = kruskalwallis(accur_all');
 [c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
 
 
