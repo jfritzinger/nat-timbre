@@ -4,12 +4,14 @@ clear
 %% Load in data 
 
 [base, ~, ~, ~] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+%load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Get correct output of model 
-target = 'Bassoon';
+%target = 'Bassoon';
 %target = 'Oboe';
-%target = 'Invariant';
+target = 'Invariant';
 
 % Get stimulus
 F0s = getF0s(target);
@@ -104,5 +106,7 @@ pop_rate_F0.shuffled_accuracy = shuffled_accuracy;
 
 %% Plot outputs 
 
+% save(fullfile(base, 'model_comparisons', ...
+% 	['Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
 save(fullfile(base, 'model_comparisons', ...
-	['Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
+	['Model_Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
