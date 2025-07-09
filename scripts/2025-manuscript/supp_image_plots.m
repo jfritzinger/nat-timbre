@@ -6,29 +6,45 @@
 % Load in oboe
 [base, datapath, ~, ppi] = getPathsNT();
 
-load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Oboe.mat'), ...
+% load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Oboe.mat'), ...
+% 	"neuron_time_F0")
+% neuron_time_F0_oboe = neuron_time_F0;
+% load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Oboe.mat'), ...
+% 	"neuron_rate_F0")
+% neuron_rate_F0_oboe = neuron_rate_F0;
+% 
+% % Load in bassoon
+% load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
+% 	"neuron_time_F0")
+% load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat'), ...
+% 	"neuron_rate_F0")
+% load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+
+% Model
+load(fullfile(base, 'model_comparisons', 'Model_Neuron_Time_F0_Oboe.mat'), ...
 	"neuron_time_F0")
 neuron_time_F0_oboe = neuron_time_F0;
-load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Oboe.mat'), ...
+load(fullfile(base, 'model_comparisons','Model_N_Rate_F0_Oboe.mat'), ...
 	"neuron_rate_F0")
 neuron_rate_F0_oboe = neuron_rate_F0;
 
 % Load in bassoon
-load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Model_Neuron_Time_F0_Bassoon.mat'), ...
 	"neuron_time_F0")
-load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat'), ...
+load(fullfile(base, 'model_comparisons','Model_N_Rate_F0_Bassoon.mat'), ...
 	"neuron_rate_F0")
 load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 %% Set up figure
 
 figure('Position',[50 50 ppi*6, ppi*4])
+fontsize = 8;
 
 % Plot
 accuracy_rate = [neuron_rate_F0.accuracy]*100;
 accuracy_time = [neuron_time_F0.accuracy]*100;
 accuracy_rate_oboe = [neuron_rate_F0_oboe.accuracy]*100;
-accuracy_time_oboe = [neuron_time_F0_oboe.accuracy]*100;
+accuracy_time_oboe = [neuron_time_F0_oboe(1:183).accuracy]*100;
 
 for ineuron = 1:4
 
@@ -37,7 +53,7 @@ for ineuron = 1:4
 		type = 'Timing';
 		[~,best_ind] = sort(abs(accuracy_time), 'ascend' );
 		C_acc = NaN(length(best_ind), 40);
-		for ii = 1:287
+		for ii = 1:length(best_ind)
 			C_acc(ii,:) = diag(neuron_time_F0(best_ind(ii)).C);
 		end
 	elseif ineuron == 2
@@ -45,7 +61,7 @@ for ineuron = 1:4
 		type = 'Rate';
 		[~,best_ind] = sort(abs(accuracy_rate), 'ascend' );
 		C_acc = NaN(length(best_ind), 40);
-		for ii = 1:287
+		for ii = 1:length(best_ind)
 			C_acc(ii,:) = diag(neuron_rate_F0(best_ind(ii)).C);
 		end
 	elseif ineuron == 3
@@ -53,7 +69,7 @@ for ineuron = 1:4
 		type = 'Timing';
 		[~,best_ind] = sort(abs(accuracy_time_oboe), 'ascend' );
 		C_acc = NaN(length(best_ind), 35);
-		for ii = 1:256
+		for ii = 1:length(best_ind)
 			C_acc(ii,:) = diag(neuron_time_F0_oboe(best_ind(ii)).C);
 		end
 	else
@@ -61,7 +77,7 @@ for ineuron = 1:4
 		type = 'Rate';
 		[~,best_ind] = sort(abs(accuracy_rate_oboe), 'ascend' );
 		C_acc = NaN(length(best_ind), 35);
-		for ii = 1:256
+		for ii = 1:length(best_ind)
 			C_acc(ii,:) = diag(neuron_rate_F0_oboe(best_ind(ii)).C);
 		end
 	end
@@ -110,7 +126,7 @@ annotation('textbox',[labelleft(4) 0.95 0.071 0.058],...
 
 %% Save figure
 
-save_fig = 1;
+save_fig = 0;
 if save_fig == 1
 	filename = 'supp3_image_acc_plots';
 	save_figure(filename)
