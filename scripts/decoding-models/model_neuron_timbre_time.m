@@ -6,7 +6,7 @@ clear
 
 [base, ~, ~, ~] = getPathsNT();
 %load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 
 %% Shape data into model input
@@ -61,7 +61,7 @@ title('Instrument identification task using SFIE BE/BS timing')
 %% Plot scatter plot 
 
 [base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Neuron_Rate_Timbre_All.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Model_Neuron_Rate_Timbre_All.mat'), ...
 	"neuron_rate_timbre")
 accuracy_rate = [neuron_rate_timbre.accuracy];
 

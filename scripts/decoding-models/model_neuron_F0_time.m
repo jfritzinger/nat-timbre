@@ -4,13 +4,13 @@
 %% Load in data
 
 [base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-% load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
-% nat_data = nat_model;
+%load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+nat_data = nat_model;
 
 %% Get correct output of model 
-%target = 'Bassoon';
-target = 'Oboe';
+target = 'Bassoon';
+%target = 'Oboe';
 %target = 'Invariant';
 
 % Get bassoon stimulus
@@ -22,7 +22,7 @@ F0s = log10(F0s);
 [sesh, num_data] = getF0Sessions(nat_data, target);
 for ind = 1:num_data
 	index = sesh(ind);
-	T = getF0NeuronTable(nat_data, target, index, F0s, 'Data');
+	T = getF0NeuronTable(nat_data, target, index, F0s, 'Model');
 
 	for imodelrep = 1 %:5
 
@@ -53,7 +53,7 @@ end
 
 %% Save struct of data 
 
-save(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
+save(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']), ...
 	"neuron_time_F0", '-v7.3')
 
 %% Plot results 
