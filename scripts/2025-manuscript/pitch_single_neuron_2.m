@@ -1,50 +1,50 @@
 %%pitch_single_unit 
-% clear
-% save_fig = 1;
-% 
-% %% Load in data 
-% 
-% [base, datapath, ~, ppi] = getPathsNT();
-% 
-% % Load in oboe
-% load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Oboe.mat'), ...
-% 	"neuron_time_F0")
-% neuron_time_F0_oboe = neuron_time_F0;
-% load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Oboe.mat'), ...
-% 	"neuron_rate_F0")
-% neuron_rate_F0_oboe = neuron_rate_F0;
-% 
-% % Load in bassoon
-% load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
-% 	"neuron_time_F0")
-% load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat'), ...
-% 	"neuron_rate_F0")
-% load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-% 
-% accuracy_rate = [neuron_rate_F0.accuracy]*100;
-% accuracy_time = [neuron_time_F0.accuracy]*100;
-% accuracy_rate_oboe = [neuron_rate_F0_oboe.accuracy]*100;
-% accuracy_time_oboe = [neuron_time_F0_oboe.accuracy]*100;
-% CFs = [neuron_time_F0.CF];
-% MTFs = {neuron_time_F0.MTF};
-% F0s = getF0s('Bassoon');
-% 
-% % Analysis 
-% sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
-% 	'PreserveVariableNames',true);
-% [ac, ind_high] = sort(accuracy_time, 'ascend');
-% for ii = 1:length(accuracy_time)
-% 
-% 	putative = neuron_time_F0(ind_high(ii)).putative;
-% 	load(fullfile(datapath, [putative '.mat']), 'data');
-% 	s_ind = strcmp(sessions.Putative_Units, putative);
-% 	CF = sessions.CF(s_ind);
-% 	params_NT = data(7, 2);
-% 	data_NT = analyzeNT(params_NT{1});
-% 	temporal = analyzeNT_Temporal(data_NT, CF);
-% 	r_splithalf(:, ii) = temporal.r_splithalf;
-% 	VS_all2(:, ii) = temporal.VS;
-% end
+clear
+save_fig = 1;
+
+%% Load in data 
+
+[base, datapath, ~, ppi] = getPathsNT();
+
+% Load in oboe
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Oboe.mat'), ...
+	"neuron_time_F0")
+neuron_time_F0_oboe = neuron_time_F0;
+load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Oboe.mat'), ...
+	"neuron_rate_F0")
+neuron_rate_F0_oboe = neuron_rate_F0;
+
+% Load in bassoon
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
+	"neuron_time_F0")
+load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat'), ...
+	"neuron_rate_F0")
+load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+
+accuracy_rate = [neuron_rate_F0.accuracy]*100;
+accuracy_time = [neuron_time_F0.accuracy]*100;
+accuracy_rate_oboe = [neuron_rate_F0_oboe.accuracy]*100;
+accuracy_time_oboe = [neuron_time_F0_oboe.accuracy]*100;
+CFs = [neuron_time_F0.CF];
+MTFs = {neuron_time_F0.MTF};
+F0s = getF0s('Bassoon');
+
+% Analysis 
+sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
+	'PreserveVariableNames',true);
+[ac, ind_high] = sort(accuracy_time, 'ascend');
+for ii = 1:length(accuracy_time)
+
+	putative = neuron_time_F0(ind_high(ii)).putative;
+	load(fullfile(datapath, [putative '.mat']), 'data');
+	s_ind = strcmp(sessions.Putative_Units, putative);
+	CF = sessions.CF(s_ind);
+	params_NT = data(7, 2);
+	data_NT = analyzeNT(params_NT{1});
+	temporal = analyzeNT_Temporal(data_NT, CF);
+	r_splithalf(:, ii) = temporal.r_splithalf;
+	VS_all2(:, ii) = temporal.VS;
+end
 
 %% Create figure
 
