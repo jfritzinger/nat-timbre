@@ -9,9 +9,9 @@ load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 
 %% Get correct output of model 
-target = 'Bassoon';
+%target = 'Bassoon';
 %target = 'Oboe';
-%target = 'Invariant';
+target = 'Invariant';
 
 % Get bassoon stimulus
 F0s = getF0s(target);
@@ -48,7 +48,8 @@ for ind = 1:num_data
 	neuron_time_F0(ind).accuracy = validationAccuracy(ind);
 	neuron_time_F0(ind).C = C;
 	
-	fprintf('%d/%d, %0.2f%% done!\n', ind, num_data, ind/num_data*100)
+	fprintf('%d/%d, %0.2f%% done! Acc = %0.0g%%\n', ind, num_data, ...
+		ind/num_data*100, validationAccuracy(ind)*100)
 end
 
 %% Save struct of data 
