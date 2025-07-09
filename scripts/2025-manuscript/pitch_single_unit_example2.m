@@ -13,9 +13,15 @@ load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
 accuracy = [neuron_time_F0.accuracy];
 [acc_sorted, index] = sort(accuracy, 'descend');
 
-putative = neuron_time_F0(index(8)).putative;
+%putative = neuron_time_F0(index(8)).putative;
 % putative = 'R29_TT2_P3_N03';
 % index = 149;
+%putative = 'R29_TT3_P1_N02';
+%putative = 'R29_TT3_P2_N11';
+%putative = 'R29_TT4_P1_N04';
+putative = 'R29_TT4_P2_N06';
+%putative = 'R29_TT3_P3_N02';
+
 
 % Load in spreadsheet & data
 spreadsheet_name = 'Data_Table.xlsx';

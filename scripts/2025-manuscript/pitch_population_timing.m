@@ -21,24 +21,34 @@ for iinstru = 1:3
 
 	target = targets{iinstru};
 	if iinstru == 1
-		load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
+		% load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
+		% 	"accur_all","C_all", "num_neurons")
+		% load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
+		% 	"pop_rate_F0")
+		load(fullfile(base, 'model_comparisons', ['Model_Pop_Timing_F0_' target '.mat']), ...
 			"accur_all","C_all", "num_neurons")
-		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
+		load(fullfile(base, 'model_comparisons', ['Model_Pop_Rate_F0_' target '.mat']),...
 			"pop_rate_F0")
 	elseif iinstru == 2
-		load(fullfile(base, 'model_comparisons', 'pop_timing_F0_Oboe_subset2.mat'), ...
-			"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
-		accur_all2 = accur_all;
-		C_all2 = C_all;
-		num_neurons2 = num_neurons;
-		mean_acc2 = mean_acc;
-		std_acc2 = std_acc;
-		load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
+		% load(fullfile(base, 'model_comparisons', 'pop_timing_F0_Oboe_subset2.mat'), ...
+		% 	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
+		% accur_all2 = accur_all;
+		% C_all2 = C_all;
+		% num_neurons2 = num_neurons;
+		% mean_acc2 = mean_acc;
+		% std_acc2 = std_acc;
+		% load(fullfile(base, 'model_comparisons', ['pop_timing_F0_' target '_subset.mat']), ...
+		% 	"accur_all","C_all", "num_neurons")
+		% load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
+		% 	"pop_rate_F0")
+		load(fullfile(base, 'model_comparisons', ['Model_Pop_Timing_F0_' target '.mat']), ...
 			"accur_all","C_all", "num_neurons")
-		load(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_' target '.mat']),...
+		load(fullfile(base, 'model_comparisons', ['Model_Pop_Rate_F0_' target '.mat']),...
 			"pop_rate_F0")
 	elseif iinstru == 3
-		load(fullfile(base, 'model_comparisons', 'pop_timing_F0_invariant.mat'), ...
+		% load(fullfile(base, 'model_comparisons', 'pop_timing_F0_invariant.mat'), ...
+		% 	"accur_all","C_all", "num_neurons")
+		load(fullfile(base, 'model_comparisons', 'Model_Pop_Timing_F0_Invariant.mat'), ...
 			"accur_all","C_all", "num_neurons")
 	end
 
@@ -63,18 +73,18 @@ for iinstru = 1:3
 
 	%% Plot
 
-	if iinstru == 1 || iinstru == 3
+	% if iinstru == 1 || iinstru == 3
 		nmodels = length(num_neurons);
 		mean_acc = mean(accur_all,2);
 		std_acc = std(accur_all, [], 2);
-	else
-		nmodels = length(num_neurons) + length(num_neurons2);
-		mean_acc1 = mean(accur_all,2);
-		mean_acc = [mean_acc1(1:12); mean_acc2(1:3); mean_acc1(13:end); mean_acc2(4:6)];
-		std_acc1 = std(accur_all, [], 2);
-		std_acc = [std_acc1(1:12); std_acc2(1:3); std_acc1(13:end); std_acc2(4:6)];
-		num_neurons = [num_neurons(1:12) num_neurons2(1:3) num_neurons(13:24) num_neurons2(4:6)];
-	end
+	% else
+	% 	nmodels = length(num_neurons) + length(num_neurons2);
+	% 	mean_acc1 = mean(accur_all,2);
+	% 	mean_acc = [mean_acc1(1:12); mean_acc2(1:3); mean_acc1(13:end); mean_acc2(4:6)];
+	% 	std_acc1 = std(accur_all, [], 2);
+	% 	std_acc = [std_acc1(1:12); std_acc2(1:3); std_acc1(13:end); std_acc2(4:6)];
+	% 	num_neurons = [num_neurons(1:12) num_neurons2(1:3) num_neurons(13:24) num_neurons2(4:6)];
+	% end
 
 	h(hind(iinstru)) = subplot(3, 2, hind(iinstru));
 	errorbar(num_neurons(1:nmodels/2), mean_acc(1:nmodels/2), std_acc(1:nmodels/2)/sqrt(10));
@@ -98,31 +108,31 @@ for iinstru = 1:3
 	%%
 
 	C_diag_all = NaN(nmodels, length(F0s));
-	if iinstru == 1
+	if iinstru == 1 || iinstru == 2
 		for ii = 1:nmodels
-			C_diag = NaN(10, length(F0s));
-			for irep = 1:10
+			C_diag = NaN(1, length(F0s));
+			for irep = 1 %:10
 				C_diag(irep,:) = diag(C_all{ii,irep});
 			end
 
-			C_diag_all(ii,:) = mean(C_diag);
+			C_diag_all(ii,:) = C_diag; %mean(C_diag);
 		end
-	elseif iinstru == 2
-		iii = 1;
-		iiii = 1;
-		for ii = 1:nmodels
-			if ~ismember(ii, [13, 14, 15, 28, 29, 30])
-				C_diag = NaN(10, length(F0s));
-				for irep = 1:10
-					C_diag(irep,:) = diag(C_all{iiii,irep});
-				end
-				iiii = iiii +1;
-				C_diag_all(ii,:) = mean(C_diag);
-			else
-				C_diag_all(ii,:) = diag(C_all2{iii});
-				iii = iii +1;
-			end
-		end
+	% elseif iinstru == 2
+	% 	iii = 1;
+	% 	iiii = 1;
+	% 	for ii = 1:nmodels
+	% 		if ~ismember(ii, [13, 14, 15, 28, 29, 30])
+	% 			C_diag = NaN(10, length(F0s));
+	% 			for irep = 1:10
+	% 				C_diag(irep,:) = diag(C_all{iiii,irep});
+	% 			end
+	% 			iiii = iiii +1;
+	% 			C_diag_all(ii,:) = mean(C_diag);
+	% 		else
+	% 			C_diag_all(ii,:) = diag(C_all2{iii});
+	% 			iii = iii +1;
+	% 		end
+	% 	end
 	else
 		for ii = 1:nmodels
 			C_diag_all(ii,:) = diag(C_all{ii});
