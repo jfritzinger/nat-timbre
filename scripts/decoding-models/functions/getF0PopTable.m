@@ -1,4 +1,4 @@
-function T = getF0PopTable(nat_data, target, sesh, F0s, num_data, type, type2)
+function T = getF0PopTable(nat_data, target, sesh, F0s, num_data, type, type2, type3)
 
 switch type2 % rate or timing
 	case 'Rate'
@@ -72,6 +72,10 @@ switch type2 % rate or timing
 						spikes_bass = nat_data(sesh(ineuron)).oboe_spikerate{itarget}; % ms
 						spikereps_bass = nat_data(sesh(ineuron)).oboe_spikerep{itarget};
 					end
+					if strcmp(type3, 'Model')
+						spikes_bass = spikes_bass*1000;
+					end
+
 
 					% Arrange data for SVM
 					min_dis = 1;
@@ -100,6 +104,10 @@ switch type2 % rate or timing
 					spikereps_bass = nat_data(sesh(ineuron)).bass_spikerep{ind_b(itarget)};
 					spikes_oboe = nat_data(sesh(ineuron)).oboe_spikerate{ind_o(itarget)}; % ms
 					spikereps_oboe = nat_data(sesh(ineuron)).oboe_spikerep{ind_o(itarget)};
+					if strcmp(type3, 'Model')
+						spikes_bass = spikes_bass*1000;
+						spikes_oboe = spikes_oboe*1000;
+					end
 
 					% Arrange data for SVM
 					min_dis = 1;
