@@ -8,7 +8,7 @@ base = getPathsNT();
 % 	"neuron_time_timbre")
 load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'),...
 	"neuron_time_timbre")
-load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 
 %% Run model 
