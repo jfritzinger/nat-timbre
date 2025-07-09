@@ -11,13 +11,13 @@ clear
 %% Find natural timbre bassoon datasets, CF, and MTF
 
 % Load in spreadsheet
-addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions')
+%addpath('/Users/jfritzinger/Projects/nat-timbre/scripts/helper-functions')
 [base, datapath, savepath, ppi] = getPathsNT();
 sessions = readtable(fullfile(base, 'data-cleaning', 'Data_Table.xlsx'),...
 	'PreserveVariableNames',true);
 
-modelpath = '/Volumes/DataFiles_JBF/Nat-Timbre/data/manuscript/SFIE_model';
-
+%modelpath = '/Volumes/DataFiles_JBF/Nat-Timbre/data/manuscript/SFIE_model';
+modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript\SFIE_model';
 %% Create matrices for bassoon and oboe separately
 
 % Natural timbre datasets
@@ -67,9 +67,9 @@ for ii = 1:num_sesh
 			nat_model(ii).oboe_reliability = data_oboe.r_splithalf;
 
 			% Get spike train from Poisson spike generator
-			x = cell(40, 1);
-			y = cell(40, 1);
-			for istim = 1:40
+			x = cell(35, 1);
+			y = cell(35, 1);
+			for istim = 1:35
 				bass_psth_one = data_oboe.PSTH_all_reps{istim};
 				spike_rate = [];
 				spike_rep = [];
@@ -85,8 +85,8 @@ for ii = 1:num_sesh
 				x{istim} = spike_rate;
 				y{istim} = spike_rep;
 			end
-			nat_model(ii).obe_spikerate = 1;
-			nat_model(ii).oboe_spikerep = 1;
+			nat_model(ii).oboe_spikerate = x;
+			nat_model(ii).oboe_spikerep = y;
 		end
 
 		if ~isempty(data_bass.rate) % Bassoon data
@@ -98,6 +98,28 @@ for ii = 1:num_sesh
 			nat_model(ii).bass_PSTH = data_bass.PSTH;
 			nat_model(ii).bass_PSTH_all =  data_bass.PSTH_all_reps;
 			nat_model(ii).bass_reliability = data_bass.r_splithalf;
+
+			% Get spike train from Poisson spike generator
+			x = cell(40, 1);
+			y = cell(40, 1);
+			for istim = 1:40
+				bass_psth_one = data_bass.PSTH_all_reps{istim};
+				spike_rate = [];
+				spike_rep = [];
+				for irep = 1:20
+					rate_fh = bass_psth_one(irep,:);
+					T = 0.3;
+					EventTimes = genNHPP(rate_fh,T, 1);
+					spike_rate = [spike_rate EventTimes];
+					num_spikes = length(EventTimes);
+					spike_rep = [spike_rep; irep*ones(num_spikes, 1)];
+
+				end
+				x{istim} = spike_rate;
+				y{istim} = spike_rep;
+			end
+			nat_model(ii).bass_spikerate = x;
+			nat_model(ii).bass_spikerep = y;
 		end
 	end
 	fprintf('%d%% Done!\n', round(ii/num_sesh*100))
@@ -105,4 +127,4 @@ end
 
 %% Save dataset
 
-save(fullfile(base, 'model_comparisons', 'Model_NT.mat'), "nat_model", '-v7.3');
+save(fullfile(base, 'model_comparisons', 'Model_NT2.mat'), "nat_model", '-v7.3');
