@@ -2,8 +2,8 @@ clear
 
 %% Load in data
 %target = 'Bassoon';
-target = 'Oboe';
-%target = 'Invariant';
+%target = 'Oboe';
+target = 'Invariant';
 
 base = getPathsNT();
 % load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
@@ -19,7 +19,8 @@ load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 load(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']),...
 	"neuron_time_F0")
-neuron_time_F0 = neuron_time_F0(1:183);
+%neuron_time_F0 = neuron_time_F0(1:183);
+neuron_time_F0 = neuron_time_F0(1:174);
 
 
 %% Get correct output of model
