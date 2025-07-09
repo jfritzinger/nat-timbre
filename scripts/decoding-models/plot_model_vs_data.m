@@ -121,7 +121,7 @@ targets = {'Bassoon', 'Oboe'};
 for itarget = 1:2
 	target = targets{itarget};
 
-	load(fullfile(base, 'model_comparisons', ['Model_N_Time_F0_' target '.mat']), ...
+	load(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']), ...
 		"neuron_time_F0")
 	model_time_F0 = neuron_time_F0;
 	accurate_time_F0_model = [model_time_F0.accuracy];
