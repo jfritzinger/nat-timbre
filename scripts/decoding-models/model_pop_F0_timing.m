@@ -2,18 +2,25 @@ clear
 
 %% Load in data
 %target = 'Bassoon';
-%target = 'Oboe';
-target = 'Invariant';
+target = 'Oboe';
+%target = 'Invariant';
 
 base = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-if strcmp(target, 'Invariant')
-	load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'),...
-		"neuron_time_F0")
-else
-	load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']),...
-		"neuron_time_F0")
-end
+% load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+% if strcmp(target, 'Invariant')
+% 	load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'),...
+% 		"neuron_time_F0")
+% else
+% 	load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']),...
+% 		"neuron_time_F0")
+% end
+
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+nat_data = nat_model;
+load(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']),...
+	"neuron_time_F0")
+neuron_time_F0 = neuron_time_F0(1:183);
+
 
 %% Get correct output of model
 
@@ -32,7 +39,7 @@ accuracy = [neuron_time_F0.accuracy];
 
 %% Get data
 
-num_neurons = [1:4 5:5:40 1:4 5:5:40];
+num_neurons = [1:4 5:5:40 40:10:100 1:4 5:5:40 40:10:100];
 nmodels = length(num_neurons);
 timerVal = tic;
 for imodel = 1:nmodels
@@ -49,7 +56,7 @@ for imodel = 1:nmodels
 		num_data = num_neurons(imodel);
 		sesh = sesh_all(index(num_index));
 
-		T = getF0PopTable(nat_data, target, sesh, F0s, num_data, [], 'Timing');
+		T = getF0PopTable(nat_data, target, sesh, F0s, num_data, [], 'Timing', 'Model');
 
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] ...
@@ -67,7 +74,7 @@ for imodel = 1:nmodels
 		C_all{imodel, inrep} = C;
 	end
 	timer = toc(timerVal);
-	fprintf('Models took %0.2g minutes\n', timer/60)
+	fprintf('Models took %0.2g minutes, Accuracy = %0.1f%%\n', timer/60, accuracy*100)
 	fprintf('%d/%d, %0.2f%% done!\n', imodel, nmodels, imodel/nmodels*100)
 end
 
@@ -86,6 +93,8 @@ legend('Best', 'Worst')
 
 %% Save data
 
-save(fullfile(base, 'model_comparisons', ['Pop_Timing_F0_' target '.mat']), ...
-	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
+% save(fullfile(base, 'model_comparisons', ['Pop_Timing_F0_' target '.mat']), ...
+% 	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
+save(fullfile(base, 'model_comparisons', ['Model_Pop_Timing_F0_' target '.mat']), ...
+ 	"accur_all","C_all", "num_neurons", "mean_acc", "std_acc")
 
