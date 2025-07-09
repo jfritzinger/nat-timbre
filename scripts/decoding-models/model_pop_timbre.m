@@ -5,7 +5,7 @@ clear
 
 [base, ~, ~, ~] = getPathsNT();
 %load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 
 %% Get data into proper matrix
