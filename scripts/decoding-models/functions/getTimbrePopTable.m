@@ -26,62 +26,66 @@ if strcmp(type, 'Rate')
 	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
 
 elseif strcmp(type, 'Timing')
-	if strcmp(type2, 'Data')
+	% 	if strcmp(type2, 'Data')
 
-		h_all2 = [];
-		for ineuron = 1:num_data
-			sesh_current = sesh(ineuron);
-			h_all = [];
-			h = [];
-			for target = 1:16
+	h_all2 = [];
+	for ineuron = 1:num_data
+		sesh_current = sesh(ineuron);
+		h_all = [];
+		h = [];
+		for target = 1:16
 
-				% Get data
-				spikes_bass = nat_data(sesh_current).bass_spikerate{ind_b(target)}/1000; % ms
-				spikereps_bass = nat_data(sesh_current).bass_spikerep{ind_b(target)};
-				spikes_oboe = nat_data(sesh_current).oboe_spikerate{ind_o(target)}/1000;
-				spikereps_oboe = nat_data(sesh_current).oboe_spikerep{ind_o(target)};
-
-				% Arrange data for SVM
-				min_dis = 1;
-				edges = 0:min_dis:300;
-				t = 0+min_dis/2:min_dis:300-min_dis/2;
-				for irep = 1:20
-					h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
-					h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
-				end
-				h_all = [h_bass; h_oboe];
-				h = [h; h_all];
+			% Get data
+			spikes_bass = nat_data(sesh_current).bass_spikerate{ind_b(target)}; % ms
+			spikereps_bass = nat_data(sesh_current).bass_spikerep{ind_b(target)};
+			spikes_oboe = nat_data(sesh_current).oboe_spikerate{ind_o(target)};
+			spikereps_oboe = nat_data(sesh_current).oboe_spikerep{ind_o(target)};
+			if strcmp(type2, 'Model')
+				spikes_bass = spikes_bass*1000;
+				spikes_oboe = spikes_oboe*1000;
 			end
-			h_all2 = [h_all2, h];
-		end
 
-	elseif strcmp(type2, 'Model')
-
-		h_all2 = [];
-		for ineuron = 1:num_data
-			sesh_current = sesh(ineuron);
-			h_all = [];
-			h = [];
-			for target = 1:16
-
-				% Get data
-				spikes_bass = nat_data(sesh_current).bass_PSTH_all{ind_b(target)}; % ms
-				spikes_oboe = nat_data(sesh_current).oboe_PSTH_all{ind_o(target)};
-
-				% Arrange data for SVM
-				for irep = 1:20
-					h_bass(irep, :) = spikes_bass(irep,:);
-					h_oboe(irep, :) = spikes_oboe(irep,:);
-				end
-				h_all = [h_bass; h_oboe];
-				h = [h; h_all];
+			% Arrange data for SVM
+			min_dis = 1;
+			edges = 0:min_dis:300;
+			t = 0+min_dis/2:min_dis:300-min_dis/2;
+			for irep = 1:20
+				h_bass(irep, :) = histcounts(spikes_bass(spikereps_bass==irep), edges);
+				h_oboe(irep, :) = histcounts(spikes_oboe(spikereps_oboe==irep), edges);
 			end
-			h_all2 = [h_all2, h];
+			h_all = [h_bass; h_oboe];
+			h = [h; h_all];
 		end
+		h_all2 = [h_all2, h];
 	end
-	% Put data into table
-	T = array2table(h_all2);
-	response = repmat([ones(1, 20) repmat(2, 1, 20)]', 16, 1);
-	T.Instrument = response;
+
+	% 	elseif strcmp(type2, 'Model')
+	%
+	% 		h_all2 = [];
+	% 		for ineuron = 1:num_data
+	% 			sesh_current = sesh(ineuron);
+	% 			h_all = [];
+	% 			h = [];
+	% 			for target = 1:16
+	%
+	% 				% Get data
+	% 				spikes_bass = nat_data(sesh_current).bass_PSTH_all{ind_b(target)}; % ms
+	% 				spikes_oboe = nat_data(sesh_current).oboe_PSTH_all{ind_o(target)};
+	%
+	% 				% Arrange data for SVM
+	% 				for irep = 1:20
+	% 					h_bass(irep, :) = spikes_bass(irep,:);
+	% 					h_oboe(irep, :) = spikes_oboe(irep,:);
+	% 				end
+	% 				h_all = [h_bass; h_oboe];
+	% 				h = [h; h_all];
+	% 			end
+	% 			h_all2 = [h_all2, h];
+	% 		end
+end
+% Put data into table
+T = array2table(h_all2);
+response = repmat([ones(1, 20) repmat(2, 1, 20)]', 16, 1);
+T.Instrument = response;
 
 end
