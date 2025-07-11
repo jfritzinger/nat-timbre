@@ -11,9 +11,9 @@ clear
 
 %%
 
-model_type = 'SFIE';
+%model_type = 'SFIE';
 %model_type = 'Energy';
-%model_type = 'Lat_Inh';
+model_type = 'Lat_Inh';
 
 % Load in spreadsheet
 [base, datapath, savepath, ppi] = getPathsNT();
@@ -227,12 +227,14 @@ for isesh = 46:num_index
 					lat_inh{iNT}.R = R(1, 2);
 					lat_inh{iNT}.R2 = R(1, 2).^2;
 					lat_inh{iNT}.PSTH = plotNT_PSTH(params_NT{iNT}, latinh_temp.ic, 0);
+					lat_inh{iNT}.latinh_temp = latinh_temp;
 				else
 					lat_inh{iNT}.rate = [];
 					lat_inh{iNT}.rate_std = [];
 					lat_inh{iNT}.R = [];
 					lat_inh{iNT}.R2 = [];
 					lat_inh{iNT}.PSTH = [];
+					lat_inh{iNT}.latinh_temp = [];
 				end
 				lat_inh{iNT}.MTF_shape = MTF_shape;
 				lat_inh{iNT}.BMF = BMF;
