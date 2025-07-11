@@ -139,6 +139,7 @@ ylim([0.4 0.9])
 h(5) = subplot(2, 3, 5);
 [weights_ordered, order_ind] = sort(accuracy_time);
 hold on
+accur_all_MTF = NaN(4, 123);
 for iMTF = 1:4
 	if iMTF == 4
 		ind = strcmp(MTFs, MTF_types{iMTF}) | strcmp(MTFs, MTF_types{iMTF+1});
@@ -154,6 +155,9 @@ for iMTF = 1:4
 
 	mean_vals(iMTF) = mean(weights_ordered);
 	std_vals(iMTF) = std(weights_ordered)/sqrt(length(weights_ordered));
+	
+	accur_all_MTF(iMTF, 1:num_units) = weights_ordered;
+
 end
 %errorbar(1:4, mean_vals, std_vals, 'k')
 xticks(1:4)
@@ -163,6 +167,10 @@ ylabel('Accuracy')
 set(gca, 'fontsize', fontsize)
 grid on
 ylim([0.4 0.9])
+
+[p, tbl, stats] = kruskalwallis(accur_all_MTF');
+[c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
+
 
 %% D. Bin size comparisons 
 
@@ -202,12 +210,12 @@ ylim([0.4 0.9])
 
 [p12, ~] = ranksum(acc_shuffled, acc_025ms);  
 [p13, ~] = ranksum(acc_shuffled, acc_150ms);  
-[p23, ~] = ranksum(acc_025ms, accuracy_rate);  
-adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
+%[p23, ~] = ranksum(acc_025ms, accuracy_rate);  
+%adjusted_p = [p12, p13, p23] * 3; % Bonferroni adjustment
 
-[p, tbl, stats] = kruskalwallis(accur_all');
-[c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
-
+% [p, tbl, stats] = kruskalwallis(accur_all');
+% [c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
+% 
 
 %% Arrange 
 

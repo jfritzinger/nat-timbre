@@ -84,13 +84,24 @@ for iinstru = 1:3
 	%% B. Plot linear
 
 	h(ind(iinstru)+2) = subplot(3, 5, ind(iinstru)+2);
-	scatter(10.^(T.response), 10.^(pred_F0), scattersize, 'filled', ...
-		'MarkerFaceAlpha',0.2, 'MarkerFaceColor','k')
-	set(gca, 'xscale', 'log', 'yscale', 'log')
-	hold on
-	plot(10.^T.response, 10.^T.response, 'k')
+	if iinstru == 3
+		scatter(10.^(T.Response), 10.^(pred_F0), scattersize, 'filled', ...
+			'MarkerFaceAlpha',0.2, 'MarkerFaceColor','k')
+		set(gca, 'xscale', 'log', 'yscale', 'log')
+		hold on
+		plot(10.^T.Response, 10.^T.Response, 'k')
 
-	mdl = fitlm(T.response, pred_F0);
+		mdl = fitlm(T.Response, pred_F0);
+	else
+		scatter(10.^(T.response), 10.^(pred_F0), scattersize, 'filled', ...
+			'MarkerFaceAlpha',0.2, 'MarkerFaceColor','k')
+		set(gca, 'xscale', 'log', 'yscale', 'log')
+		hold on
+		plot(10.^T.response, 10.^T.response, 'k')
+
+		mdl = fitlm(T.response, pred_F0);
+	end
+
 	x = linspace(58, 1661, 20);
 	p(1) = mdl.Coefficients.Estimate(2,1);
 	p(2) = mdl.Coefficients.Estimate(1,1);

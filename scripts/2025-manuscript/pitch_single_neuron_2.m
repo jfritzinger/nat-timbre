@@ -163,12 +163,30 @@ xlabel('CF (kHz)')
 ylabel('Bassoon Accuracy (%)')
 grid on
 
+% Stats
+mdl = fitlm(accuracy_time, CFs);
+p = mdl.Coefficients{2,4};
+
+
 %% D. MTFs
 
 h(8) = subplot(4, 4, 8);
 
 MTF_types = unique(MTFs);
 hold on
+%accur_all_MTF = NaN(4, 1);
+
+for iii = 1:length(MTFs)
+	if strcmp(MTFs{iii}, 'BE')
+		MTF_ind(iii) = 1;
+	elseif strcmp(MTFs{iii}, 'BS')
+		MTF_ind(iii) = 2;
+	elseif strcmp(MTFs{iii}, 'F')
+		MTF_ind(iii) = 3;
+	else
+		MTF_ind(iii) = 4;
+	end
+end
 for iMTF = 1:4
 	if iMTF == 4
 		ind = strcmp(MTFs, MTF_types{iMTF}) | strcmp(MTFs, MTF_types{iMTF+1});
@@ -183,18 +201,20 @@ for iMTF = 1:4
 
 	mean_vals(iMTF) = mean(accur);
 	std_vals(iMTF) = std(accur)/sqrt(length(accur));
+	%accur_all_MTF(iMTF, 1:num_units) = accur;
+	%accur_all_MTF{iMTF} = accur;
 end
 xticks(1:4)
 xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
 ylabel('Bassoon Accuracy (%)')
-
-% tableMTF = table(MTFs', accuracy(1,:)');
-% anova(tableMTF, 'Var2')
-% [~,~,stats] = anova1(accuracy(1,:), MTFs);
-% [c,~,~,gnames] = multcompare(stats);
 grid on
 set(gca, 'fontsize', fontsize)
+
+% Stats
+
+[p, tbl, stats] = kruskalwallis(accuracy_time, MTF_ind);
+[c, m, h, gnames] = multcompare(stats, 'CType', 'hsd');
 
 %% E.  RVF 
 
@@ -221,6 +241,7 @@ mdl = fitlm(PC2_score, accuracy_time);
 x = linspace(-2, 1, 20);
 y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
 plot(x, y, ':k')
+p = mdl.Coefficients{2,4};
 % hleg = legend('Neuron', ...
 % 	sprintf('p=%0.04f',mdl.Coefficients{2,4}), 'fontsize', 7, ...
 % 	'location', 'northwest', 'box', 'off');
@@ -286,6 +307,9 @@ grid on
 ylabel('Oboe Accuracy (%)')
 xlabel('Bassoon Accuracy (%)')
 
+mdl = fitlm(accuracy_bass1, accuracy_oboe);
+p = mdl.Coefficients{2,4};
+
 %% Imagesc reliability 
 
 h(12) = subplot(4, 4, 12);
@@ -308,6 +332,12 @@ set(gca, 'fontsize', fontsize)
 grid on
 ylim([0 0.6])
 
+mdl = fitlm(mean_splithalf, ac);
+x = linspace(-2, 1, 20);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, ':k')
+p = mdl.Coefficients{2,4};
+
 %% Imagesc vector strength 
 
 h(14) = subplot(4, 4, 14);
@@ -322,23 +352,24 @@ set(gca, 'fontsize', fontsize)
 grid on
 yticklabels([])
 
-
 %% Vector strength
 
 h(15) = subplot(4, 4, 15);
 mean_VS = mean(VS_all2, 1);
 scatter(ac, mean_VS, scattersize, 'filled', 'MarkerEdgeColor','k', 'MarkerFaceAlpha',0.5)
 hold on
-% mdl = fitlm(mean_VS, accuracy_time);
-% x = linspace(0, 0.6, 10);
-% y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
-% plot(x, y, ':k')
 
 ylabel('Average VS')
 xlabel('Accuracy')
 set(gca, 'fontsize', fontsize)
 grid on
 ylim([0 0.6])
+
+mdl = fitlm(mean_VS, ac);
+x = linspace(-2, 1, 20);
+y = mdl.Coefficients{2, 1}*x + mdl.Coefficients{1, 1};
+plot(x, y, ':k')
+p = mdl.Coefficients{2,4};
 
 %% Arrange 
 

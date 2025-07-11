@@ -144,8 +144,8 @@ ylabel('Beta Weights')
 
 tableMTF = table(MTFs', beta_weights);
 %anova(tableMTF, 'beta_weights')
-% [~,~,stats] = anova1(beta_weights, MTFs);
-% [c,~,~,gnames] = multcompare(stats);
+[p,~,stats] = kruskalwallis(beta_weights, MTFs);
+[c,~,~,gnames] = multcompare(stats);
 set(gca, 'fontsize', fontsize)
 grid on
 
