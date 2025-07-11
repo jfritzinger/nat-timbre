@@ -38,6 +38,7 @@ all_t = all_t(1:end-1);
 
 % Generate a NHPP 
 if n == 1 
+	
     % Single Sample Path
     t = 0; Nevents = 0; EventTimes = []; done = false;
     while ~done
