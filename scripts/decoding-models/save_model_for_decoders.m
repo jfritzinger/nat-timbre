@@ -18,6 +18,7 @@ sessions = readtable(fullfile(base, 'data-cleaning', 'Data_Table.xlsx'),...
 
 %modelpath = '/Volumes/DataFiles_JBF/Nat-Timbre/data/manuscript/SFIE_model';
 modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript\SFIE_model';
+
 %% Create matrices for bassoon and oboe separately
 
 % Natural timbre datasets
@@ -55,6 +56,13 @@ for ii = 1:num_sesh
 		nat_model(ii).putative = putative;
 		nat_model(ii).CF = CF;
 		nat_model(ii).MTF = MTF_shape;
+
+		% Load in MTF data 
+		load(fullfile(modelpath, [putative '_SFIE_RM.mat']), "model_params", ...
+		"params_MTF", "SFIE") % Accidentally named MTF RM...
+
+
+		% Load in RM data 
 
 		if ~isempty(data_oboe.rate) % Oboe data
 			nat_model(ii).oboe_rate = data_oboe.rate;
