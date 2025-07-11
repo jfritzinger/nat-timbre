@@ -29,7 +29,7 @@ num_sesh = length(NT_list);
 
 %% Load in all data
 nat_model = struct;
-for ii = 4 %1:num_sesh
+for ii = 1:num_sesh
 
 	% Load in data
 	putative = sessions.Putative_Units{NT_list(ii)};
