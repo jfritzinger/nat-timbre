@@ -35,12 +35,34 @@ for ii = 1:num_sesh
 	putative = sessions.Putative_Units{NT_list(ii)};
 	CF = sessions.CF(NT_list(ii));
 	MTF_shape = sessions.MTF{NT_list(ii)};
-	load(fullfile(modelpath, [putative '_SFIE20reps.mat']), "model_params", ...
-		"params_NT", "SFIE")
-
 	if strcmp(MTF_shape, 'BS') || strcmp(MTF_shape, 'BE')
-		
+
+		% Load in MTF data
+		load(fullfile(modelpath, [putative '_SFIE_RM.mat']), ...
+			"params_MTF", "SFIE") % Accidentally named MTF RM...
+		if ~isempty(SFIE)
+		nat_model(ii).MTF_rate = SFIE.rate;
+		nat_model(ii).MTF_rate_std = SFIE.rate_std;
+		nat_model(ii).MTF_R = SFIE.R;
+		nat_model(ii).MTF_R2 = SFIE.R2;
+		nat_model(ii).fms = params_MTF.all_fms;
+		end
+
+		% Load in RM data
+		load(fullfile(modelpath, [putative '_SFIE_RM_actual.mat']), ...
+			"params_RM", "SFIE")
+		if ~isempty(SFIE)
+		nat_model(ii).RM_rate = SFIE.rate;
+		nat_model(ii).RM_rate_std = SFIE.rate_std;
+		nat_model(ii).RM_R = SFIE.R;
+		nat_model(ii).RM_R2 = SFIE.R2;
+		nat_model(ii).freqs = params_RM.all_freqs;
+		nat_model(ii).spls = params_RM.all_spls;
+		end
+
 		% Analyze data
+		load(fullfile(modelpath, [putative '_SFIE20reps.mat']), "model_params", ...
+			"params_NT", "SFIE")
 		if ~isempty(SFIE{1})
 			data_oboe = analyzeNTModel(SFIE{1}.SFIE_temp, params_NT{1}, MTF_shape, CF);
 		else
@@ -56,13 +78,6 @@ for ii = 1:num_sesh
 		nat_model(ii).putative = putative;
 		nat_model(ii).CF = CF;
 		nat_model(ii).MTF = MTF_shape;
-
-		% Load in MTF data 
-		load(fullfile(modelpath, [putative '_SFIE_RM.mat']), "model_params", ...
-		"params_MTF", "SFIE") % Accidentally named MTF RM...
-
-
-		% Load in RM data 
 
 		if ~isempty(data_oboe.rate) % Oboe data
 			nat_model(ii).oboe_rate = data_oboe.rate;
@@ -135,4 +150,4 @@ end
 
 %% Save dataset
 
-save(fullfile(base, 'model_comparisons', 'Model_NT2.mat'), "nat_model", '-v7.3');
+save(fullfile(base, 'model_comparisons', 'Model_NT3.mat'), "nat_model", '-v7.3');
