@@ -29,7 +29,7 @@ num_sesh = length(NT_list);
 
 %% Load in all data
 nat_model = struct;
-for ii = 1:num_sesh
+for ii = 4 %1:num_sesh
 
 	% Load in data
 	putative = sessions.Putative_Units{NT_list(ii)};
@@ -38,26 +38,34 @@ for ii = 1:num_sesh
 	if strcmp(MTF_shape, 'BS') || strcmp(MTF_shape, 'BE')
 
 		% Load in MTF data
-		load(fullfile(modelpath, [putative '_SFIE_RM.mat']), ...
-			"params_MTF", "SFIE") % Accidentally named MTF RM...
-		if ~isempty(SFIE)
-		nat_model(ii).MTF_rate = SFIE.rate;
-		nat_model(ii).MTF_rate_std = SFIE.rate_std;
-		nat_model(ii).MTF_R = SFIE.R;
-		nat_model(ii).MTF_R2 = SFIE.R2;
-		nat_model(ii).fms = params_MTF.all_fms;
+		try
+			load(fullfile(modelpath, [putative '_SFIE_RM.mat']), ...
+				"params_MTF", "SFIE") % Accidentally named MTF RM...
+			if ~isempty(SFIE)
+				nat_model(ii).MTF_rate = SFIE.rate;
+				nat_model(ii).MTF_rate_std = SFIE.rate_std;
+				nat_model(ii).MTF_R = SFIE.R;
+				nat_model(ii).MTF_R2 = SFIE.R2;
+				nat_model(ii).fms = params_MTF.all_fms;
+			end
+		catch
+			fprintf('Error: %s file does not exist\n',[putative '_SFIE_RM_actual.mat'])
 		end
 
 		% Load in RM data
-		load(fullfile(modelpath, [putative '_SFIE_RM_actual.mat']), ...
-			"params_RM", "SFIE")
-		if ~isempty(SFIE)
-		nat_model(ii).RM_rate = SFIE.rate;
-		nat_model(ii).RM_rate_std = SFIE.rate_std;
-		nat_model(ii).RM_R = SFIE.R;
-		nat_model(ii).RM_R2 = SFIE.R2;
-		nat_model(ii).freqs = params_RM.all_freqs;
-		nat_model(ii).spls = params_RM.all_spls;
+		try
+			load(fullfile(modelpath, [putative '_SFIE_RM_actual.mat']), ...
+				"params_RM", "SFIE")
+			if ~isempty(SFIE)
+				nat_model(ii).RM_rate = SFIE.rate;
+				nat_model(ii).RM_rate_std = SFIE.rate_std;
+				nat_model(ii).RM_R = SFIE.R;
+				nat_model(ii).RM_R2 = SFIE.R2;
+				nat_model(ii).freqs = params_RM.all_freqs;
+				nat_model(ii).spls = params_RM.all_spls;
+			end
+		catch
+			fprintf('Error: %s file does not exist\n',[putative '_SFIE_RM_actual.mat'])
 		end
 
 		% Analyze data
