@@ -41,6 +41,12 @@ title('Timbre Discrimination, Neuron Rate')
 grid on
 plot([0 1], [0 1], 'k')
 
+mdl = fitlm(accurate_rate_data, accurate_rate_model);
+p = mdl.Coefficients{2,4};
+fprintf('Instrument Identification, Rate: p=%0.4f\n', p)
+
+[h,p,ci,stats] = ttest(accurate_rate_data, accurate_rate_model);
+fprintf('Instrument Identification, Rate: Dist, p=%0.4f\n', p)
 
 %% Neuron Timbre: Timing
 load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'), ...
@@ -68,6 +74,9 @@ grid on
 plot([0 1], [0 1], 'k')
 legend('BS', 'BE')
 
+mdl = fitlm(accurate_time_data, accurate_time_model);
+p = mdl.Coefficients{2,4};
+fprintf('Instrument Identification, Timing: p=%0.4f\n', p)
 
 %% Neuron F0: Rate
 
@@ -111,6 +120,10 @@ for itarget = 1:2
 	title([target ' F0 Discrimination, Neuron Rate'])
 	grid on
 	plot([0 1], [0 1], 'k')
+
+	mdl = fitlm(accuracy_rate_F0, accurate_rate_F0_model);
+	p = mdl.Coefficients{2,4};
+	fprintf('%s Identification, Rate: p=%0.4f\n', target, p)
 end
 
 %% Neuron F0: Timing
@@ -118,7 +131,7 @@ end
 figure
 tiledlayout(1, 2)
 targets = {'Bassoon', 'Oboe'};
-for itarget = 1 
+for itarget = 1:2
 	target = targets{itarget};
 
 	load(fullfile(base, 'model_comparisons', ['Model_Neuron_Time_F0_' target '.mat']), ...
@@ -167,6 +180,11 @@ for itarget = 1
 	title([target ' F0 Discrimination, Neuron Timing'])
 	grid on
 	plot([0 1], [0 1], 'k')
+
+	mdl = fitlm(accuracy_time_F0, accurate_time_F0_model);
+	p = mdl.Coefficients{2,4};
+	fprintf('%s Identification, Timing: p=%0.4f\n', target, p)
+
 end
 
 

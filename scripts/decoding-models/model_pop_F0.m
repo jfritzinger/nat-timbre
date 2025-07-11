@@ -41,8 +41,8 @@ for irep = 1:nrep
 	fprintf('%d/%d, %0.2f%% done!\n', irep, nrep, irep/nrep*100)
 end
 
-Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
-imp = permutationImportance(Mdl);
+% Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
+% imp = permutationImportance(Mdl);
 
 %% Save model output 
 
@@ -110,3 +110,13 @@ pop_rate_F0.shuffled_accuracy = shuffled_accuracy;
 % 	['Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
 save(fullfile(base, 'model_comparisons', ...
 	['Model_Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
+
+%% 
+
+target = 'Invariant';
+load(fullfile(base, 'model_comparisons', ...
+	['Model_Pop_Rate_F0_' target '.mat']), "pop_rate_F0")
+figure
+confusionchart(pop_rate_F0.C);
+accuracy = sum(diag(pop_rate_F0.C)) / sum(pop_rate_F0.C(:)); % Calculate accuracy
+title([target ' ' num2str(accuracy)])

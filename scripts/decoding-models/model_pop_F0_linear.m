@@ -14,7 +14,7 @@ tuning = readtable(fullfile(base, 'Tuning.xlsx')); % Load in tuning
 F0s = getF0s(target);
 F0s = log10(F0s);
 [sesh, num_data] = getF0Sessions(nat_data, target);
-T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'linear');
+T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'linear', 'Rate');
 CFs = [nat_data(sesh).CF];
 MTFs = {nat_data(sesh).MTF};
 putative = {nat_data(sesh).putative};
@@ -27,18 +27,20 @@ Mdl = fitrlinear(T, 'Response','BetaTolerance',0.0001, ...
 	'KFold',5, 'CrossVal','on', 'Regularization','ridge');
 pred_F0 = kfoldPredict(Mdl);
 
-save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_Linear_' target '.mat']),...
-	"pred_F0", "T", "r2", "C", "accuracy", "F0s", "Mdl")
-
-%% Plot results
-scattersize = 20;
-
 r = corrcoef(pred_F0, T.Response);
 r2 = r(1, 2)^2;
 actual = T.Response; % Actual response values
 mse = mean((actual - pred_F0).^2);   % Mean Squared Error
 rmse = sqrt(mse);                     % Root Mean Squared Error
 mae = mean(abs(actual - pred_F0));    % Mean Absolute Error
+
+save(fullfile(base, 'model_comparisons', ['Pop_Rate_F0_Linear_' target '.mat']),...
+	"pred_F0", "T", "r2", "F0s", "Mdl")
+
+%% Plot results
+scattersize = 20;
+
+
 
 figure('Position',[31,910,910,413])
 tiledlayout(2, 4)
