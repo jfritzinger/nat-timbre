@@ -17,7 +17,8 @@ sessions = readtable(fullfile(base, 'data-cleaning', 'Data_Table.xlsx'),...
 	'PreserveVariableNames',true);
 
 %modelpath = '/Volumes/DataFiles_JBF/Nat-Timbre/data/manuscript/SFIE_model';
-modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript\SFIE_model';
+%modelpath = 'C:\DataFiles_JBF\Nat-Timbre\data\manuscript\SFIE_model';
+modelpath = '/Volumes/CarneyLab/Data/nsc-lcarney-h2/DataFiles_JBF/Nat-Timbre/data/manuscript/SFIE_model';
 
 %% Create matrices for bassoon and oboe separately
 
