@@ -53,21 +53,11 @@ for iinstru = 1:3
 	end
 
 
-	% Get bassoon stimulus
+	% Get stimulus
 	if iinstru == 1 || iinstru == 2
-		listing = dir(fullfile(base, 'waveforms', ['*' target '*.wav']));
-		files = {listing.name};
-		note_names = extractBetween(files, 'ff.', '.');
-		[~, index] = ismember(note_names, tuning.Note);
-		F0s1 = tuning.Frequency(index);
-		[F0s, order] = sort(F0s1);
+		F0s = getF0s(target);
 	else
-		listing = dir(fullfile(base, 'waveforms', ['*' 'Bassoon' '*.wav']));
-		files = {listing.name};
-		note_names = extractBetween(files, 'ff.', '.');
-		[~, index] = ismember(note_names, tuning.Note);
-		F0s1 = tuning.Frequency(index);
-		[F0s, order] = sort(F0s1);
+		F0s = getF0s('Bassoon');
 		F0s = F0s(25:40);
 	end
 
