@@ -149,7 +149,13 @@ y = [41, 41, 75, 75, 41];
 plot(x, y, 'k-', 'LineWidth', 1);
 %xticklabels([])
 %yticklabels([])
-
+F0s_b = getF0s('Bassoon');
+F0s_o = getF0s('Oboe');
+F0s_all = round([F0s_b; F0s_o]);
+xticks([1 20 35 41 60 75])
+xticklabels([F0s_all(1) F0s_all(20) F0s_all(35) F0s_all(41) F0s_all(60) F0s_all(75)])
+yticks([1 20 35 41 60 75])
+yticklabels([F0s_all(1) F0s_all(20) F0s_all(35) F0s_all(41) F0s_all(60) F0s_all(75)])
 
 % Timing Population
 
@@ -179,6 +185,8 @@ x = [41, 75, 75, 41, 41];
 y = [41, 41, 75, 75, 41];
 plot(x, y, 'k-', 'LineWidth', 1);
 yticklabels([])
+xticks([1 20 35 45 60 75])
+xticklabels([F0s_all(1) F0s_all(20) F0s_all(35) F0s_all(45) F0s_all(60) F0s_all(75)])
 
 % % Timing F0s
 % h(7) = subplot(2, 7, [7, 14]);
@@ -197,12 +205,12 @@ yticklabels([])
 
 % Arrange figure
 
-left = [0.09 0.23 0.44 0.68];
-bottom = [0.18 0.57];
-height = 0.34;
-height2 = 0.71;
+left = [0.09 0.23 0.46 0.69];
+bottom = [0.22 0.58];
+height = 0.33;
+height2 = 0.68;
 width = 0.12;
-width2 = 0.23;
+width2 = 0.21;
 
 set(h(1), 'position', [left(1) bottom(2) width height])
 set(h(2), 'position', [left(2) bottom(2) width height])
@@ -212,7 +220,7 @@ set(h(4), 'position', [left(2) bottom(1) width height])
 set(h(5), 'position', [left(3) bottom(1) width2 height2])
 set(h(6), 'position', [left(4) bottom(1) width2 height2])
 % set(h(7), 'position', [left(5) bottom(1) width-0.04 height2])
-
+%
 annotation('textbox',[left(3)+0.01 0.03 0.25 0.058],...
 	'String','Bassoon','FontSize',titlesize,...
 	'EdgeColor','none', 'FontWeight','bold');
@@ -226,10 +234,10 @@ annotation('textbox',[left(4)+0.14 0.03 0.25 0.058],...
 	'String','Oboe','FontSize',titlesize,...
 	'EdgeColor','none', 'FontWeight','bold');
 
-annotation('textbox',[left(3)-0.055 0.64 0.25 0.058],...
+annotation('textbox',[left(3)-0.075 0.64 0.25 0.058],...
 	'String','Oboe','FontSize',titlesize,...
 	'EdgeColor','none', 'Rotation',90, 'FontWeight','bold');
-annotation('textbox',[left(3)-0.055 0.21 0.25 0.058],...
+annotation('textbox',[left(3)-0.075 0.21 0.25 0.058],...
 	'String','Bassoon','FontSize',titlesize,...
 	'EdgeColor','none', 'Rotation',90, 'FontWeight','bold');
 % annotation('textbox',[left(5)-0.015 0.58 0.25 0.058],...
@@ -262,9 +270,9 @@ annotation('textbox',[left(1)-0.06 0.24 0.25 0.058],...
 % Annotate 
 annotation('textbox',[left(1)-0.08 0.98 0.0826 0.0385],'String','A',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
-annotation('textbox',[left(3)-0.04 0.98 0.0826 0.0385],'String','B',...
+annotation('textbox',[left(3)-0.08 0.98 0.0826 0.0385],'String','B',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
-annotation('textbox',[left(4)-0.02 0.98 0.0826 0.0385],'String','C',...
+annotation('textbox',[left(4)-0.03 0.98 0.0826 0.0385],'String','C',...
 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
 % annotation('textbox',[left(5)-0.04 0.98 0.0826 0.0385],'String','D',...
 % 	'FontWeight','bold','FontSize',labelsize,'EdgeColor','none');
