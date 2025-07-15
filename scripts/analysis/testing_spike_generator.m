@@ -4,7 +4,7 @@ clear
 %% Load in data
 
 [base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+load(fullfile(base, 'model_comparisons',  'Model_NT3.mat'), 'nat_model')
 
 %% Get single neuron
 
@@ -17,6 +17,8 @@ F0s = calcManualF0s(target);
 %putative = 'R29_TT4_P1_N04';
 %putative = 'R29_TT4_P2_N06';
 %putative = 'R29_TT3_P3_N02';
+%putative = 'R27_TT3_P1_N05';
+putative =  'R27_TT2_P11_N03';
 
 s_ind = strcmp({nat_model.putative}, putative);
 CF = nat_model(s_ind).CF;
@@ -97,13 +99,36 @@ for istim = 1:40
 end
 
 
-%% Plot dot rasters
+%% Plot
 
 figure
-tiledlayout(1, 3, 'TileSpacing','compact')
+tiledlayout(3, 4, 'TileSpacing','compact', 'TileIndexing','columnmajor')
 fontsize = 8;
 
+% Plot RM
 nexttile
+hold on
+plot(nat_model(s_ind).freqs, nat_model(s_ind).RM_rate(:,2))
+plot(nat_model(s_ind).freqs, nat_model(s_ind).RM_rate(:,3))
+plot(nat_model(s_ind).freqs, nat_model(s_ind).RM_rate(:,4))
+set(gca, 'xscale', 'log')
+xticks([2 5 10 20 50 100 200 500 1000 2000 5000 10000])
+xticklabels([2 5 10 20 50 100 200 500 1000 2000 5000 10000]./1000)
+legend('30 dB SPL', '50 dB SPL', '70 dB SPL')
+
+% Plot MTF 
+nexttile
+plot(nat_model(s_ind).fms(2:end), nat_model(s_ind).MTF_rate(2:end), 'k')
+set(gca, 'xscale', 'log')
+hold on
+yline(nat_model(s_ind).MTF_rate(1))
+xticks([2 5 10 20 50 100 200 500])
+xlim([1.2 500])
+nexttile
+
+
+% Plot dot rasters 
+nexttile([3, 1])
 rastercolors = {[31,88,239]/256, [218,14,114]/256, [255,176,0]/256};
 num_stim = 40;
 hold on
@@ -122,10 +147,10 @@ yticks(linspace(20/2, 20*num_stim-20/2, num_stim))
 yticklabels(round(F0s))
 grid on
 title(CF)
+xlim([0 0.15])
 
 % Plot period histogram
-
-nexttile
+nexttile([3, 1])
 hold on
 max_rate = max([temporal.p_hist{:}]); %-25; %max(temporal.p_hist, [], 'all');
 for j = 1:num_stim
@@ -159,9 +184,7 @@ title('Period PSTH')
 set(gca,'fontsize',fontsize)
 
 % Plot VS to harmonics 
-
-nexttile
-
+nexttile([3, 1])
 [F0s, peak_harm, peak_harm_num] = calcManualF0s(target);
 VS_harms2 =flipud(temporal.VS_harms);
 peak_harm2 = fliplr(peak_harm_num);
