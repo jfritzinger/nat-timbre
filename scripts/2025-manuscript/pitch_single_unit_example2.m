@@ -19,8 +19,10 @@ accuracy = [neuron_time_F0.accuracy];
 %putative = 'R29_TT3_P1_N02';
 %putative = 'R29_TT3_P2_N11';
 %putative = 'R29_TT4_P1_N04';
-putative = 'R29_TT4_P2_N06';
+%putative = 'R29_TT4_P2_N06';
 %putative = 'R29_TT3_P3_N02';
+%putative = 'R27_TT3_P1_N05';
+putative =  'R27_TT2_P11_N03';
 
 
 % Load in spreadsheet & data
@@ -136,40 +138,40 @@ hLegend.ItemTokenSize = [6,6];
 
 %% F. RVF
 
-params_RVF = data{5, 1};
-data_RVF = analyzeRVF(params_RVF);
+% params_RVF = data{5, 1};
+% data_RVF = analyzeRVF(params_RVF);
 
 % Plot
 h(5) = subplot(4, 4, 5);
 
 
-obj = errorbar(data_RVF.velocities,data_RVF.rate,data_RVF.rate_std,'o-', 'LineWidth', 1);
-obj.LineStyle = 'none';
-obj.Marker = 'none';
-obj.Color = 'black';
-
-nvels = length(data_RVF.velocities);
-max_rvf_rate = max(data_RVF.rate)+data_RVF.rate_std(find(data_RVF.rate==max(data_RVF.rate),1));
-hold on
-plot(data_RVF.velocities(1:nvels/2),data_RVF.rate(1:nvels/2),'k','LineWidth',1)
-plot(data_RVF.velocities(((nvels/2)+1):end),data_RVF.rate(((nvels/2)+1):end),'k','LineWidth',1)
-xline(0,'--', 'LineWidth',2)
-line([1,9],[1 1]*max_rvf_rate*1.04,'Color','blue','LineWidth',1)
-text(4,max_rvf_rate*1.05,'-C','FontSize',9,'Color','blue',...
-	'HorizontalAlignment','left','VerticalAlignment','bottom')
-line([-1,-9],[1 1]*max_rvf_rate*1.04,'Color','red','LineWidth',1)
-text(-4,max_rvf_rate*1.05,'+C','FontSize',9,'Color','red',...
-	'HorizontalAlignment','right','VerticalAlignment','bottom')
-hold off
-ylabel('Rate (spk/s)')
-xlabel('Velocity (kHz/ms)')
-ylim([0 max_rvf_rate*1.1])
-xlim([min(data_RVF.velocities)*1.05 max(data_RVF.velocities)*1.05])
-xtick = -9:3:9;
-set(gca,'XTick',xtick)
-set(gca,'box','off')
-title('RVF')
-set(gca,'fontsize',fontsize)
+% obj = errorbar(data_RVF.velocities,data_RVF.rate,data_RVF.rate_std,'o-', 'LineWidth', 1);
+% obj.LineStyle = 'none';
+% obj.Marker = 'none';
+% obj.Color = 'black';
+% 
+% nvels = length(data_RVF.velocities);
+% max_rvf_rate = max(data_RVF.rate)+data_RVF.rate_std(find(data_RVF.rate==max(data_RVF.rate),1));
+% hold on
+% plot(data_RVF.velocities(1:nvels/2),data_RVF.rate(1:nvels/2),'k','LineWidth',1)
+% plot(data_RVF.velocities(((nvels/2)+1):end),data_RVF.rate(((nvels/2)+1):end),'k','LineWidth',1)
+% xline(0,'--', 'LineWidth',2)
+% line([1,9],[1 1]*max_rvf_rate*1.04,'Color','blue','LineWidth',1)
+% text(4,max_rvf_rate*1.05,'-C','FontSize',9,'Color','blue',...
+% 	'HorizontalAlignment','left','VerticalAlignment','bottom')
+% line([-1,-9],[1 1]*max_rvf_rate*1.04,'Color','red','LineWidth',1)
+% text(-4,max_rvf_rate*1.05,'+C','FontSize',9,'Color','red',...
+% 	'HorizontalAlignment','right','VerticalAlignment','bottom')
+% hold off
+% ylabel('Rate (spk/s)')
+% xlabel('Velocity (kHz/ms)')
+% ylim([0 max_rvf_rate*1.1])
+% xlim([min(data_RVF.velocities)*1.05 max(data_RVF.velocities)*1.05])
+% xtick = -9:3:9;
+% set(gca,'XTick',xtick)
+% set(gca,'box','off')
+% title('RVF')
+% set(gca,'fontsize',fontsize)
 
 %% G. Rasters
 
@@ -204,7 +206,7 @@ xlim([0 0.15])
 h(7) = subplot(4, 4, 7);
 
 hold on
-max_rate = max([temporal.p_hist{:}])-25; %max(temporal.p_hist, [], 'all');
+max_rate = max([temporal.p_hist{:}]); %max(temporal.p_hist, [], 'all');
 for j = 1:num_stim
 
 	% Plot PSTHs
