@@ -1,13 +1,12 @@
 %% modelocking_analysis_2
-
-%clear
+clear
 
 %% Load in data
 
 target = 'Bassoon';
 [base, datapath, ~, ppi] = getPathsNT();
-% load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
-% 	"neuron_time_F0")
+load(fullfile(base, 'model_comparisons', ['Neuron_Time_F0_' target '.mat']), ...
+	"neuron_time_F0")
 
 % Load in spreadsheet & data
 sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
