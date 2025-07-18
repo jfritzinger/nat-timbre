@@ -13,6 +13,12 @@ for i_stim = 1:num_stim
 	x = x(valid)/1000;
 	y = y(valid);
 
+	% Calculate spike times per rep
+	spike_times = cell(20, 1);
+	for ii = 1:20
+		spike_times{ii} = x(y==ii)';
+	end
+
 	% PSTH (0.25 ms bins)
 	num_bins = 1200;
 	edges_psth = linspace(0, dur,num_bins+1);
@@ -21,14 +27,14 @@ for i_stim = 1:num_stim
 	% Get spike times without onset
 	onset = 25; % 25 ms onset
 	ind_onset = x<onset;
-	spike_times = x(~ind_onset);
+	spike_times_on = x(~ind_onset);
 	reps = y(~ind_onset);
 
 	% Truncate spikes that don't occur in a full cycle of the stimulus
 	period = 1000 / (data_ST.F0s_actual(i_stim));	% Period in ms
 	num_periods = floor((dur-onset)/period);	% Number of full periods in the stimulus
-	ind_full_period = spike_times<(num_periods*period);
-	subset_spike_times = spike_times(ind_full_period);
+	ind_full_period = spike_times_on<(num_periods*period);
+	subset_spike_times = spike_times_on(ind_full_period);
 	subset_reps = reps(ind_full_period);
 
 	% Calculate period histogram
@@ -123,7 +129,7 @@ for i_stim = 1:num_stim
 	% 	isi = diff(spike_times(reps==ind));
 	% 	isi_all = [isi_all; isi]; % will have 20 less indices than spike_times
 	% end
-	ISI = arrayfun(@(ii) diff(spike_times(reps==ii)), 1:nrep, 'UniformOutput', false);
+	ISI = arrayfun(@(ii) diff(spike_times_on(reps==ii)), 1:nrep, 'UniformOutput', false);
 	ISI_all = vertcat(ISI{:});
 
 	% Calculate ISI histogram
@@ -133,7 +139,7 @@ for i_stim = 1:num_stim
 
 	% Calculate VS to CF
 	period_CF = 1000 / CF;
-	phases = 2 * pi * (mod(spike_times, period_CF) / period_CF);
+	phases = 2 * pi * (mod(spike_times_on, period_CF) / period_CF);
 	VS_CF = abs(mean(exp(1i * phases)));
 
 	% Calculate reliability metric (with onset)
@@ -169,6 +175,7 @@ for i_stim = 1:num_stim
 	temporal.VS_harms(i_stim,:) = VS_harms;
 	temporal.VS_p_harmns(i_stim,:) = p_value_harms;
 	temporal.harms(i_stim,:) = harms;
+	temporal.spike_times{i_stim} = spike_times;
 
 end
 
