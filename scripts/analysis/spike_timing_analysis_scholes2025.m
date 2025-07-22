@@ -152,10 +152,10 @@ parfor ii = 1:ndata
 		if calcSACpeaks
 			% Calculate the correlation index.
 			fprintf('SAC peaks...\n');
-			[SACpeaks{ii}, details] = getSACpeaks_fast(spktrainset,CI{ii},win, ...
-				thisF0, SACpeaks_minspkpersweep,SACfigdir,ii);
-			% [SACpeaks{ii}, details] = getSACpeaks(spktrainset,CI{ii},win, ...
+			% [SACpeaks{ii}, details] = getSACpeaks_fast(spktrainset,CI{ii},win, ...
 			% 	thisF0, SACpeaks_minspkpersweep,SACfigdir,ii);
+			[SACpeaks{ii}, details] = getSACpeaks(spktrainset,CI{ii},win, ...
+				thisF0, SACpeaks_minspkpersweep,SACfigdir,ii);
 			if isfield(SACpeaks{ii},'amfreq')
 				SACpeaks{ii}.details = details;
 			end
