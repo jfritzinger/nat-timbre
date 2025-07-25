@@ -75,7 +75,7 @@ end
 
 completedvector = cell(size(spike_times));
 timerVal = tic;
-parfor ii = 1:ndata
+for ii = 1:ndata
 	timerVal2 = tic;
 	theseSpikeTimes = spike_times{ii};
 	fprintf('Data %d /%d:\n',ii,ndata);
@@ -181,12 +181,12 @@ end
 fprintf('Neuron took %0.2f seconds\n', toc(timerVal))
 
 % Save the calculated statistics.
-%save datafiles\SpikeStats_tmp;
+save SpikeStats_tmp;
 
 %% Plot rasters and period histogram
 
 figure
-tiledlayout(1, 3)
+tiledlayout(1, 3, 'TileSpacing','compact', 'Padding','compact')
 rastercolors = {[31,88,239]/256, [218,14,114]/256, [255,176,0]/256};
 
 % Plot dot rasters
@@ -208,6 +208,7 @@ yticks(linspace(20/2, 20*num_stim-20/2, num_stim))
 yticklabels(round(F0s))
 grid on
 xlim([0 0.15])
+title('Rasters')
 
 % Plot period histogram
 nexttile
@@ -236,7 +237,8 @@ ylim([0 max_rate*num_stim])
 xlabel('Time (ms)')
 xticks(0:30)
 yticks(linspace(max_rate/2, max_rate*num_stim-max_rate/2, num_stim))
-yticklabels(round(VS_p, 3))
+yticklabels([])
+%yticklabels(round(VS_p, 3))
 grid on
 title('Period PSTH')
 
@@ -244,15 +246,52 @@ nexttile
 maxVal = 8;
 for j = 1:num_stim
 	offset = maxVal*(j-1); % Adjust offset amount
-	plot(SACpeaks{j}.smoothsac+offset, 'k')
-	hold on
-	if ~isempty(SACpeaks{j}.setofsigpeaks)
-		correct_lags = SACpeaks{j}.setofsigpeaks;
-		for ii = 1:length(correct_lags)
-			plot([correct_lags(ii) correct_lags(ii)], [offset offset+maxVal], 'r')
+	if isfield(SACpeaks{j}, 'amfreq')
+		lags = SACpeaks{j}.lagaxis;
+		period = SACpeaks{j}.am_period;
+		mod_period = lags/period;
+		plot(mod_period, SACpeaks{j}.smoothsac+offset, 'k')
+		hold on
+		if ~isempty(SACpeaks{j}.setofsigpeaklags_p001)
+			lags = SACpeaks{j}.setofsigpeaklags_p001 / period;
+			neg = lags(lags<0);
+			lag_offset = neg(1); %max(neg);
+			correct_lags = lags - lag_offset;
+			for ii = 1:length(correct_lags)
+				plot([correct_lags(ii) correct_lags(ii)], [offset offset+maxVal], 'r')
+			end
 		end
 	end
 end
+xlim([-1.5 1.5])
+ylim([0 maxVal*num_stim])
+yticks(linspace(maxVal/2, maxVal*num_stim-maxVal/2, num_stim))
+Z_isi = cellfun(@(m) m.stats.vals(5), ML);
+yticklabels(round(Z_isi, 1))
+title('SAC Peaks')
+xlabel('Periods')
+
+% nexttile
+% maxVal = 8;
+% for j = 1:num_stim
+% 	offset = maxVal*(j-1); % Adjust offset amount
+% 	if isfield(SACpeaks{j}, 'amfreq')
+% 		plot(SACpeaks{j}.smoothsac+offset, 'k')
+% 		hold on
+% 		if ~isempty(SACpeaks{j}.setofsigpeaks_p0001)
+% 			correct_lags = SACpeaks{j}.setofsigpeaks_p0001;
+% 			for ii = 1:length(correct_lags)
+% 				plot([correct_lags(ii) correct_lags(ii)], [offset offset+maxVal], 'r')
+% 			end
+% 		end
+% 	end
+% end
+% ylim([0 maxVal*num_stim])
+% yticks(linspace(maxVal/2, maxVal*num_stim-maxVal/2, num_stim))
+% Z_isi = cellfun(@(m) m.stats.vals(5), ML);
+% yticklabels(round(Z_isi, 1))
+% title('SAC Peaks')
+
 % nexttile
 % %maxPerCell = cellfun(@(s) max(s.smoothsac), SACpeaks);
 % maxValue = 8; %max(maxPerCell);
