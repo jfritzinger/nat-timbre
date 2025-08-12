@@ -4,13 +4,13 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-% load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-% load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
-% 	"pop_rate_timbre")
-load(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
 	"pop_rate_timbre")
-load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
-nat_data = nat_model;
+% load(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
+% 	"pop_rate_timbre")
+% load(fullfile(base, 'model_comparisons',  'Model_NT.mat'), 'nat_model')
+% nat_data = nat_model;
 
 %% Get data into proper matrix
 
@@ -52,8 +52,17 @@ for iCF = 1:length(CF_groups)
 				% Get data into table 
 				T = getTimbrePopTable(nat_data, 'Rate', sesh, num_data);
 
+				% Separate out training and testing data
+				[T_train, T_test] = splitData(T); 
+
 				% Run model with kfold validation
-				[trainedClassifier, accuracy, predictions] = trainClassifierPopRateTimbre(T);
+				[trainedClassifier, ~, ~] = trainClassifierPopRateTimbre(T_train);
+
+				% To make predictions with the returned 'trainedClassifier' on new data
+				[yfit,scores] = trainedClassifier.predictFcn(T_test);
+				C = confusionmat(T_test.Response, yfit);
+				accuracy = sum(diag(C))/sum(C, 'all');
+
 				% pop_rate_timbre.trainedClassifier = trainedClassifier;
 				% pop_rate_timbre.accuracy = accuracy;
 				% pop_rate_timbre.predictions = predictions;
