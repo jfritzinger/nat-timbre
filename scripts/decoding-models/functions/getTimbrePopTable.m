@@ -23,7 +23,7 @@ if strcmp(type, 'Rate')
 
 	% Put data into table
 	T = array2table(data_mat2);
-	T.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+	T.Response = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
 
 elseif strcmp(type, 'Timing')
 	% 	if strcmp(type2, 'Data')
@@ -82,10 +82,12 @@ elseif strcmp(type, 'Timing')
 	% 			end
 	% 			h_all2 = [h_all2, h];
 	% 		end
+
+	% Put data into table
+	T = array2table(h_all2);
+	response = repmat([ones(1, 20) repmat(2, 1, 20)]', 16, 1);
+	T.Response = response;
+
 end
-% Put data into table
-T = array2table(h_all2);
-response = repmat([ones(1, 20) repmat(2, 1, 20)]', 16, 1);
-T.Instrument = response;
 
 end
