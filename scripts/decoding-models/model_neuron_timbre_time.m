@@ -5,30 +5,39 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-%load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
-nat_data = nat_model;
+load(fullfile(base,'model_comparisons_revised', 'Data_NT_3.mat'), 'nat_data')
+%load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+%nat_data = nat_model;
 
 %% Shape data into model input
 
 [sesh, num_data] = getTimbreSessions(nat_data);
+neuron_time_timbre = struct();
+accuracy_all = zeros(num_data, 1);
 for ind = 1:num_data
 	index = sesh(ind);
 
-	T = getTimbreNeuronTable(nat_data, index, 'Model');
+	% Separate out training and testing data
+	%min_dis = 0.25;
+	min_dis = 2;
+	T = getTimbreNeuronTable(nat_data, index, 'Data', min_dis);
+	[T_train, T_test] = splitData(T); 
 
 	% Call SVM
 	[trainedClassifier, validationAccuracy, validationPredictions] = ...
-		trainClassifierTimeTimbre(T);
-	C = confusionmat(validationPredictions, T.Instrument);
-	accuracy_all(ind) = sum(diag(C)) / sum(C, "all");
+		trainClassifierTimeTimbre(T_train);
+
+	% To make predictions with the returned 'trainedClassifier' on new data
+	[yfit,scores] = trainedClassifier.predictFcn(T_test);
+	C = confusionmat(T_test.Response, yfit);
+	accuracy_all(ind) = sum(diag(C))/sum(C, 'all');
 
 	% Set up struct to save data
 	neuron_time_timbre(ind).putative = nat_data(index).putative;
 	neuron_time_timbre(ind).CF = nat_data(index).CF;
 	neuron_time_timbre(ind).MTF = nat_data(index).MTF;
 	neuron_time_timbre(ind).T = T;
-	neuron_time_timbre(ind).Instrument = T.Instrument;
+	neuron_time_timbre(ind).Response = T.Response;
 	neuron_time_timbre(ind).prediction = validationPredictions;
 	neuron_time_timbre(ind).accuracy = accuracy_all(ind);
 	neuron_time_timbre(ind).C = C;
@@ -37,10 +46,10 @@ for ind = 1:num_data
 		num_data, ind/num_data*100, accuracy_all(ind)*100)
 end
 
-% save(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All_Coarse300.mat'), ...
-% 	"neuron_time_timbre", '-v7.3')
-save(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'), ...
+save(fullfile(base, 'model_comparisons_revised', 'Neuron_Time_Timbre_All_150.mat'), ...
 	"neuron_time_timbre", '-v7.3')
+% save(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'), ...
+% 	"neuron_time_timbre", '-v7.3')
 
 %% Plot accuracy of each neuron
 
@@ -60,18 +69,18 @@ title('Instrument identification task using SFIE BE/BS timing')
 
 %% Plot scatter plot 
 
-[base, datapath, savepath, ppi] = getPathsNT();
-load(fullfile(base, 'model_comparisons', 'Model_Neuron_Rate_Timbre_All.mat'), ...
-	"neuron_rate_timbre")
-accuracy_rate = [neuron_rate_timbre.accuracy];
-
-figure
-scatter(accuracy_rate, accuracy_all, 'filled', 'MarkerEdgeColor','k');
-hold on
-xlim([0.4 1])
-ylim([0.4 1])
-plot([0.4 1], [0.4 1], 'k')
-ylabel('')
-xlabel('Rate Accuracy')
-ylabel('Timing Accuracy')
-title('Model using shuffled              PSTH')
+% [base, datapath, savepath, ppi] = getPathsNT();
+% load(fullfile(base, 'model_comparisons', 'Model_Neuron_Rate_Timbre_All.mat'), ...
+% 	"neuron_rate_timbre")
+% accuracy_rate = [neuron_rate_timbre.accuracy];
+% 
+% figure
+% scatter(accuracy_rate, accuracy_all, 'filled', 'MarkerEdgeColor','k');
+% hold on
+% xlim([0.4 1])
+% ylim([0.4 1])
+% plot([0.4 1], [0.4 1], 'k')
+% ylabel('')
+% xlabel('Rate Accuracy')
+% ylabel('Timing Accuracy')
+% title('Model using shuffled              PSTH')
