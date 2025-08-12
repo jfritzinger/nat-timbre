@@ -4,9 +4,9 @@ clear
 %% Load in data
 
 [base, ~, ~, ~] = getPathsNT();
-%load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
-nat_data = nat_model;
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+%load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+%nat_data = nat_model;
 
 %% Get data into proper matrix
 
@@ -14,9 +14,18 @@ nat_data = nat_model;
 [sesh, num_data] = getTimbreSessions(nat_data);
 T = getTimbrePopTable(nat_data, 'Rate', sesh, num_data, 'Model');
 
+% Separate out training and testing data
+[T_train, T_test] = splitData(T); 
+
 %% Run model with kfold validation 
 
-[trainedClassifier, accuracy, predictions] = trainClassifierPopRateTimbre(T);
+[trainedClassifier, accuracy, predictions] = trainClassifierPopRateTimbre(T_train);
+
+% To make predictions with the returned 'trainedClassifier' on new data
+[yfit,scores] = trainedClassifier.predictFcn(T_test);
+C = confusionmat(T_test.Response, yfit);
+accuracy_test(irep) = sum(diag(C))/sum(C, 'all');
+
 pop_rate_timbre.trainedClassifier = trainedClassifier;
 pop_rate_timbre.accuracy = accuracy;
 pop_rate_timbre.predictions = predictions;
