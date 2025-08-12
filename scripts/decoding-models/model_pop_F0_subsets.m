@@ -67,6 +67,9 @@ for iCF = 1:length(CF_groups)
 
 				% Create table for model
 				T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'classification');
+				
+				% Separate out training and testing data
+				[T_train, T_test] = splitData(T); 
 
 				% Run model with kfold validation
 				[trainedClassifier, accuracy, predictions] = trainClassifierPopRateF0(T, target);
