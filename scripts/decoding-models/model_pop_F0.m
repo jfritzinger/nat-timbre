@@ -9,24 +9,28 @@ load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
 nat_data = nat_model;
 
 %% Get correct output of model 
-%target = 'Bassoon';
+target = 'Bassoon';
 %target = 'Oboe';
-target = 'Invariant';
+%target = 'Invariant';
 
 % Get stimulus
 F0s = getF0s(target);
 [sesh, num_data] = getF0Sessions(nat_data, target);
 T = getF0PopTable(nat_data, target, sesh, F0s, num_data, 'classification', 'Rate');
 
+
 %% Run model 
 
-nrep = 1;
+nrep = 50;
 best_accuracy = -inf;
 for irep = 1:nrep
 
+	% Separate out training and testing data
+	[T_train, T_test] = splitData(T); 
+
 	[trainedClassifier1, validationAccuracy1, validationPredictions1] = ...
-		trainClassifierPopRateF0(T, target);
-	C = confusionmat(T.Response, validationPredictions1);
+		trainClassifierPopRateF0(T_train, target);
+	C = confusionmat(T_train.Response, validationPredictions1);
 	accuracy = sum(diag(C))/sum(C, 'all');
 
 	if accuracy > best_accuracy
@@ -39,7 +43,14 @@ for irep = 1:nrep
 
 	% Print out progress
 	fprintf('%d/%d, %0.2f%% done!\n', irep, nrep, irep/nrep*100)
+
+	% To make predictions with the returned 'trainedClassifier' on new data
+	[yfit,scores] = trainedClassifier.predictFcn(T_test);
+	C = confusionmat(T_test.Response, yfit);
+	accuracy_test(irep) = sum(diag(C))/sum(C, 'all');
 end
+
+
 
 % Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
 % imp = permutationImportance(Mdl);
