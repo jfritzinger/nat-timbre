@@ -13,6 +13,10 @@ load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
 
 %% Run model 
 
+%%%%%%
+%%% BUG?????
+%%%%%%
+
 % Find all rows with bassoon and oboe
 [sesh_all, num_data] = getTimbreSessions(nat_data);
 
