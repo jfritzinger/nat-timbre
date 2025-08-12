@@ -3,13 +3,13 @@ clear
 %% Load in data
 
 base = getPathsNT();
-% load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-% load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
-% 	"neuron_time_timbre")
-load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'),...
+load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_Timbre_All.mat'),...
 	"neuron_time_timbre")
-load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
-nat_data = nat_model;
+% load(fullfile(base, 'model_comparisons', 'Model_N_Time_Timbre_All.mat'),...
+% 	"neuron_time_timbre")
+% load(fullfile(base, 'model_comparisons',  'Model_NT2.mat'), 'nat_model')
+% nat_data = nat_model;
 
 %% Run model 
 
@@ -41,18 +41,19 @@ for imodel = 1:nmodels
 		% Get table of PSTH data
 		T = getTimbrePopTable(nat_data, 'Timing', sesh, num_data, 'Model');
 
+		% Separate out training and testing data
+		[T_train, T_test] = splitData(T); 
+
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] = ...
-			trainClassifierTimeTimbre(T);
+			trainClassifierTimeTimbre(T_train);
 
-		% Plot
-		%figure
-		C = confusionmat(T.Instrument, validationPredictions);
-		%confusionchart(C)
+		% To make predictions with the returned 'trainedClassifier' on new data
+		[yfit,scores] = trainedClassifier.predictFcn(T_test);
+		C = confusionmat(T_test.Response, yfit);
+		accuracy = sum(diag(C))/sum(C, 'all');
 
 		% Calculate accuracy
-		accuracy = sum(diag(C)) / sum(C(:)); % Calculate accuracy
-		%title(sprintf('%d neurons, Accuracy = %0.2f%%', num_data, accuracy*100))
 		accur_all(imodel, inrep) = accuracy;
 		C_all{imodel, inrep} = C;
 	end
