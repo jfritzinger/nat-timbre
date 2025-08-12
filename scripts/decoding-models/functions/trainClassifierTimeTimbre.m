@@ -46,7 +46,8 @@ function [trainedClassifier, validationAccuracy, validationPredictions] = ...
 % model.
 inputTable = trainingData;
 predictors = inputTable(:, 1:end-1);
-response = inputTable.Instrument;
+predictorNames = inputTable.Properties.VariableNames(1:end-1);
+response = inputTable.Response;
 classNames = [1; 2];
 
 % Train a classifier
@@ -74,7 +75,7 @@ trainedClassifier.HowToPredict = sprintf('To make predictions on a new table, T,
 % model.
 inputTable = trainingData;
 predictors = inputTable(:, 1:end-1);
-response = inputTable.Instrument;
+response = inputTable.Response;
 classNames = [1; 2];
 
 % Perform cross-validation
