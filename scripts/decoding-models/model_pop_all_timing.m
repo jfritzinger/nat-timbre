@@ -9,20 +9,7 @@ load(fullfile(base, 'model_comparisons', 'Neuron_Time_All.mat'),...
 
 %% Set responses 
 
-% Get bassoon stimulus
-F0s_b = getF0s('Bassoon');
-F0s_o = getF0s('Oboe');
 
-% Get into 'Response' 
-response_b = cell(75,1);
-for ii = 1:length(F0s_b)
-	response_b{ii} = ['B_' num2str(F0s_b(ii))];
-end
-for ii = 1:length(F0s_o)
-	response_b{ii+length(F0s_b)} = ['O_' num2str(F0s_o(ii))];
-end
-response = reshape(repmat(response_b, 1, 20)', 1, []);
-response = response';
 
 %% Find all rows with bassoon and oboe
 
@@ -33,11 +20,9 @@ accuracy = [neuron_time_all.accuracy];
 [~,best_ind] = sort(abs(accuracy), 'descend' );
 [~,worst_ind] = sort(abs(accuracy), 'ascend' );
 
-
-
 %% Get data
 
-num_neurons = [50 75 100]; % [1:4 5:5:20 30 40];
+num_neurons = 50; %[1:4 5:5:20 30 40];
 nmodels = length(num_neurons);
 timerVal = tic;
 for imodel = 1:nmodels
@@ -51,45 +36,14 @@ for imodel = 1:nmodels
 		sesh = sesh_all(index(num_index));
 		putative = {nat_data(sesh_all).putative};
 
-		h_all2 = [];
-		h_all = [];
-		for ineuron = 1:num_data
-			h_all_bass = [];
-			for itarget = 1:length(F0s_b)
+		T = getAllPopTable(nat_data(sesh), 'Timing');
 
-				% Arrange bassoon data for SVM
-				spikes = nat_data(sesh(ineuron)).bass_spikerate{itarget}/1000; % ms
-				spikereps = nat_data(sesh(ineuron)).bass_spikerep{itarget};
-				min_dis = 0.25;
-				edges = 0:min_dis:300;
-				t = 0+min_dis/2:min_dis:300-min_dis/2;
-				for irep = 1:20
-					h_bass(irep, :) = histcounts(spikes(spikereps==irep), edges);
-				end
-				h_all_bass = [h_all_bass; h_bass];
-			end
-
-			h_all_oboe = [];
-			for itarget = 1:length(F0s_o)
-
-
-				spikes = nat_data(sesh(ineuron)).oboe_spikerate{itarget}/1000; % ms
-				spikereps = nat_data(sesh(ineuron)).oboe_spikerep{itarget};
-				for irep = 1:20
-					h_oboe(irep, :) = histcounts(spikes(spikereps==irep), edges);
-				end
-				h_all_oboe = [h_all_oboe; h_oboe];
-			end
-			h_all = [h_all_bass; h_all_oboe];
-			h_all2 = [h_all2, h_all];
-		end
-		T = array2table(h_all2);
-		T.response = response;
-		predictors = h_all2;
+		% Separate out training and testing data
+		[T_train, T_test] = splitData(T); 
 
 		% Call model (classification)
 		[trainedClassifier, validationAccuracy, validationPredictions] ...
-			= trainClassifierPopTimeF0(T, F0s);
+			= trainClassifierPopTimeF0(T_train, F0s);
 
 		% Plot
 		figure
