@@ -5,7 +5,7 @@ clear
 
 [base, ~, ~, ~] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All2.mat'), ...
 	"pop_rate_timbre")
 % load(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
 % 	"pop_rate_timbre")
@@ -53,7 +53,7 @@ for iCF = 1:length(CF_groups)
 				T = getTimbrePopTable(nat_data, 'Rate', sesh, num_data);
 
 				% Separate out training and testing data
-				[T_train, T_test] = splitData(T); 
+				[T_train, T_test] = splitData_Reps(T); 
 
 				% Run model with kfold validation
 				[trainedClassifier, ~, ~] = trainClassifierPopRateTimbre(T_train);
@@ -100,10 +100,10 @@ grid on
 box off
 
 % Save accuracies
-% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
-% 	"accuracy", "std_acc", "CF_groups")
-save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_CF.mat'), ...
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF2.mat'), ...
 	"accuracy", "std_acc", "CF_groups")
+% save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_CF.mat'), ...
+% 	"accuracy", "std_acc", "CF_groups")
 
 %% MTF Subset
 
@@ -172,7 +172,7 @@ grid on
 box off
 
 % Save accuracies
-% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
-% 	"accuracy", "std_acc", "CF_groups")
-save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_MTF.mat'), ...
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF2.mat'), ...
 	"accuracy", "std_acc", "CF_groups")
+% save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_Subset_MTF.mat'), ...
+% 	"accuracy", "std_acc", "CF_groups")
