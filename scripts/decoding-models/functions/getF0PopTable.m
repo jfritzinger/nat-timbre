@@ -56,7 +56,6 @@ switch type2 % rate or timing
 				T = array2table(data_mat);
 				B = repmat(F0s, 1, 40)';  % Repeat each number in a column 40 times
 				T.Response = B(:);
-
 		end
 	case 'Timing'
 		if strcmp(target, 'Bassoon') || strcmp(target, 'Oboe')
