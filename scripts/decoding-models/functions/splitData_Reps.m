@@ -1,4 +1,4 @@
-function [T_train, T_test] = splitData(T)
+function [T_train, T_test] = splitData_Reps(T)
 
 % Determine number of rows for training and testing data
 nrows = size(T, 1);
