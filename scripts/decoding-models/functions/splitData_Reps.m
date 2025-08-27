@@ -35,7 +35,7 @@ T_train = T(trainIndices, :);
 T_test = T(testIndices, :);
 
 % Verify sizes
-disp(['Training size: ', num2str(size(T_train))]);
-disp(['Testing size: ', num2str(size(T_test))]);
+% disp(['Training size: ', num2str(size(T_train))]);
+% disp(['Testing size: ', num2str(size(T_test))]);
 
 end
