@@ -15,7 +15,7 @@ load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 T = getTimbrePopTable(nat_data, 'Rate', sesh, num_data, 'Model');
 
 % Separate out training and testing data
-[T_train, T_test] = splitData(T); 
+[T_train, T_test] = splitData_Reps(T); 
 
 %% Run model with kfold validation 
 
@@ -24,12 +24,12 @@ T = getTimbrePopTable(nat_data, 'Rate', sesh, num_data, 'Model');
 % To make predictions with the returned 'trainedClassifier' on new data
 [yfit,scores] = trainedClassifier.predictFcn(T_test);
 C = confusionmat(T_test.Response, yfit);
-accuracy_test(irep) = sum(diag(C))/sum(C, 'all');
+accuracy_test = sum(diag(C))/sum(C, 'all');
 
 pop_rate_timbre.trainedClassifier = trainedClassifier;
 pop_rate_timbre.accuracy = accuracy;
 pop_rate_timbre.predictions = predictions;
-pop_rate_timbre.response = T.Instrument;
+pop_rate_timbre.response = T.Response;
 pop_rate_timbre.T = T;
 pop_rate_timbre.CFs = [nat_data(sesh).CF];
 pop_rate_timbre.putative = {nat_data(sesh).putative};
@@ -41,9 +41,9 @@ pop_rate_timbre.bass_rate = [nat_data(sesh).bass_rate];
 pop_rate_timbre.bass_rate_std = [nat_data(sesh).bass_rate_std];
 
 % Permutation test for importance 
-Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
-imp = permutationImportance(Mdl, T, 'Instrument');
-pop_rate_timbre.imp = imp;
+% Mdl = trainedClassifier.ClassificationSVM; % used to be Linear
+% imp = permutationImportance(Mdl, T, 'Instrument');
+% pop_rate_timbre.imp = imp;
 
 %% Run model 100 times with shuffled data 
 
@@ -60,13 +60,22 @@ for imodel = 1:nreps
 		shuffled_data = row(randperm(numel(row)));
 		data_mat3(ind, :) = shuffled_data;
 	end
+	data_mat4 = reshape(randperm(numel(data_mat2)), 640, num_data);
 
 	% Put data into table
-	T_new = array2table(data_mat3);
-	T_new.Instrument = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+	T_new = array2table(data_mat4);
+	T_new.Response = repmat([ones(20,1); ones(20, 1)*2], 16, 1);
+
+	% Separate out training and testing data
+	[T_train, T_test] = splitData_Reps(T_new);
 
 	% Run model with kfold validation
-	[~, shuffled_accuracy(imodel)] = trainClassifierPopRateTimbre(T_new);
+	[trainedClassifier, ] = trainClassifierPopRateTimbre(T_train);
+
+	% To make predictions with the returned 'trainedClassifier' on new data
+	[yfit,scores] = trainedClassifier.predictFcn(T_test);
+	C = confusionmat(T_test.Response, yfit);
+	shuffled_accuracy(imodel) = sum(diag(C))/sum(C, 'all');
 
 	% Print out progress
 	fprintf('%d/%d, %0.2f%% done!\n', imodel, nreps, imodel/nreps*100)
@@ -76,7 +85,7 @@ pop_rate_timbre.shuffled_accuracy = shuffled_accuracy;
 
 %% Save model output 
 
-% save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
-% 	"pop_rate_timbre")
-save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
+save(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All2.mat'), ...
 	"pop_rate_timbre")
+% save(fullfile(base, 'model_comparisons', 'Model_Pop_Rate_Timbre_All.mat'), ...
+% 	"pop_rate_timbre")
