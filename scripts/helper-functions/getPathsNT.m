@@ -8,13 +8,13 @@ if ismac
 	base = ['/Users/jfritzinger/Library/CloudStorage/Box-Box/02-projects/' ...
 		'nat-timbre/data/'];
 	savepath = ['/Users/jfritzinger/Library/CloudStorage/Box-Box/02-projects' ...
-		'/nat-timbre/figures/'];
+		'/nat-timbre/figures/2025-manuscript-rev1/'];
 	%base = '/Volumes/DataFiles_JBF/Nat-Timbre/data';
 else
 	base = ['C:\Users\jfritzinger\Box\02-projects\nat-timbre\' ...
 		'data'];
 	savepath = ['C:\Users\jfritzinger\Box\02-projects\nat-timbre\' ...
-		'figures\2025-manuscript'];
+		'figures\2025-manuscript-rev1'];
 end
 
 % Basic paths for loading data and saving figures 
