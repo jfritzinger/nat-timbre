@@ -1,4 +1,4 @@
-function T = getF0NeuronTable(nat_data, target, index, F0s, type)
+function T = getF0NeuronTable(nat_data, target, index, F0s, type, min_dis)
 
 % switch type
 % 	case 'Data'
@@ -14,7 +14,7 @@ switch target
 				spikes = nat_data(index).bass_spikerate{itarget}; % ms
 			end
 			spikereps = nat_data(index).bass_spikerep{itarget};
-			min_dis = 0.25;
+			
 			edges = 0:min_dis:300;
 			t = 0+min_dis/2:min_dis:300-min_dis/2;
 			for irep = 1:20
@@ -37,7 +37,6 @@ switch target
 			end
 
 			spikereps = nat_data(index).oboe_spikerep{itarget};
-			min_dis = 0.25;
 			edges = 0:min_dis:300;
 			t = 0+min_dis/2:min_dis:300-min_dis/2;
 			for irep = 1:20
@@ -72,7 +71,6 @@ switch target
 			end
 
 			% Arrange data for SVM
-			min_dis = 1;
 			edges = 0:min_dis:300;
 			t = 0+min_dis/2:min_dis:300-min_dis/2;
 			for irep = 1:20
