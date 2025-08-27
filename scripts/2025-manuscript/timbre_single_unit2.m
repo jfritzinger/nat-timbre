@@ -1,7 +1,7 @@
 % timbre_single_unit2
 
 clear
-save_fig = 1;
+save_fig = 0;
 
 %% Load in data
 

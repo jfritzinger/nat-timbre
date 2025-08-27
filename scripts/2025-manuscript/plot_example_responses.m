@@ -298,9 +298,9 @@ end
 
 function pitch = getF0s(target)
 if ismac
-	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
+	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02-projects/nat-timbre/data';
 else
-	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
+	fpath = 'C:\Users\jfritzinger\Box\02-projects\nat-timbre\data\';
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
 listing = dir(fullfile(fpath, 'waveforms', '*.wav'));

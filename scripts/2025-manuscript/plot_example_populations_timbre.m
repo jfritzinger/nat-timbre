@@ -2,7 +2,7 @@ function h = plot_example_populations_timbre()
 
 %% Load in data
 
-filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data/model_comparisons';
+filepath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02-projects/nat-timbre/data/model_comparisons';
 load(fullfile(filepath, 'Data_NT_3.mat'), 'nat_data')
 
 %% Figure properties 
@@ -14,9 +14,9 @@ legsize = 7;
 %% Create matrix of stimulus spectra 
 
 if ismac
-	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02 - Code/Nat-Timbre/data';
+	fpath = '/Users/jfritzinger/Library/CloudStorage/Box-Box/02-projects/nat-timbre/data';
 else
-	fpath = 'C:\Users\jfritzinger\Box\02 - Code\Nat-Timbre\data\';
+	fpath = 'C:\Users\jfritzinger\Box\02-projects\nat-timbre\data\';
 end
 tuning = readtable(fullfile(fpath, 'Tuning.xlsx')); % Load in tuning
 

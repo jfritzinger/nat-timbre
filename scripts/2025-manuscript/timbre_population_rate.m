@@ -6,7 +6,7 @@ save_fig = 1;
 
 [base, datapath, savepath, ppi] = getPathsNT();
 load(fullfile(base, 'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_All2.mat'), ...
 	"pop_rate_timbre")
 load(fullfile(base, 'model_comparisons','Neuron_Rate_Timbre_All.mat'),...
 	"neuron_rate_timbre")
@@ -141,6 +141,7 @@ xticks(1:4)
 xticklabels({'BE', 'BS', 'F', 'H'})
 xlabel('MTF Groups')
 ylabel('Beta Weights')
+grid on
 
 tableMTF = table(MTFs', beta_weights);
 %anova(tableMTF, 'beta_weights')
@@ -179,11 +180,11 @@ grid on
 h(10) = subplot(4, 3, 11);
 
 colorsCF = [27/256, 158/256, 119/256;0.0660 0.4430 0.7450; 0.8660 0.3290 0.0000;0.9290 0.6940 0.1250];
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_MTF2.mat'), ...
 	"accuracy", "std_acc")
 acc_MTF = accuracy;
 std_MTF = std_acc;
-load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF.mat'), ...
+load(fullfile(base, 'model_comparisons', 'Pop_Rate_Timbre_Subset_CF2.mat'), ...
 	"accuracy", "std_acc", "CF_groups")
 num_subset = [1, 2, 3, 4, 5:5:90];
 

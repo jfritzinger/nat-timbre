@@ -1,6 +1,6 @@
 %%pitch_single_unit 
 clear
-save_fig = 1;
+save_fig = 0;
 
 %% Load in data 
 
@@ -15,18 +15,21 @@ load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Oboe.mat'), ...
 neuron_rate_F0_oboe = neuron_rate_F0;
 
 % Load in bassoon
-load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
+% load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon.mat'), ...
+% 	"neuron_time_F0")
+load(fullfile(base, 'model_comparisons', 'Neuron_Time_F0_Bassoon_ISI.mat'), ...
 	"neuron_time_F0")
+
 load(fullfile(base, 'model_comparisons','Neuron_Rate_F0_Bassoon.mat'), ...
 	"neuron_rate_F0")
 load(fullfile(base,'model_comparisons', 'Data_NT_3.mat'), 'nat_data')
 
 accuracy_rate = [neuron_rate_F0.accuracy]*100;
-accuracy_time = [neuron_time_F0.accuracy]*100;
+accuracy_time = [neuron_time_F0(4,:).accuracy]*100;
 accuracy_rate_oboe = [neuron_rate_F0_oboe.accuracy]*100;
 accuracy_time_oboe = [neuron_time_F0_oboe.accuracy]*100;
-CFs = [neuron_time_F0.CF];
-MTFs = {neuron_time_F0.MTF};
+CFs = [neuron_time_F0(4,:).CF];
+MTFs = {neuron_time_F0(4,:).MTF};
 F0s = getF0s('Bassoon');
 
 % Analysis 
@@ -35,7 +38,7 @@ sessions = readtable(fullfile(base, 'Data_Table.xlsx'), ...
 [ac, ind_high] = sort(accuracy_time, 'ascend');
 for ii = 1:length(accuracy_time)
 
-	putative = neuron_time_F0(ind_high(ii)).putative;
+	putative = neuron_time_F0(4, ind_high(ii)).putative;
 	load(fullfile(datapath, [putative '.mat']), 'data');
 	s_ind = strcmp(sessions.Putative_Units, putative);
 	CF = sessions.CF(s_ind);
@@ -258,7 +261,7 @@ h(10) = subplot(4, 4, 10);
 
 [~,best_ind] = sort(abs(accuracy_time), 'ascend' );
 for ii = 1:287
-	C_acc(ii,:) = diag(neuron_time_F0(best_ind(ii)).C);
+	C_acc(ii,:) = diag(neuron_time_F0(4,best_ind(ii)).C);
 end
 
 x = getF0s('Bassoon');
@@ -293,7 +296,7 @@ for i = 1:nneurons
 	ind_oboe = find(strcmp(putative1, {neuron_time_F0_oboe.putative}));
 
 	accuracy_oboe(i) = neuron_time_F0_oboe(ind_oboe).accuracy*100;
-	accuracy_bass1(i) = neuron_time_F0(ind_bass).accuracy*100;
+	accuracy_bass1(i) = neuron_time_F0(4, ind_bass).accuracy*100;
 end
 
 scatter(accuracy_bass1, accuracy_oboe, scattersize, 'filled', 'MarkerEdgeColor','k', ...
